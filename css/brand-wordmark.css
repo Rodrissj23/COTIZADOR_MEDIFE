@@ -1,0 +1,46 @@
+/* Wordmark limpio Medifé: sin bloque negro del asset externo. */
+.medife-wordmark{
+  display:inline-block;
+  color:#e35205;
+  font-family:Georgia,'Times New Roman',serif;
+  font-weight:700;
+  line-height:.9;
+  letter-spacing:-.055em;
+  white-space:nowrap;
+}
+.brand-logo-shell{
+  width:auto;
+  min-width:126px;
+  height:48px;
+  padding:7px 14px 9px;
+  background:#fff;
+  border:1px solid #eee7e2;
+  box-shadow:0 8px 20px rgba(51,51,51,.07);
+}
+.brand-logo-shell .medife-wordmark{font-size:31px}
+.hero-brand-logo{
+  min-height:104px;
+  background:#fff;
+  border:1px solid #eee7e2;
+}
+.hero-brand-logo .medife-wordmark{font-size:58px}
+.login-official-logo{
+  width:auto;
+  min-width:190px;
+  height:74px;
+  padding:13px 22px 16px;
+  background:#fff;
+  border:1px solid rgba(255,255,255,.45);
+}
+.login-official-logo .medife-wordmark{font-size:46px}
+.medife-cover-logo{background:#fff}
+.medife-cover-logo .medife-wordmark{font-size:52px}
+.medife-summary-brand .logo-box,
+.medife-timeline-logo{background:#fff;border:1px solid #e6e1dd}
+.medife-summary-brand .medife-wordmark{font-size:30px}
+.medife-timeline-logo .medife-wordmark{font-size:28px}
+@media(max-width:700px){
+  .brand-logo-shell{min-width:104px;height:42px;padding:6px 11px 8px}
+  .brand-logo-shell .medife-wordmark{font-size:26px}
+  .hero-brand-logo .medife-wordmark{font-size:48px}
+}
