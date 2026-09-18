@@ -80,4 +80,11 @@ approx(E.payrollContribution(30000),(1000000*0.0255+1000000*0.051)*0.93);
   approx(E.totalContribution(c),E.payrollContribution(30000)+D.monotributo.F);
 }
 
-console.log('OK - motor Medifé: 9 escenarios validados');
+{
+  const c=baseClient({age:25,childrenAges:[10],exAssociate:true,promotion:'7'});
+  const q=E.quote('PLATA',c);assert.equal(q.status,'ok');
+  approx(q.childDiscount,0);approx(q.youngDiscount,0);assert.equal(q.tactical,null);
+  approx(q.timeline[0].totalRate,.25);
+}
+
+console.log('OK - motor Medifé: 10 escenarios validados');
