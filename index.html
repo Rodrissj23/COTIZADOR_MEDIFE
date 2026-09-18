@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#173f70">
+  <title>Cotizador Medifé · Grupo Zeroka</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#inicio" aria-label="Medifé"><span class="brand-word">medifé</span><small>COTIZADOR COMERCIAL</small></a>
+    <div class="header-actions"><span>Una herramienta de <b>GRUPO ZEROKA</b></span><button id="logoutButton" class="link-button">Cerrar sesión</button></div>
+  </header>
+  <main>
+    <section class="hero" id="inicio">
+      <div class="hero-copy"><p class="eyebrow eyebrow--white">COTIZADOR COMERCIAL · SEPTIEMBRE 2026</p><h1>Una propuesta Medifé, clara desde el primer número.</h1><p>Cargá el grupo familiar, la región y los aportes. El sistema aplica las reglas comerciales y prepara la propuesta.</p><button class="button button--white" data-scroll="#cotizador">Empezar cotización <span>↓</span></button><div class="hero-pills"><span>7 planes</span><span>5 regiones tarifarias</span><span>Aportes automáticos</span><span>PDF directo</span></div></div>
+      <div class="hero-art" aria-hidden="true"><span class="orb orb--one"></span><span class="orb orb--two"></span><span class="orb orb--three"></span><div class="hero-card"><small>Grupo Zeroka</small><strong>Medifé</strong><p>Cotización comercial inteligente</p></div></div>
+    </section>
+    <section class="quote-layout" id="cotizador">
+      <div class="form-card">
+        <div class="section-heading"><span>01</span><div><p class="eyebrow">NUEVA PROPUESTA</p><h2>Armemos el caso.</h2><p>Completá solo los datos necesarios para calcular la cotización.</p></div></div>
+        <form id="quoteForm">
+          <div class="field-grid field-grid--3"><label><span>Nombre y apellido</span><input id="clientName" required placeholder="Ej. María González"></label><label><span>DNI <small class="field-help">Opcional</small></span><input id="clientDni" inputmode="numeric" placeholder="Sin puntos"></label><label><span>Región tarifaria</span><select id="region"><option>AMBA</option><option>Norte</option><option>Sur</option><option>Patagonia</option><option>Bahía/MDQ</option></select></label></div>
+          <hr>
+          <div class="section-heading section-heading--small"><span>02</span><div><h3>Categoría y forma de pago</h3><p>Voluntario suma IVA. Obligatorio utiliza aportes.</p></div></div>
+          <div class="choice-row choice-row--2" id="categoryChoices"><label class="choice active"><input type="radio" name="category" value="Obligatorio" checked><b>Obligatorio</b><small>Con aportes de obra social o monotributo</small></label><label class="choice"><input type="radio" name="category" value="Voluntario"><b>Voluntario</b><small>Precio final con IVA 10,5%</small></label></div>
+          <div class="field-grid field-grid--2 compact-row"><label><span>Medio de pago</span><select id="paymentMethod"><option value="TC">Tarjeta de crédito</option><option value="CBU">CBU</option></select></label><label class="check-card"><input id="procedencia" type="checkbox"><span><b>Procedencia comprobable</b><small>Habilita opciones comerciales que la requieren.</small></span></label></div>
+          <div id="contributionSection" class="subsection"><h4>Aporte del titular</h4><div class="field-grid field-grid--3"><label><span>Tipo de aporte</span><select id="contributionSource"><option value="relacion">Relación de dependencia</option><option value="monotributo">Monotributo</option></select></label><label id="receiptWrap"><span>Ítem Obra Social 3% del recibo</span><input id="receiptContribution" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Ej. 30000"><small class="field-help">Se convierte internamente a la base y al aporte computable Medifé.</small></label><label id="monoWrap" hidden><span>Categoría monotributo</span><select id="monotributoCategory"></select></label></div></div>
+          <hr>
+          <div class="section-heading section-heading--small"><span>03</span><div><h3>Grupo familiar</h3><p>El precio se arma integrante por integrante.</p></div></div>
+          <div class="field-grid field-grid--3"><label><span>Edad titular</span><input id="age" type="number" min="18" value="35" required></label><label class="check-card"><input id="hasPartner" type="checkbox"><span><b>Agregar pareja</b><small>Habilita edad y posible unificación de aportes.</small></span></label><label><span>Cantidad de hijos</span><input id="children" type="number" min="0" max="10" step="1" value="0"></label></div>
+          <div id="partnerFields" class="subsection" hidden><div class="field-grid field-grid--2"><label><span>Edad pareja</span><input id="partnerAge" type="number" min="18" value="35"></label><label id="unifyWrap" class="check-card"><input id="unifyPartnerContribution" type="checkbox"><span><b>Unificar aportes</b><small>Suma el aporte utilizable de la pareja.</small></span></label></div><div id="partnerContributionFields" class="field-grid field-grid--3 compact-row" hidden><label><span>Tipo de aporte pareja</span><select id="partnerContributionSource"><option value="relacion">Relación de dependencia</option><option value="monotributo">Monotributo</option></select></label><label id="partnerReceiptWrap"><span>Ítem Obra Social 3%</span><input id="partnerReceiptContribution" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Ej. 30000"></label><label id="partnerMonoWrap" hidden><span>Categoría monotributo</span><select id="partnerMonotributoCategory"></select></label></div></div>
+          <div id="childrenAgesWrap" class="subsection" hidden><h4>Edades de los hijos</h4><div id="childrenAgeFields" class="children-ages"></div><small class="field-help">0–20: hijo · 21–25: hijo estudiante · 26–29: hijo a cargo.</small></div>
+          <hr>
+          <div class="section-heading section-heading--small"><span>04</span><div><h3>Promoción comercial</h3><p>Solo habilitamos opciones compatibles con los datos cargados.</p></div></div>
+          <div class="field-grid field-grid--2"><label><span>Promoción estratégica</span><select id="promotion"></select></label><label class="check-card"><input id="exAssociate" type="checkbox"><span><b>Ex asociado Medifé</b><small>Habilita Opción 7, no acumulable.</small></span></label></div>
+          <label id="option5Wrap" class="check-card standalone-check" hidden><input id="option5" type="checkbox"><span><b>Agregar Opción 5 · 5% x 6</b><small>Solo con opciones 1, 2 o 3 y procedencia comprobable.</small></span></label>
+          <details class="campaign-info"><summary><span class="campaign-info-icon">i</span><span><b>Cómo calcula el cotizador</b><small>Ver reglas automáticas aplicadas.</small></span><span class="campaign-toggle"></span></summary><div class="campaign-info-body"><p>Las tarifas parten de la matriz definitiva de septiembre 2026 según región, categoría, edad y composición.</p><p>Los ajustes permanentes de hijos y segmento joven se aplican automáticamente. Los descuentos que requieren una filial específica no se usan porque la filial no forma parte de esta versión.</p><p>En Obligatorio, el aporte del recibo se convierte desde el ítem del 3% y respeta el tope de remuneración. En Monotributo se usa la categoría A–K. Si se unifican aportes, se suman ambos valores utilizables.</p><p>Las promociones tácticas seguras por región/plan/edad se aplican automáticamente. Los descuentos temporales nunca superan el 85%.</p></div></details>
+          <p id="formError" class="form-error" role="alert"></p><button class="button button--primary button--wide" type="submit"><span>Ver planes disponibles</span><span>→</span></button>
+        </form>
+      </div>
+      <aside class="case-card"><p class="eyebrow eyebrow--white">CASO ACTUAL</p><h3 id="caseName">Nueva cotización</h3><div class="case-person"><span id="caseInitials">MF</span><div><b id="caseComposition">Titular · 35 años</b><small id="caseMode">Obligatorio · AMBA</small></div></div><dl><div><dt>Planes</dt><dd>7</dd></div><div><dt>Tarifario</dt><dd>Sep. 2026</dd></div><div><dt>Vigencia propuesta</dt><dd>72 hs</dd></div><div><dt>Filial</dt><dd>No utilizada</dd></div></dl><p class="case-foot">La región se selecciona manualmente. Los beneficios dependientes de una filial puntual quedan excluidos para evitar cotizaciones incorrectas.</p></aside>
+    </section>
+    <section class="plans-section" id="resultados" hidden><div class="results-head"><div><p class="eyebrow">PROPUESTA PREPARADA</p><h2>Compará los planes disponibles.</h2><p>El valor destacado corresponde al primer mes con los beneficios aplicables.</p></div><button class="button button--outline" data-scroll="#cotizador">← Modificar datos</button></div><div class="plans-grid" id="plansGrid"></div></section>
+    <section class="selected-bar" id="selectedBar" hidden><div><p>PLAN SELECCIONADO</p><h2 id="selectedName">PLATA</h2><small id="selectedPromo">Propuesta preparada</small></div><div class="selected-price"><p>PRIMERA CUOTA ESTIMADA</p><strong id="selectedPrice">—</strong><small id="selectedRegular">—</small></div><div class="selected-actions"><button class="button button--ghost" data-scroll="#resultados">Cambiar</button><button class="button button--white" id="openQuote">Ver cotización →</button></div></section>
+  </main>
+  <dialog id="quoteDialog" class="quote-dialog"><div class="dialog-toolbar"><div><b>Vista previa de cotización</b><small>Resumen comercial Medifé · Grupo Zeroka</small></div><div><button id="downloadQuote" class="button button--primary">Descargar PDF</button><button id="closeQuote" class="icon-button" aria-label="Cerrar">×</button></div></div><div class="quote-pages" id="quotePages"></div></dialog>
+  <script src="js/data.js"></script><script src="js/engine.js"></script><script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script><script src="js/app.js"></script>
+</body>
+</html>
