@@ -144,7 +144,12 @@
     childDiscount=round2(childDiscount);
     const young=youngDiscount(plan,client,members,childDiscount);
     const base=round2(members.reduce((s,m)=>s+m.listPrice,0));
-    return {base,childDiscount,youngDiscount:young.amount,adjusted:round2(Math.max(0,base-childDiscount-young.amount))};
+    return {
+      base,
+      childDiscount,
+      youngDiscount:young.amount,
+      adjusted:round2(Math.max(0,base-childDiscount-young.amount))
+    };
   }
 
   function maxGroupAge(client){
@@ -163,71 +168,120 @@
     ];
     if(client.procedencia){
       base.push({value:'4',label:`Opción 4 · ${DATA.strategic[client.category]['4'].detail}`});
-      if(client.paymentMethod==='TC' && maxGroupAge(client)<=60) base.push({value:'4+6',label:'Opción 4 + 6 · 24 meses · débito TC · GF hasta 60'});
+      if(client.paymentMethod==='TC' && maxGroupAge(client)<=60){
+        base.push({value:'4+6',label:`Opción 4 + 6 · 24 meses · débito TC · GF hasta 60`});
+      }
     }
     if(client.exAssociate) base.push({value:'7',label:`Opción 7 · ${DATA.strategic[client.category]['7'].detail}`});
     return base;
   }
 
-  function rateAt(schedule,month){for(const row of schedule||[]){if(month>=row[0]&&month<=row[1])return n(row[2]);}return 0;}
+  function rateAt(schedule,month){
+    for(const row of schedule||[]){ if(month>=row[0] && month<=row[1]) return n(row[2]); }
+    return 0;
+  }
+
   function strategicRate(client,month){
     const selected=String(client.promotion||'none');
-    if(selected==='none')return 0;
+    if(selected==='none') return 0;
     if(selected==='4+6'){
-      if(month<=12)return rateAt(DATA.strategic[client.category]['4'].schedule,month);
-      return rateAt(DATA.strategic[client.category]['6'].schedule,month-12);
+      const r4=rateAt(DATA.strategic[client.category]['4'].schedule,month);
+      if(month<=12) return r4;
+      const shifted=month-12;
+      return rateAt(DATA.strategic[client.category]['6'].schedule,shifted);
     }
     const promo=DATA.strategic[client.category][selected];
     return promo?rateAt(promo.schedule,month):0;
   }
-  function option5Rate(client,month){if(!client.option5||!client.procedencia||!['1','2','3'].includes(String(client.promotion)))return 0;return rateAt(DATA.option5[client.category].schedule,month);}
-  function tacticalFor(plan,client){const age=n(client.age);return DATA.tactical.find(t=>t.category===client.category&&t.region===client.region&&t.plan===plan&&age>=t.minAge&&age<=t.maxAge)||null;}
+
+  function option5Rate(client,month){
+    if(!client.option5 || !client.procedencia || !['1','2','3'].includes(String(client.promotion))) return 0;
+    return rateAt(DATA.option5[client.category].schedule,month);
+  }
+
+  function tacticalFor(plan,client){
+    const age=n(client.age);
+    return DATA.tactical.find(t=>t.category===client.category && t.region===client.region && t.plan===plan && age>=t.minAge && age<=t.maxAge) || null;
+  }
 
   function timeline(plan,client,adjusted,contribution){
-    const tactical=tacticalFor(plan,client),selected=String(client.promotion||'none');
-    const strategicApplies=STRATEGIC_PLANS.has(plan)&&!(tactical&&tactical.stackStrategic===false);
-    const horizon=selected==='7'||selected==='4+6'?24:12,months=[];
+    const selected=String(client.promotion||'none');
+    const tactical=selected==='7'?null:tacticalFor(plan,client);
+    const strategicApplies=STRATEGIC_PLANS.has(plan) && !(tactical && tactical.stackStrategic===false);
+    const horizon=selected==='7'||selected==='4+6'?24:12;
+    const months=[];
     for(let month=1;month<=horizon;month++){
-      const sr=strategicApplies?strategicRate(client,month):0,o5=strategicApplies?option5Rate(client,month):0,tr=tactical&&month<=tactical.months?tactical.rate:0;
-      const tempRate=clamp(sr+o5+tr,0,0.85),afterDiscount=adjusted*(1-tempRate);
-      const final=client.category==='Voluntario'?afterDiscount*(1+DATA.ivaVoluntario):Math.max(0,afterDiscount-contribution);
+      const sr=strategicApplies?strategicRate(client,month):0;
+      const o5=strategicApplies?option5Rate(client,month):0;
+      const tr=tactical && month<=tactical.months ? tactical.rate : 0;
+      const tempRate=clamp(sr+o5+tr,0,0.85);
+      const afterDiscount=adjusted*(1-tempRate);
+      const final=client.category==='Voluntario' ? afterDiscount*(1+DATA.ivaVoluntario) : Math.max(0,afterDiscount-contribution);
       months.push({month,strategicRate:sr,option5Rate:o5,tacticalRate:tr,totalRate:tempRate,price:round2(final)});
     }
     return {months,tactical,strategicApplies};
   }
 
   function validateClient(client){
-    if(!DATA.tariffs[client.region])return 'Región tarifaria inválida.';
-    if(!['Obligatorio','Voluntario'].includes(client.category))return 'Categoría inválida.';
-    if(n(client.age)<18)return 'El titular debe tener 18 años o más.';
-    if(client.hasPartner&&n(client.partnerAge)<18)return 'La pareja debe tener 18 años o más.';
-    if((client.childrenAges||[]).some(a=>n(a)<0||n(a)>29))return 'Los hijos deben tener entre 0 y 29 años.';
+    if(!DATA.tariffs[client.region]) return 'Región tarifaria inválida.';
+    if(!['Obligatorio','Voluntario'].includes(client.category)) return 'Categoría inválida.';
+    if(n(client.age)<18) return 'El titular debe tener 18 años o más.';
+    if(client.hasPartner && n(client.partnerAge)<18) return 'La pareja debe tener 18 años o más.';
+    if((client.childrenAges||[]).some(a=>n(a)<0||n(a)>29)) return 'Los hijos deben tener entre 0 y 29 años.';
     if(client.category==='Obligatorio'){
-      if(!['relacion','monotributo'].includes(client.contributionSource))return 'Indicá el tipo de aporte del titular.';
-      if(client.contributionSource==='relacion'&&n(client.receiptContribution)<=0)return 'Ingresá el aporte del 3% del recibo del titular.';
-      if(client.contributionSource==='monotributo'&&!DATA.monotributo[String(client.monotributoCategory||'').toUpperCase()])return 'Indicá la categoría de monotributo del titular.';
-      if(client.hasPartner&&client.unifyPartnerContribution){
-        if(!['relacion','monotributo'].includes(client.partnerContributionSource))return 'Indicá el tipo de aporte de la pareja.';
-        if(client.partnerContributionSource==='relacion'&&n(client.partnerReceiptContribution)<=0)return 'Ingresá el aporte del 3% del recibo de la pareja.';
-        if(client.partnerContributionSource==='monotributo'&&!DATA.monotributo[String(client.partnerMonotributoCategory||'').toUpperCase()])return 'Indicá la categoría de monotributo de la pareja.';
+      if(!['relacion','monotributo'].includes(client.contributionSource)) return 'Indicá el tipo de aporte del titular.';
+      if(client.contributionSource==='relacion' && n(client.receiptContribution)<=0) return 'Ingresá el aporte del 3% del recibo del titular.';
+      if(client.contributionSource==='monotributo' && !DATA.monotributo[String(client.monotributoCategory||'').toUpperCase()]) return 'Indicá la categoría de monotributo del titular.';
+      if(client.hasPartner && client.unifyPartnerContribution){
+        if(!['relacion','monotributo'].includes(client.partnerContributionSource)) return 'Indicá el tipo de aporte de la pareja.';
+        if(client.partnerContributionSource==='relacion' && n(client.partnerReceiptContribution)<=0) return 'Ingresá el aporte del 3% del recibo de la pareja.';
+        if(client.partnerContributionSource==='monotributo' && !DATA.monotributo[String(client.partnerMonotributoCategory||'').toUpperCase()]) return 'Indicá la categoría de monotributo de la pareja.';
       }
     }
     const eligible=new Set(strategicEligibility(client).map(x=>x.value));
-    if(!eligible.has(String(client.promotion||'none')))return 'La promoción elegida no es válida para las condiciones informadas.';
-    if(client.option5&&!(['1','2','3'].includes(String(client.promotion))&&client.procedencia))return 'Opción 5 solo puede acumularse con opciones 1, 2 o 3 y procedencia comprobable.';
+    if(!eligible.has(String(client.promotion||'none'))) return 'La promoción elegida no es válida para las condiciones informadas.';
+    if(client.option5 && !(['1','2','3'].includes(String(client.promotion)) && client.procedencia)) return 'Opción 5 solo puede acumularse con opciones 1, 2 o 3 y procedencia comprobable.';
     return null;
   }
 
   function quote(plan,client){
-    const error=validateClient(client);if(error)return{status:'invalid',reason:error,plan};
-    if(!PLAN_ORDER.includes(plan))return{status:'invalid',reason:'Plan inválido.',plan};
-    if(plan==='INDIE'&&client.region!=='AMBA')return{status:'unavailable',reason:'INDIE se ofrece únicamente en AMBA.',plan};
-    const list=memberList(plan,client);if(!list.ok)return{status:'unavailable',reason:list.reason,plan};
-    const permanent=permanentAdjustments(plan,client,list.members),contribution=totalContribution(client),tl=timeline(plan,client,permanent.adjusted,contribution),month1=tl.months[0];
-    const regularAfterPermanent=client.category==='Voluntario'?permanent.adjusted*(1+DATA.ivaVoluntario):Math.max(0,permanent.adjusted-contribution);
-    return {status:'ok',plan,members:list.members,listPrice:permanent.base,childDiscount:permanent.childDiscount,youngDiscount:permanent.youngDiscount,permanentDiscount:round2(permanent.childDiscount+permanent.youngDiscount),adjustedPrice:permanent.adjusted,contribution,tactical:tl.tactical,strategicApplies:tl.strategicApplies,month1DiscountRate:month1.totalRate,finalPrice:month1.price,regularPrice:round2(regularAfterPermanent),timeline:tl.months};
+    const error=validateClient(client);
+    if(error) return {status:'invalid',reason:error,plan};
+    if(!PLAN_ORDER.includes(plan)) return {status:'invalid',reason:'Plan inválido.',plan};
+    if(plan==='INDIE' && client.region!=='AMBA') return {status:'unavailable',reason:'INDIE se ofrece únicamente en AMBA.',plan};
+
+    const list=memberList(plan,client);
+    if(!list.ok) return {status:'unavailable',reason:list.reason,plan};
+    const exclusive=String(client.promotion||'none')==='7';
+    const base=round2(list.members.reduce((sum,m)=>sum+m.listPrice,0));
+    const permanent=exclusive?{base,childDiscount:0,youngDiscount:0,adjusted:base}:permanentAdjustments(plan,client,list.members);
+    const contribution=totalContribution(client);
+    const tl=timeline(plan,client,permanent.adjusted,contribution);
+    const month1=tl.months[0];
+    const regularAfterPermanent=client.category==='Voluntario'
+      ? permanent.adjusted*(1+DATA.ivaVoluntario)
+      : Math.max(0,permanent.adjusted-contribution);
+
+    return {
+      status:'ok',plan,members:list.members,
+      listPrice:permanent.base,
+      childDiscount:permanent.childDiscount,
+      youngDiscount:permanent.youngDiscount,
+      permanentDiscount:round2(permanent.childDiscount+permanent.youngDiscount),
+      adjustedPrice:permanent.adjusted,
+      contribution,
+      tactical:tl.tactical,
+      strategicApplies:tl.strategicApplies,
+      month1DiscountRate:month1.totalRate,
+      finalPrice:month1.price,
+      regularPrice:round2(regularAfterPermanent),
+      timeline:tl.months
+    };
   }
-  function quoteAll(client){return PLAN_ORDER.map(plan=>quote(plan,client));}
+
+  function quoteAll(client){ return PLAN_ORDER.map(plan=>quote(plan,client)); }
+
   const api={DATA,PLAN_ORDER,adultBand,adultKey,childKey,childStatus,payrollContribution,totalContribution,strategicEligibility,validateClient,quote,quoteAll,round2};
-  root.MEDIFE_ENGINE=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
+  root.MEDIFE_ENGINE=api;
+  if(typeof module!=='undefined' && module.exports) module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
