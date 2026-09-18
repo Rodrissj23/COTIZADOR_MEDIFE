@@ -21,14 +21,13 @@
     const meta=[c.dni?`DNI ${c.dni}`:null,c.region,c.category].filter(Boolean).join(' · ');
     const rows=[
       ['Grupo familiar',compositionLabel(c),''],
-      ['Región',c.region,''],
-      ['Categoría',c.category,''],
+      ['Región · categoría',`${c.region} · ${c.category}`,''],
       ['Medio de pago',paymentLabel,''],
       ['Valor de lista',money(q.listPrice),''],
       ['Ajustes permanentes',q.permanentDiscount?`- ${money(q.permanentDiscount)}`:money(0),adjustmentLabel],
       [c.category==='Obligatorio'?'Aportes a descontar':'IVA',contributionLabel,contributionNote],
       ['Promoción aplicada',promoLabel,''],
-      ['Valor sin bonificación temporal',money(q.regularPrice),'']
+      ['Valor regular actual',money(q.regularPrice),'Sin bonificaciones temporales']
     ];
     const timeline=q.timeline.map(m=>`<div class="month-card"><b>Mes ${m.month}</b><span>${money(m.price)}</span><small>${m.totalRate?pct(m.totalRate)+' dto. temporal':'sin dto. temporal'}</small></div>`).join('');
 
@@ -55,7 +54,7 @@
           <div class="medife-summary-total"><b>TOTAL · PRIMERA CUOTA</b><strong>${money(q.finalPrice)}</strong></div>
           <div class="medife-summary-legal">
             <p>*Los importes son una estimación comercial y pueden variar ante cambios en datos, tarifas o condiciones de contratación.</p>
-            <p>*Tarifario ${esc(DATA.version)} · propuesta válida por ${VALIDITY_HOURS} hs. No se aplican beneficios dependientes de filial porque esta versión trabaja por región tarifaria.</p>
+            <p>*Tarifario ${esc(DATA.version)} · propuesta válida por ${VALIDITY_HOURS} hs. Los beneficios dependientes de filial no se aplican en esta versión.</p>
           </div>
           <div class="medife-summary-brand"><span class="logo-box">${logoImg()}</span><b>Grupo Zeroka · ${esc(dates.issued)}</b></div>
         </div>
