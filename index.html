@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#e35205">
+  <meta name="theme-color" content="#f7f5f2">
   <title>Cotizador Medifé · Grupo Zeroka</title>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/v2.css">
   <link rel="stylesheet" href="css/form-v2.css">
+  <link rel="stylesheet" href="css/v3.css">
 </head>
 <body>
   <header class="site-header">
@@ -21,29 +22,19 @@
   <main>
     <section class="hero" id="inicio">
       <div class="hero-copy">
-        <p class="eyebrow eyebrow--white">COTIZADOR COMERCIAL · SEPTIEMBRE 2026</p>
-        <h1>Con Medifé,<br>tenés más.</h1>
-        <p>Armá una propuesta clara con grupo familiar, aportes, promociones y el valor de cada plan en un solo recorrido.</p>
-        <button class="button button--white" data-scroll="#cotizador">Empezar cotización <span>↓</span></button>
-        <div class="hero-pills"><span>7 planes</span><span>5 regiones</span><span>Aportes automáticos</span><span>PDF comercial</span></div>
-      </div>
-      <div class="hero-art">
-        <div class="hero-brand-card">
-          <div class="hero-brand-logo"><img src="https://cdn.brandfetch.io/id6jmCuFs2/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1781726803816" crossorigin="anonymous" referrerpolicy="no-referrer" alt="Medifé"></div>
-          <span>PROPUESTA COMERCIAL</span>
-          <h3>Tu cotización, mejor presentada.</h3>
-          <p>Una experiencia simple para el vendedor y clara para el cliente.</p>
-          <span class="hero-seal">UNA HERRAMIENTA DE GRUPO ZEROKA</span>
-        </div>
+        <p class="eyebrow">MEDIFÉ · TARIFARIO SEPTIEMBRE 2026</p>
+        <h1>Cotizador comercial Medifé.</h1>
+        <p>Cargá el caso, compará los planes disponibles y prepará una propuesta comercial sin salir de la misma pantalla.</p>
+        <button class="button button--primary" data-scroll="#cotizador">Nueva cotización <span>↓</span></button>
       </div>
     </section>
 
     <section class="quote-layout" id="cotizador">
       <div class="form-card">
-        <div class="section-heading"><span>01</span><div><p class="eyebrow">NUEVA PROPUESTA</p><h2>Armemos el caso.</h2><p>La información está ordenada en cuatro bloques para cotizar más rápido.</p></div></div>
+        <div class="section-heading"><span>01</span><div><p class="eyebrow">NUEVA COTIZACIÓN</p><h2>Datos para cotizar.</h2><p>Completá los cuatro bloques. El motor calcula aportes, ajustes y promociones automáticamente.</p></div></div>
         <form id="quoteForm">
           <section class="form-step">
-            <div class="section-heading section-heading--small"><span>1</span><div><h3>Datos del cliente</h3><p>Identificación y región tarifaria.</p></div></div>
+            <div class="section-heading section-heading--small"><span>1</span><div><h3>Cliente</h3><p>Identificación y región tarifaria.</p></div></div>
             <div class="field-grid field-grid--3">
               <label><span>Nombre y apellido</span><input id="clientName" required placeholder="Ej. María González"></label>
               <label><span>DNI <small class="field-help">Opcional</small></span><input id="clientDni" inputmode="numeric" placeholder="Sin puntos"></label>
@@ -52,7 +43,7 @@
           </section>
 
           <section class="form-step">
-            <div class="section-heading section-heading--small"><span>2</span><div><h3>Ingreso y aportes</h3><p>Definí modalidad, pago y aporte utilizable.</p></div></div>
+            <div class="section-heading section-heading--small"><span>2</span><div><h3>Modalidad y aportes</h3><p>Tipo de contratación, pago y aporte utilizable.</p></div></div>
             <div class="choice-row choice-row--2" id="categoryChoices">
               <label class="choice active"><input type="radio" name="category" value="Obligatorio" checked><b>Obligatorio</b><small>Con aportes de obra social o monotributo</small></label>
               <label class="choice"><input type="radio" name="category" value="Voluntario"><b>Voluntario</b><small>Precio final con IVA 10,5%</small></label>
@@ -65,14 +56,14 @@
               <h4>Aporte del titular</h4>
               <div class="field-grid field-grid--3">
                 <label><span>Tipo de aporte</span><select id="contributionSource"><option value="relacion">Relación de dependencia</option><option value="monotributo">Monotributo</option></select></label>
-                <label id="receiptWrap"><span>Ítem Obra Social 3%</span><input id="receiptContribution" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Ej. 30000"><small class="field-help">El sistema calcula internamente el aporte computable.</small></label>
+                <label id="receiptWrap"><span>Ítem Obra Social 3%</span><input id="receiptContribution" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Ej. 30000"><small class="field-help">El aporte computable se calcula internamente.</small></label>
                 <label id="monoWrap" hidden><span>Categoría monotributo</span><select id="monotributoCategory"></select></label>
               </div>
             </div>
           </section>
 
           <section class="form-step">
-            <div class="section-heading section-heading--small"><span>3</span><div><h3>Grupo familiar</h3><p>Agregá solamente los integrantes que ingresan.</p></div></div>
+            <div class="section-heading section-heading--small"><span>3</span><div><h3>Grupo familiar</h3><p>Integrantes incluidos en la cotización.</p></div></div>
             <div class="field-grid field-grid--3">
               <label><span>Edad titular</span><input id="age" type="number" min="18" value="35" required></label>
               <label class="check-card"><input id="hasPartner" type="checkbox"><span><b>Agregar pareja</b><small>Permite también unificar aportes.</small></span></label>
@@ -97,14 +88,14 @@
           </section>
 
           <section class="form-step form-step--promo">
-            <div class="section-heading section-heading--small"><span>4</span><div><h3>Promoción comercial</h3><p>Mostramos únicamente las opciones compatibles.</p></div></div>
+            <div class="section-heading section-heading--small"><span>4</span><div><h3>Promoción</h3><p>Solo aparecen opciones compatibles con el caso.</p></div></div>
             <div class="field-grid field-grid--2">
               <label><span>Promoción estratégica</span><select id="promotion"></select></label>
               <label class="check-card"><input id="exAssociate" type="checkbox"><span><b>Ex asociado Medifé</b><small>Habilita Opción 7, no acumulable.</small></span></label>
             </div>
             <label id="option5Wrap" class="check-card standalone-check" hidden><input id="option5" type="checkbox"><span><b>Agregar Opción 5 · 5% x 6</b><small>Solo con opciones 1, 2 o 3 y procedencia comprobable.</small></span></label>
             <details class="campaign-info">
-              <summary><span class="campaign-info-icon">i</span><span><b>Cómo calcula el cotizador</b><small>Ver reglas automáticas aplicadas.</small></span><span class="campaign-toggle"></span></summary>
+              <summary><span class="campaign-info-icon">i</span><span><b>Reglas automáticas</b><small>Ver qué calcula el sistema.</small></span><span class="campaign-toggle"></span></summary>
               <div class="campaign-info-body">
                 <p>Tarifas de septiembre 2026 según región, categoría, edad y composición.</p>
                 <p>Ajustes de hijos y segmento joven se aplican automáticamente.</p>
@@ -115,20 +106,20 @@
           </section>
 
           <p id="formError" class="form-error" role="alert"></p>
-          <button class="button button--primary button--wide submit-quote" type="submit"><span>Ver planes disponibles</span><span>→</span></button>
+          <button class="button button--primary button--wide submit-quote" type="submit"><span>Calcular planes</span><span>→</span></button>
         </form>
       </div>
 
       <aside class="case-card">
-        <p class="eyebrow eyebrow--white">CASO ACTUAL</p><h3 id="caseName">Nueva cotización</h3>
+        <p class="eyebrow">CASO ACTUAL</p><h3 id="caseName">Nueva cotización</h3>
         <div class="case-person"><span id="caseInitials">MF</span><div><b id="caseComposition">Titular · 35 años</b><small id="caseMode">Obligatorio · AMBA</small></div></div>
         <dl><div><dt>Planes</dt><dd>7</dd></div><div><dt>Tarifario</dt><dd>Sep. 2026</dd></div><div><dt>Vigencia</dt><dd>72 hs</dd></div><div><dt>Filial</dt><dd>No utilizada</dd></div></dl>
-        <p class="case-foot">La región se selecciona manualmente y la lógica comercial se calcula en segundo plano.</p>
+        <p class="case-foot">El resumen se actualiza mientras cargás los datos.</p>
       </aside>
     </section>
 
     <section class="plans-section" id="resultados" hidden>
-      <div class="results-head"><div><p class="eyebrow">PROPUESTA PREPARADA</p><h2>Compará los planes.</h2><p>El importe destacado corresponde a la primera cuota estimada.</p></div><button class="button button--outline" data-scroll="#cotizador">← Modificar datos</button></div>
+      <div class="results-head"><div><p class="eyebrow">RESULTADOS</p><h2>Planes disponibles.</h2><p>Compará el valor inicial y las condiciones aplicadas a cada alternativa.</p></div><button class="button button--outline" data-scroll="#cotizador">← Editar datos</button></div>
       <div class="plans-grid" id="plansGrid"></div>
     </section>
 
