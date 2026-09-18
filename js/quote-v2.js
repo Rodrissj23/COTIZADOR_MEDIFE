@@ -1,7 +1,6 @@
 /* PDF v2: portada Medifé + resumen comercial tipo resto de cotizadores. */
 (() => {
-  const LOGO='https://cdn.brandfetch.io/id6jmCuFs2/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1781726803816';
-  const logoImg=(cls='')=>`<img class="${cls}" src="${LOGO}" crossorigin="anonymous" referrerpolicy="no-referrer" alt="Medifé">`;
+  const logoWord=()=>`<span class="medife-wordmark">Medifé</span>`;
   const qFooter=(page,total)=>`<div class="medife-pdf-footer"><span>Tarifario ${esc(DATA.version)} · vigencia ${VALIDITY_HOURS} hs</span><span>${page} / ${total} · Grupo Zeroka</span></div>`;
   const summaryRow=(label,value,note='')=>`<div class="medife-summary-row"><b>${esc(label)}</b><span>${esc(value)}${note?`<small>${esc(note)}</small>`:''}</span></div>`;
 
@@ -33,7 +32,7 @@
 
     $('#quotePages').innerHTML=`
       <section class="quote-page medife-pdf-page medife-cover">
-        <div class="medife-cover-logo">${logoImg()}</div>
+        <div class="medife-cover-logo">${logoWord()}</div>
         <div class="medife-cover-kicker">NUEVA COTIZACIÓN · ${esc(DATA.version.toUpperCase())}</div>
         <h1>Hola, ${firstName}.<br>Tu propuesta Medifé.</h1>
         <p class="medife-cover-sub">Una propuesta clara para que puedas comparar el plan, el valor y los beneficios aplicados en tu cotización.</p>
@@ -56,13 +55,13 @@
             <p>*Los importes son una estimación comercial y pueden variar ante cambios en datos, tarifas o condiciones de contratación.</p>
             <p>*Tarifario ${esc(DATA.version)} · propuesta válida por ${VALIDITY_HOURS} hs. Los beneficios dependientes de filial no se aplican en esta versión.</p>
           </div>
-          <div class="medife-summary-brand"><span class="logo-box">${logoImg()}</span><b>Grupo Zeroka · ${esc(dates.issued)}</b></div>
+          <div class="medife-summary-brand"><span class="logo-box">${logoWord()}</span><b>Grupo Zeroka · ${esc(dates.issued)}</b></div>
         </div>
       </section>
 
       <section class="quote-page medife-pdf-page medife-timeline">
         <div class="quote-content">
-          <div class="medife-timeline-head"><div><p class="eyebrow">CRONOGRAMA COMERCIAL</p><h2>Cómo evoluciona tu cuota.</h2></div><span class="medife-timeline-logo">${logoImg()}</span></div>
+          <div class="medife-timeline-head"><div><p class="eyebrow">CRONOGRAMA COMERCIAL</p><h2>Cómo evoluciona tu cuota.</h2></div><span class="medife-timeline-logo">${logoWord()}</span></div>
           <p>El cronograma muestra los descuentos temporales seleccionados. Los valores permanecen sujetos a futuros aumentos generales de tarifa.</p>
           <div class="quote-kpis"><div class="quote-kpi"><small>Primera cuota</small><strong>${money(q.finalPrice)}</strong></div><div class="quote-kpi"><small>Valor regular actual</small><strong>${money(q.regularPrice)}</strong></div><div class="quote-kpi"><small>Beneficio comercial</small><strong>${esc(promoLabel)}</strong></div></div>
           <div class="timeline">${timeline}</div>
