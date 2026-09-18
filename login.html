@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#173f70">
+  <title>Medifé · Portal comercial</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="login-page">
+  <main class="login-shell">
+    <section class="login-brand">
+      <a class="brand brand--login" href="login.html"><span class="brand-word">medifé</span><small>PORTAL COMERCIAL</small></a>
+      <div class="login-copy"><p class="eyebrow eyebrow--white">COTIZADOR MEDIFÉ</p><h1>Una cotización simple, con la lógica compleja por detrás.</h1><p>Regiones, aportes, composición familiar y promociones en una sola herramienta.</p></div>
+      <p class="zeroka">UNA HERRAMIENTA DE <b>GRUPO ZEROKA</b></p>
+    </section>
+    <section class="login-card">
+      <p class="eyebrow">BIENVENIDO</p><h2>Ingresá al portal</h2><p class="muted">Usá tus credenciales comerciales.</p>
+      <form id="loginForm" autocomplete="on">
+        <label>Usuario<input name="username" autocomplete="username" required></label>
+        <label>Contraseña<span class="password-wrap"><input id="password" name="password" type="password" autocomplete="current-password" required><button type="button" id="showPassword">Ver</button></span></label>
+        <p class="form-error" id="loginError" role="alert"></p>
+        <button class="button button--primary button--wide" type="submit"><span>Ingresar</span><span>→</span></button>
+      </form>
+      <p class="login-note">Acceso exclusivo para el equipo comercial.</p>
+    </section>
+  </main>
+  <script src="auth/login.js"></script>
+</body>
+</html>
