@@ -76,6 +76,7 @@
     return {ok:true,members};
   }
 
+  // Mantener precisión completa durante el cálculo. Se redondea solo al exponer importes finales.
   function payrollContribution(item3Percent){
     const item=Math.max(0,n(item3Percent));
     if(!item)return 0;
@@ -83,10 +84,10 @@
     const cap=DATA.remunerationCap;
     const employeePart=Math.min(base,cap)*0.0255;
     const employerPart=base*0.051;
-    return round2((employeePart+employerPart)*0.93);
+    return (employeePart+employerPart)*0.93;
   }
   function sourceContribution(source,receipt,monoCategory){
-    if(source==='monotributo')return round2(DATA.monotributo?.[String(monoCategory||'').toUpperCase()]||0);
+    if(source==='monotributo')return n(DATA.monotributo?.[String(monoCategory||'').toUpperCase()]||0);
     if(source==='relacion')return payrollContribution(receipt);
     return 0;
   }
@@ -96,7 +97,7 @@
     if(client.hasPartner&&client.unifyPartnerContribution){
       total+=sourceContribution(client.partnerContributionSource,client.partnerReceiptContribution,client.partnerMonotributoCategory);
     }
-    return round2(total);
+    return total;
   }
 
   function youngDiscount(plan,client,members,childDiscount){
@@ -114,7 +115,7 @@
       if(!YOUNG_PLANS_STANDARD.has(plan))return {amount:0,label:null};
       for(const m of adults)if(m.age<=25)discount+=m.listPrice*0.26;
     }
-    return {amount:round2(discount),label:discount>0?'Segmento joven':null};
+    return {amount:discount,label:discount>0?'Segmento joven':null};
   }
   function permanentAdjustments(plan,client,members){
     const children=members.filter(m=>m.kind==='child');
@@ -124,10 +125,9 @@
       const rate=DATA.permanent.childAdjustment[client.region]||0;
       childDiscount=eligibleChildren.reduce((s,m)=>s+m.listPrice,0)*rate;
     }
-    childDiscount=round2(childDiscount);
     const young=youngDiscount(plan,client,members,childDiscount);
-    const base=round2(members.reduce((s,m)=>s+m.listPrice,0));
-    return {base,childDiscount,youngDiscount:young.amount,nominalAdjusted:round2(base-childDiscount-young.amount)};
+    const base=members.reduce((s,m)=>s+m.listPrice,0);
+    return {base,childDiscount,youngDiscount:young.amount,nominalAdjusted:base-childDiscount-young.amount};
   }
 
   function filialDiscountPolicy(plan,client){
@@ -166,12 +166,23 @@
     return null;
   }
 
+  // Zonas comerciales del Excel: SUR abarca Sur + Patagonia + Bahía/MDQ.
+  function gafZoneMatches(g,client){
+    if(!g?.zone||norm(g.zone)==='NACIONAL')return true;
+    const zone=norm(g.zone);
+    if(zone==='AMBA')return client.region==='AMBA';
+    if(zone==='NORTE')return client.region==='Norte';
+    if(zone==='SUR')return ['Sur','Patagonia','Bahía/MDQ'].includes(client.region);
+    return false;
+  }
   function gafEligibility(client){
-    return Object.entries(DATA.gaf||{}).filter(([,g])=>(g.categories||[]).includes(client.category)).map(([value,g])=>({value,label:g.label}));
+    return Object.entries(DATA.gaf||{})
+      .filter(([,g])=>(g.categories||[]).includes(client.category)&&gafZoneMatches(g,client))
+      .map(([value,g])=>({value,label:g.label}));
   }
   function selectedGaf(client){
     const g=DATA.gaf?.[String(client.gaf||'none')];
-    return g&&(g.categories||[]).includes(client.category)?g:DATA.gaf?.none;
+    return g&&(g.categories||[]).includes(client.category)&&gafZoneMatches(g,client)?g:DATA.gaf?.none;
   }
   function gafRateAt(client,month){
     const g=selectedGaf(client);
@@ -211,13 +222,15 @@
     return rateAt(DATA.option5[client.category].schedule,month);
   }
   function applyTaxOrContribution(amount,client,contribution){
-    return client.category==='Voluntario'?amount*(1+DATA.ivaVoluntario):amount-contribution;
+    const result=client.category==='Voluntario'?amount*(1+DATA.ivaVoluntario):amount-contribution;
+    return Math.max(0,result);
   }
   function timeline(plan,client,nominalAdjusted,filialRate,contribution){
     const selected=String(client.promotion||'none');
-    const tactical=selected==='7'?null:tacticalFor(plan,client);
+    const option7Applies=selected==='7'&&STRATEGIC_PLANS.has(plan);
+    const tactical=option7Applies?null:tacticalFor(plan,client);
     const strategicApplies=STRATEGIC_PLANS.has(plan)&&!(tactical&&tactical.stackStrategic===false);
-    const horizon=selected==='7'?24:12;
+    const horizon=option7Applies?24:12;
     const months=[];
     for(let month=1;month<=horizon;month++){
       const sr=strategicApplies?strategicRate(client,month):0;
@@ -226,10 +239,13 @@
       const commercialRate=Math.min(sr+o5+tr,DATA.discountCap??0.85);
       const uccRate=uccRateAt(client,month);
       const beforeTax=nominalAdjusted*(1-filialRate-commercialRate-uccRate);
-      const preGaf=applyTaxOrContribution(beforeTax,client,contribution);
+      const preGafRaw=applyTaxOrContribution(beforeTax,client,contribution);
       const gafRate=gafRateAt(client,month);
-      const final=preGaf*(1-gafRate);
-      months.push({month,strategicRate:sr,option5Rate:o5,tacticalRate:tr,commercialRate,totalRate:commercialRate,filialRate,uccRate,gafRate,preGaf:round2(preGaf),price:round2(final)});
+      const finalRaw=Math.max(0,preGafRaw*(1-gafRate));
+      months.push({
+        month,strategicRate:sr,option5Rate:o5,tacticalRate:tr,commercialRate,totalRate:commercialRate,
+        filialRate,uccRate,gafRate,preGaf:round2(preGafRaw),price:round2(finalRaw)
+      });
     }
     return {months,tactical,strategicApplies};
   }
@@ -257,7 +273,7 @@
     if(!promos.has(String(client.promotion||'none')))return 'La promoción elegida no es válida para las condiciones informadas.';
     if(client.option5&&!(['1','2','3'].includes(String(client.promotion))&&client.procedencia))return 'Opción 5 solo puede acumularse con opciones 1, 2 o 3 y procedencia comprobable.';
     const gafValues=new Set(gafEligibility(client).map(x=>x.value));
-    if(!gafValues.has(String(client.gaf||'none')))return 'El convenio / afinidad elegido no aplica a esta categoría.';
+    if(!gafValues.has(String(client.gaf||'none')))return 'El convenio / afinidad no corresponde a la categoría o zona seleccionada.';
     if(client.ucc&&client.region!==DATA.ucc.region)return 'UCC solo corresponde a región Norte.';
     return null;
   }
@@ -273,7 +289,7 @@
     const permanent=permanentAdjustments(plan,client,list.members);
     const filialPolicy=filialDiscountPolicy(plan,client);
     const filialRate=filialPolicy?.rate||0;
-    const filialDiscount=round2(permanent.nominalAdjusted*filialRate);
+    const filialDiscountRaw=permanent.nominalAdjusted*filialRate;
     const contribution=totalContribution(client);
     const tl=timeline(plan,client,permanent.nominalAdjusted,filialRate,contribution);
     const month1=tl.months[0];
@@ -281,17 +297,17 @@
     const regularBase=permanent.nominalAdjusted*(1-filialRate-uccRateAt(client,999));
     let regular=applyTaxOrContribution(regularBase,client,contribution);
     const g=selectedGaf(client);
-    if(g?.rate&&g.months==null)regular*=1-g.rate;
+    if(g?.rate&&g.months==null)regular=Math.max(0,regular*(1-g.rate));
 
     return {
       status:'ok',plan,members:list.members,
       listPrice:permanent.base,
       childDiscount:permanent.childDiscount,
       youngDiscount:permanent.youngDiscount,
-      filialDiscount,filialRate,filialLabel:filialPolicy?.label||null,
+      filialDiscount:round2(filialDiscountRaw),filialRate,filialLabel:filialPolicy?.label||null,
       nominalAdjustedPrice:permanent.nominalAdjusted,
-      adjustedPrice:round2(permanent.nominalAdjusted-filialDiscount),
-      permanentDiscount:round2(permanent.childDiscount+permanent.youngDiscount+filialDiscount),
+      adjustedPrice:round2(permanent.nominalAdjusted-filialDiscountRaw),
+      permanentDiscount:round2(permanent.childDiscount+permanent.youngDiscount+filialDiscountRaw),
       contribution,
       tactical:tl.tactical,
       strategicApplies:tl.strategicApplies,
@@ -306,7 +322,10 @@
   }
   function quoteAll(client){return PLAN_ORDER.map(plan=>quote(plan,client));}
 
-  const api={DATA,PLAN_ORDER,adultBand,adultKey,childKey,childStatus,payrollContribution,totalContribution,strategicEligibility,gafEligibility,filialDiscountPolicy,tacticalFor,validateClient,quote,quoteAll,round2};
+  const api={
+    DATA,PLAN_ORDER,adultBand,adultKey,childKey,childStatus,payrollContribution,totalContribution,
+    strategicEligibility,gafEligibility,filialDiscountPolicy,tacticalFor,validateClient,quote,quoteAll,round2
+  };
   root.MEDIFE_ENGINE=api;
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
