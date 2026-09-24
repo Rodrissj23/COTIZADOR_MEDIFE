@@ -13,22 +13,24 @@
     const permanent=[];
     if(q.childDiscount) permanent.push(`Ajuste hijos - ${money(q.childDiscount)}`);
     if(q.youngDiscount) permanent.push(`Segmento joven - ${money(q.youngDiscount)}`);
+    if(q.filialDiscount) permanent.push(`${q.filialLabel||'Descuento filial'} - ${money(q.filialDiscount)}`);
     const adjustmentLabel=permanent.length?permanent.join(' · '):'Sin ajustes permanentes';
-    const contributionLabel=c.category==='Obligatorio'?`- ${money(q.contribution)}`:'Incluido 10,5%';
+    const contributionLabel=c.category==='Obligatorio'?`- ${money(q.contribution)}`:'10,5%';
     const contributionNote=c.category==='Obligatorio'?'Aporte computable estimado':'IVA aplicado luego de descuentos';
-    const paymentLabel=c.paymentMethod==='TC'?'Tarjeta de crédito':'CBU';
-    const meta=[c.dni?`DNI ${c.dni}`:null,c.region,c.category].filter(Boolean).join(' · ');
+    const meta=[c.dni?`DNI ${c.dni}`:null,c.region,c.filial,c.category].filter(Boolean).join(' · ');
     const rows=[
       ['Grupo familiar',compositionLabel(c),''],
-      ['Región · categoría',`${c.region} · ${c.category}`,''],
-      ['Medio de pago',paymentLabel,''],
+      ['Región · filial',`${c.region} · ${c.filial}`,''],
+      ['Categoría',c.category,''],
       ['Valor de lista',money(q.listPrice),''],
       ['Ajustes permanentes',q.permanentDiscount?`- ${money(q.permanentDiscount)}`:money(0),adjustmentLabel],
+      ['Promoción comercial',promoLabel,''],
+      ...(q.uccRate?[['UCC',`${pct(q.uccRate)} dto.`, 'Empleador acumulable']]:[]),
       [c.category==='Obligatorio'?'Aportes a descontar':'IVA',contributionLabel,contributionNote],
-      ['Promoción aplicada',promoLabel,''],
-      ['Valor regular actual',money(q.regularPrice),'Sin bonificaciones temporales']
+      ...(q.gafRate?[['Convenio / afinidad',`${q.gaf?.label||'GAF'} · ${pct(q.gafRate)}`,'Aplicado sobre el valor final previo al convenio']]:[]),
+      ['Valor regular actual',money(q.regularPrice),'Sin beneficios temporales']
     ];
-    const timeline=q.timeline.map(m=>`<div class="month-card"><b>Mes ${m.month}</b><span>${money(m.price)}</span><small>${m.totalRate?pct(m.totalRate)+' dto. temporal':'sin dto. temporal'}</small></div>`).join('');
+    const timeline=q.timeline.map(m=>`<div class="month-card"><b>Mes ${m.month}</b><span>${money(m.price)}</span><small>${m.commercialRate?pct(m.commercialRate)+' dto. comercial':(m.gafRate?pct(m.gafRate)+' convenio':'sin dto. temporal')}</small></div>`).join('');
 
     $('#quotePages').innerHTML=`
       <section class="quote-page medife-pdf-page medife-cover">
@@ -53,7 +55,7 @@
           <div class="medife-summary-total"><b>TOTAL · PRIMERA CUOTA</b><strong>${money(q.finalPrice)}</strong></div>
           <div class="medife-summary-legal">
             <p>*Los importes son una estimación comercial y pueden variar ante cambios en datos, tarifas o condiciones de contratación.</p>
-            <p>*Tarifario ${esc(DATA.version)} · propuesta válida por ${VALIDITY_HOURS} hs. Los beneficios dependientes de filial no se aplican en esta versión.</p>
+            <p>*Tarifario ${esc(DATA.version)} · propuesta válida por ${VALIDITY_HOURS} hs. Los beneficios mostrados se calculan según región, filial, edad, categoría y condiciones informadas.</p>
           </div>
           <div class="medife-summary-brand"><span class="logo-box">${logoWord()}</span><b>Grupo Zeroka · ${esc(dates.issued)}</b></div>
         </div>
@@ -62,7 +64,7 @@
       <section class="quote-page medife-pdf-page medife-timeline">
         <div class="quote-content">
           <div class="medife-timeline-head"><div><p class="eyebrow">CRONOGRAMA COMERCIAL</p><h2>Cómo evoluciona tu cuota.</h2></div><span class="medife-timeline-logo">${logoWord()}</span></div>
-          <p>El cronograma muestra los descuentos temporales seleccionados. Los valores permanecen sujetos a futuros aumentos generales de tarifa.</p>
+          <p>El cronograma refleja los beneficios temporales aplicables al caso. Los valores permanecen sujetos a futuros aumentos generales de tarifa.</p>
           <div class="quote-kpis"><div class="quote-kpi"><small>Primera cuota</small><strong>${money(q.finalPrice)}</strong></div><div class="quote-kpi"><small>Valor regular actual</small><strong>${money(q.regularPrice)}</strong></div><div class="quote-kpi"><small>Beneficio comercial</small><strong>${esc(promoLabel)}</strong></div></div>
           <div class="timeline">${timeline}</div>
           <div class="quote-note">Cotización comercial elaborada por Grupo Zeroka. La contratación y cobertura definitiva quedan sujetas a la documentación y condiciones vigentes de Medifé.</div>
