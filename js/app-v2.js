@@ -4,7 +4,7 @@ const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const ENGINE=window.MEDIFE_ENGINE;
 if(!ENGINE) throw new Error('No se pudo cargar el motor Medifé.');
 const {DATA,quote,quoteAll,strategicEligibility,gafEligibility,validateClient}=ENGINE;
-const VALIDITY_HOURS=72;
+const VALIDITY_LABEL='7 días hábiles';
 
 const state={client:null,plan:null,quote:null};
 const money=v=>new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',minimumFractionDigits:0,maximumFractionDigits:0}).format(Number(v)||0);
@@ -28,7 +28,10 @@ function fillFilialSelect(){
 function fillGafSelect(){
   const select=$('#gaf');
   const previous=select.value||'none';
-  const draft={category:$('input[name="category"]:checked')?.value||'Obligatorio'};
+  const draft={
+    category:$('input[name="category"]:checked')?.value||'Obligatorio',
+    region:$('#region').value
+  };
   const values=gafEligibility(draft);
   select.innerHTML=values.map(v=>`<option value="${esc(v.value)}">${esc(v.label)}</option>`).join('');
   select.value=values.some(v=>v.value===previous)?previous:'none';
@@ -187,9 +190,9 @@ $('#quoteForm').addEventListener('submit',e=>{
 });
 
 function quoteDates(){
-  const issued=new Date(),valid=new Date(issued.getTime()+VALIDITY_HOURS*3600000);
+  const issued=new Date();
   const fmt=d=>new Intl.DateTimeFormat('es-AR',{dateStyle:'short',timeStyle:'short'}).format(d);
-  return {issued:fmt(issued),valid:fmt(valid)};
+  return {issued:fmt(issued),validity:VALIDITY_LABEL};
 }
 function selectedPromotionLabel(c,q){
   const labels=[];
