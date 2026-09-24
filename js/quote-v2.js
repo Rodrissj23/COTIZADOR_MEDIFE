@@ -1,7 +1,7 @@
 /* PDF v2: portada Medifé + resumen comercial tipo resto de cotizadores. */
 (() => {
   const logoWord=()=>`<span class="medife-wordmark">Medifé</span>`;
-  const qFooter=(page,total)=>`<div class="medife-pdf-footer"><span>Tarifario ${esc(DATA.version)} · vigencia ${VALIDITY_HOURS} hs</span><span>${page} / ${total} · Grupo Zeroka</span></div>`;
+  const qFooter=(page,total)=>`<div class="medife-pdf-footer"><span>Tarifario ${esc(DATA.version)} · vigencia ${esc(VALIDITY_LABEL)}</span><span>${page} / ${total} · Grupo Zeroka</span></div>`;
   const summaryRow=(label,value,note='')=>`<div class="medife-summary-row"><b>${esc(label)}</b><span>${esc(value)}${note?`<small>${esc(note)}</small>`:''}</span></div>`;
 
   buildQuote = function buildQuoteV2(){
@@ -38,7 +38,7 @@
         <div class="medife-cover-kicker">NUEVA COTIZACIÓN · ${esc(DATA.version.toUpperCase())}</div>
         <h1>Hola, ${firstName}.<br>Tu propuesta Medifé.</h1>
         <p class="medife-cover-sub">Una propuesta clara para que puedas comparar el plan, el valor y los beneficios aplicados en tu cotización.</p>
-        <div class="medife-cover-meta">${esc(meta)} · Emitida ${esc(dates.issued)} · válida hasta ${esc(dates.valid)}</div>
+        <div class="medife-cover-meta">${esc(meta)} · Emitida ${esc(dates.issued)} · vigencia ${esc(VALIDITY_LABEL)}</div>
         <div class="medife-cover-card">
           <div><span>PLAN ELEGIDO</span><strong>${esc(plan)}</strong></div>
           <div><span>GRUPO FAMILIAR</span><strong>${esc(compositionLabel(c))}</strong></div>
@@ -55,7 +55,7 @@
           <div class="medife-summary-total"><b>TOTAL · PRIMERA CUOTA</b><strong>${money(q.finalPrice)}</strong></div>
           <div class="medife-summary-legal">
             <p>*Los importes son una estimación comercial y pueden variar ante cambios en datos, tarifas o condiciones de contratación.</p>
-            <p>*Tarifario ${esc(DATA.version)} · propuesta válida por ${VALIDITY_HOURS} hs. Los beneficios mostrados se calculan según región, filial, edad, categoría y condiciones informadas.</p>
+            <p>*Tarifario ${esc(DATA.version)} · propuesta válida por ${esc(VALIDITY_LABEL)} desde su emisión. Los beneficios mostrados se calculan según región, filial, edad, categoría y condiciones informadas.</p>
           </div>
           <div class="medife-summary-brand"><span class="logo-box">${logoWord()}</span><b>Grupo Zeroka · ${esc(dates.issued)}</b></div>
         </div>
