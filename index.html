@@ -26,7 +26,7 @@
         <h1>Con Medifé,<br>tenés más.</h1>
         <p>Armá una propuesta clara con grupo familiar, aportes, promociones y el valor de cada plan en un solo recorrido.</p>
         <button class="button button--white" data-scroll="#cotizador">Empezar cotización <span>↓</span></button>
-        <div class="hero-pills"><span>7 planes</span><span>5 regiones</span><span>Aportes automáticos</span><span>PDF comercial</span></div>
+        <div class="hero-pills"><span>6 planes</span><span>5 regiones</span><span>Aportes automáticos</span><span>PDF comercial</span></div>
       </div>
       <div class="hero-art">
         <div class="hero-brand-card">
@@ -44,22 +44,24 @@
         <div class="section-heading"><span>01</span><div><p class="eyebrow">NUEVA PROPUESTA</p><h2>Armemos el caso.</h2><p>La información está ordenada en cuatro bloques para cotizar más rápido.</p></div></div>
         <form id="quoteForm">
           <section class="form-step">
-            <div class="section-heading section-heading--small"><span>1</span><div><h3>Datos del cliente</h3><p>Identificación y región tarifaria.</p></div></div>
+            <div class="section-heading section-heading--small"><span>1</span><div><h3>Datos del cliente</h3><p>Identificación, región tarifaria y filial comercial.</p></div></div>
             <div class="field-grid field-grid--3">
               <label><span>Nombre y apellido</span><input id="clientName" required placeholder="Ej. María González"></label>
               <label><span>DNI <small class="field-help">Opcional</small></span><input id="clientDni" inputmode="numeric" placeholder="Sin puntos"></label>
               <label><span>Región tarifaria</span><select id="region"><option>AMBA</option><option>Norte</option><option>Sur</option><option>Patagonia</option><option>Bahía/MDQ</option></select></label>
+              <label><span>Filial comercial</span><select id="filial"></select></label>
+              <label id="noaProvinceWrap" hidden><span>Provincia NOA</span><select id="noaProvince"><option>Tucumán</option><option>Salta</option><option>Jujuy</option><option>Otra</option></select><small class="field-help">Necesaria para determinar el descuento permanente de filial.</small></label>
             </div>
           </section>
 
           <section class="form-step">
-            <div class="section-heading section-heading--small"><span>2</span><div><h3>Ingreso y aportes</h3><p>Definí modalidad, pago y aporte utilizable.</p></div></div>
+            <div class="section-heading section-heading--small"><span>2</span><div><h3>Ingreso y aportes</h3><p>Definí modalidad y aporte utilizable.</p></div></div>
             <div class="choice-row choice-row--2" id="categoryChoices">
               <label class="choice active"><input type="radio" name="category" value="Obligatorio" checked><b>Obligatorio</b><small>Con aportes de obra social o monotributo</small></label>
               <label class="choice"><input type="radio" name="category" value="Voluntario"><b>Voluntario</b><small>Precio final con IVA 10,5%</small></label>
             </div>
+            <select id="paymentMethod" hidden><option value="TC">Tarjeta de crédito</option><option value="CBU">CBU</option></select>
             <div class="field-grid field-grid--2 compact-row">
-              <label><span>Medio de pago</span><select id="paymentMethod"><option value="TC">Tarjeta de crédito</option><option value="CBU">CBU</option></select></label>
               <label class="check-card"><input id="procedencia" type="checkbox"><span><b>Procedencia comprobable</b><small>Habilita promociones que la requieren.</small></span></label>
             </div>
             <div id="contributionSection" class="subsection">
@@ -98,19 +100,21 @@
           </section>
 
           <section class="form-step form-step--promo">
-            <div class="section-heading section-heading--small"><span>4</span><div><h3>Promoción comercial</h3><p>Mostramos únicamente las opciones compatibles.</p></div></div>
+            <div class="section-heading section-heading--small"><span>4</span><div><h3>Promoción comercial</h3><p>El sistema combina únicamente beneficios compatibles con el caso.</p></div></div>
             <div class="field-grid field-grid--2">
               <label><span>Promoción estratégica</span><select id="promotion"></select></label>
-              <label class="check-card"><input id="exAssociate" type="checkbox"><span><b>Ex asociado Medifé</b><small>Habilita Opción 7, no acumulable.</small></span></label>
+              <label class="check-card"><input id="exAssociate" type="checkbox"><span><b>Ex asociado Medifé</b><small>Habilita Opción 7, no acumulable con otros descuentos comerciales.</small></span></label>
+              <label><span>Convenio / afinidad</span><select id="gaf"></select><small class="field-help">Se aplica al final del cálculo cuando corresponde.</small></label>
+              <label id="uccWrap" class="check-card" hidden><input id="ucc" type="checkbox"><span><b>Empleador UCC</b><small>Beneficio acumulable del 15% para región Norte.</small></span></label>
             </div>
             <label id="option5Wrap" class="check-card standalone-check" hidden><input id="option5" type="checkbox"><span><b>Agregar Opción 5 · 5% x 6</b><small>Solo con opciones 1, 2 o 3 y procedencia comprobable.</small></span></label>
             <details class="campaign-info">
               <summary><span class="campaign-info-icon">i</span><span><b>Cómo calcula el cotizador</b><small>Ver reglas automáticas aplicadas.</small></span><span class="campaign-toggle"></span></summary>
               <div class="campaign-info-body">
                 <p>Tarifas de septiembre 2026 según región, categoría, edad y composición.</p>
-                <p>Ajustes de hijos y segmento joven se aplican automáticamente.</p>
-                <p>En Obligatorio, el ítem del 3% se convierte internamente al aporte computable. En Monotributo se usa la categoría A–K.</p>
-                <p>Los descuentos que dependen de filial no se aplican porque esta versión trabaja por región tarifaria.</p>
+                <p>Ajustes por hijos, segmento joven y descuentos permanentes de filial se determinan automáticamente.</p>
+                <p>Los tácticos se detectan por filial, edad, categoría y plan; el vendedor no necesita seleccionarlos.</p>
+                <p>GAF se aplica al final. UCC es un beneficio acumulable previo a aportes/IVA. Opción 6 queda fuera hasta confirmar la condición de medio de pago.</p>
               </div>
             </details>
           </section>
@@ -122,9 +126,9 @@
 
       <aside class="case-card">
         <p class="eyebrow eyebrow--white">CASO ACTUAL</p><h3 id="caseName">Nueva cotización</h3>
-        <div class="case-person"><span id="caseInitials">MF</span><div><b id="caseComposition">Titular · 35 años</b><small id="caseMode">Obligatorio · AMBA</small></div></div>
-        <dl><div><dt>Planes</dt><dd>7</dd></div><div><dt>Tarifario</dt><dd>Sep. 2026</dd></div><div><dt>Vigencia</dt><dd>72 hs</dd></div><div><dt>Filial</dt><dd>No utilizada</dd></div></dl>
-        <p class="case-foot">La región se selecciona manualmente y la lógica comercial se calcula en segundo plano.</p>
+        <div class="case-person"><span id="caseInitials">MF</span><div><b id="caseComposition">Titular · 35 años</b><small id="caseMode">Obligatorio · AMBA · CABA</small></div></div>
+        <dl><div><dt>Planes</dt><dd>6</dd></div><div><dt>Tarifario</dt><dd>Sep. 2026</dd></div><div><dt>Vigencia</dt><dd>72 hs</dd></div><div><dt>Filial</dt><dd id="caseFilial">CABA</dd></div></dl>
+        <p class="case-foot">Filial, edad y condiciones comerciales determinan automáticamente los beneficios aplicables.</p>
       </aside>
     </section>
 
@@ -145,11 +149,13 @@
     <div class="quote-pages" id="quotePages"></div>
   </dialog>
 
-  <script src="js/data-core.js"></script><script src="js/tariffs-amba.js"></script><script src="js/tariffs-norte.js"></script><script src="js/tariffs-sur.js"></script><script src="js/tariffs-patagonia.js"></script><script src="js/tariffs-bahia-mdq.js"></script>
-  <script src="js/engine.js"></script>
+  <script src="js/data-core.js"></script>
+  <script src="js/rules-v2.js"></script>
+  <script src="js/tariffs-amba.js"></script><script src="js/tariffs-norte.js"></script><script src="js/tariffs-sur.js"></script><script src="js/tariffs-patagonia.js"></script><script src="js/tariffs-bahia-mdq.js"></script>
+  <script src="js/engine-v2.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/app-v2.js"></script>
   <script src="js/quote-v2.js"></script>
 </body>
 </html>
