@@ -42,13 +42,15 @@ assert.deepEqual(E.PLAN_ORDER,['INDIE','BRONCE CLASSIC','BRONCE','PLATA','ORO','
 }
 
 // Golden case 3: Interior, hijo 21-29 es HIJO MAYOR A CARGO y NO recibe ajuste hijos 55%.
+// Se usa Bronce Classic para aislar esta regla y evitar el táctico Bronce Sur 18-60.
 {
-  const q=E.quote('BRONCE',baseClient({region:'Sur',filial:'Mendoza',age:25,childrenAges:[22]}));
+  const q=E.quote('BRONCE CLASSIC',baseClient({region:'Sur',filial:'Mendoza',age:25,childrenAges:[22]}));
   assert.equal(q.status,'ok');
-  approx(q.listPrice,611860.9075);
+  approx(q.listPrice,524748.7448);
   approx(q.childDiscount,0);
-  approx(q.youngDiscount,63764.23);
-  approx(q.finalPrice,476951.68);
+  approx(q.youngDiscount,52924.33);
+  approx(q.finalPrice,400679.41);
+  assert.equal(q.tactical,null);
 }
 
 // Descuento permanente de filial Córdoba: 10% en Obligatorio, fuera del cap comercial.
