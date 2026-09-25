@@ -37,7 +37,7 @@ jobs:
           exit 1
 
       - name: Run seller functional QA
-        run: npx playwright test tests/e2e/medife-functional.spec.js
+        run: npx playwright test tests/e2e
 
       - name: Upload Playwright report on failure
         if: failure()
