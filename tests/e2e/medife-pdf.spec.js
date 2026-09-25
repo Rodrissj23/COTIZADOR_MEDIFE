@@ -15,7 +15,8 @@ test('PDF · genera y descarga un PDF real desde la cotización', async ({ page 
   await plata.getByRole('button', { name: /Elegir plan/i }).click();
   await page.getByRole('button', { name: /Ver cotización/i }).click();
   await expect(page.locator('#quoteDialog')).toBeVisible();
-  await expect(page.locator('#quotePages')).toContainText('QA PDF');
+  await expect(page.locator('#quotePages')).toContainText('Hola, QA.');
+  await expect(page.locator('#quotePages')).toContainText('PLATA');
   await expect(page.locator('#quotePages')).toContainText('7 días hábiles');
 
   await page.waitForFunction(() => Boolean(window.html2canvas && window.jspdf?.jsPDF), null, { timeout: 15000 });
