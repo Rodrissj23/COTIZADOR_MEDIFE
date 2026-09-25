@@ -17,4 +17,6 @@ jobs:
         with:
           node-version: '20'
       - name: Run Medife V2 pricing tests
-        run: node tests/engine-v2.test.js
+        run: |
+          node tests/engine-v2.test.js
+          node tests/qa-excel.test.js
