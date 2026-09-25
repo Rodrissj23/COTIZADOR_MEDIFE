@@ -117,10 +117,19 @@ test.describe('Cotizador Medifé · QA funcional vendedor', () => {
     await page.locator('#children').fill('2');
     await expect(page.locator('.child-age')).toHaveCount(2);
     await page.locator('.child-age').nth(0).fill('10');
-    await page.locator('.child-age').nth(1).fill('30');
+    const secondChild = page.locator('.child-age').nth(1);
+    await secondChild.fill('30');
     await fillMandatoryContribution(page);
+
+    expect(await secondChild.evaluate(el => el.validity.rangeOverflow)).toBe(true);
     await submit(page);
-    await expect(page.locator('#formError')).toContainText('0 y 29');
+    await expect(page.locator('#resultados')).toBeHidden();
+
+    await secondChild.fill('29');
+    expect(await secondChild.evaluate(el => el.checkValidity())).toBe(true);
+    await submit(page);
+    await expect(page.locator('#formError')).toHaveText('');
+    await expect(page.locator('#resultados')).toBeVisible();
   });
 
   test('09 · Opción 5 solo se habilita con procedencia + opciones 1/2/3', async ({ page }) => {
