@@ -93,9 +93,9 @@
       </section>`;
   };
 
-  // La experiencia V3 se carga después de la app auditada para conservar el
-  // motor y reemplazar únicamente el flujo comercial de selección de beneficios.
+  // Capas visuales/comerciales cargadas después de la app auditada.
   if(typeof document!=='undefined'){
+    const pdfCss=document.createElement('link');pdfCss.rel='stylesheet';pdfCss.href='css/pdf-v4.css';document.head.appendChild(pdfCss);
     const css=document.createElement('link');css.rel='stylesheet';css.href='css/configurator-v3.css';document.head.appendChild(css);
     const script=document.createElement('script');script.src='js/configurator-v3.js';document.body.appendChild(script);
   }
