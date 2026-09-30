@@ -12,7 +12,7 @@ test('PDF · genera y descarga la propuesta manual como PDF real', async ({ page
   const plata=page.locator('.plan-card').filter({has:page.getByRole('heading',{name:'PLATA',exact:true})});
   await plata.getByRole('button',{name:/Armar propuesta/i}).click();
   await expect(page.locator('#proposalBuilder')).toBeVisible();
-  await page.locator('.benefit-card').filter({hasText:'Opción 1'}).click();
+  await page.locator('.benefit-card[data-benefit-id="strategic:1"]').click();
   await page.locator('#openManualQuote').click();
   await expect(page.locator('#quoteDialog')).toBeVisible();
   await expect(page.locator('#quotePages')).toContainText('Hola, QA.');
