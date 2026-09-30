@@ -11,7 +11,11 @@
     const firstName=esc(clientName.split(/\s+/)[0]||clientName);
     const promoLabel=selectedPromotionLabel(c,q);
     const permanent=[];
-    if(q.childDiscount) permanent.push(`Ajuste hijos - ${money(q.childDiscount)}`);
+    if(q.childDiscount){
+      const rule=q.childAdjustmentRate?`${pct(q.childAdjustmentRate)} sobre hijos`:'';
+      const impact=q.childEffectiveDiscountRate?`${pct(q.childEffectiveDiscountRate)} impacto grupo`:'';
+      permanent.push(`Ajuste hijos${rule?` · ${rule}`:''}${impact?` · ${impact}`:''} - ${money(q.childDiscount)}`);
+    }
     if(q.youngDiscount) permanent.push(`Segmento joven - ${money(q.youngDiscount)}`);
     if(q.filialDiscount) permanent.push(`${q.filialLabel||'Descuento filial'} - ${money(q.filialDiscount)}`);
     const adjustmentLabel=permanent.length?permanent.join(' · '):'Sin ajustes permanentes';
@@ -23,7 +27,7 @@
       ['Región · filial',`${c.region} · ${c.filial}`,''],
       ['Categoría',c.category,''],
       ['Valor de lista',money(q.listPrice),''],
-      ['Ajustes permanentes',q.permanentDiscount?`- ${money(q.permanentDiscount)}`:money(0),adjustmentLabel],
+      ['Ajustes aplicados',q.permanentDiscount?`- ${money(q.permanentDiscount)}`:money(0),adjustmentLabel],
       ['Promoción comercial',promoLabel,''],
       ...(q.uccRate?[['UCC',`${pct(q.uccRate)} dto.`, 'Empleador acumulable']]:[]),
       [c.category==='Obligatorio'?'Aportes a descontar':'IVA',contributionLabel,contributionNote],
@@ -55,7 +59,7 @@
           <div class="medife-summary-total"><b>TOTAL · PRIMERA CUOTA</b><strong>${money(q.finalPrice)}</strong></div>
           <div class="medife-summary-legal">
             <p>*Los importes son una estimación comercial y pueden variar ante cambios en datos, tarifas o condiciones de contratación.</p>
-            <p>*Tarifario ${esc(DATA.version)} · propuesta válida por ${esc(VALIDITY_LABEL)} desde su emisión. Los beneficios mostrados se calculan según región, filial, edad, categoría y condiciones informadas.</p>
+            <p>*Tarifario ${esc(DATA.version)} · propuesta válida por ${esc(VALIDITY_LABEL)} desde su emisión. Los beneficios mostrados son únicamente los seleccionados por el asesor entre los compatibles con el caso.</p>
           </div>
           <div class="medife-summary-brand"><span class="logo-box">${logoWord()}</span><b>Grupo Zeroka · ${esc(dates.issued)}</b></div>
         </div>
@@ -64,7 +68,7 @@
       <section class="quote-page medife-pdf-page medife-timeline">
         <div class="quote-content">
           <div class="medife-timeline-head"><div><p class="eyebrow">CRONOGRAMA COMERCIAL</p><h2>Cómo evoluciona tu cuota.</h2></div><span class="medife-timeline-logo">${logoWord()}</span></div>
-          <p>El cronograma refleja los beneficios temporales aplicables al caso. Los valores permanecen sujetos a futuros aumentos generales de tarifa.</p>
+          <p>El cronograma refleja únicamente los beneficios seleccionados para esta propuesta. Los valores permanecen sujetos a futuros aumentos generales de tarifa.</p>
           <div class="quote-kpis"><div class="quote-kpi"><small>Primera cuota</small><strong>${money(q.finalPrice)}</strong></div><div class="quote-kpi"><small>Valor regular actual</small><strong>${money(q.regularPrice)}</strong></div><div class="quote-kpi"><small>Beneficio comercial</small><strong>${esc(promoLabel)}</strong></div></div>
           <div class="timeline">${timeline}</div>
           <div class="quote-note">Cotización comercial elaborada por Grupo Zeroka. La contratación y cobertura definitiva quedan sujetas a la documentación y condiciones vigentes de Medifé.</div>
@@ -72,4 +76,11 @@
         ${qFooter(3,total)}
       </section>`;
   };
+
+  // La experiencia V3 se carga después de la app auditada para conservar el
+  // motor y reemplazar únicamente el flujo comercial de selección de beneficios.
+  if(typeof document!=='undefined'){
+    const css=document.createElement('link');css.rel='stylesheet';css.href='css/configurator-v3.css';document.head.appendChild(css);
+    const script=document.createElement('script');script.src='js/configurator-v3.js';document.body.appendChild(script);
+  }
 })();
