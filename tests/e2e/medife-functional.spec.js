@@ -116,7 +116,7 @@ test.describe('Cotizador Medifé · QA funcional configurador V3',()=>{
 
   test('15 · AMBA bloquea segmento joven al aplicar ajuste por hijos',async({page})=>{
     await openApp(page);await page.locator('#age').fill('25');await page.locator('#children').fill('1');await page.locator('.child-age').fill('10');await fillMandatoryContribution(page);await submit(page);await choosePlan(page,'PLATA');
-    const child=benefitId(page,'child');const young=benefitId(page,'young');await expect(young).toBeEnabled();await child.click();await expect(benefitId(page,'child')).toHaveClass(/is-selected/);await expect(benefitId(page,'young')).toBeDisabled();await expect(benefitId(page,'young')).toContainText('no se combina');
+    const child=benefitId(page,'child');const young=benefitId(page,'young');await expect(young).toBeEnabled();await child.click();await expect(benefitId(page,'child')).toHaveClass(/is-selected/);await expect(benefitId(page,'young')).toBeDisabled();await expect(benefitId(page,'young')).toContainText('desplaza este beneficio');
   });
 
   test('16 · táctico válido aparece disponible pero no se aplica hasta que el asesor lo elige',async({page})=>{
