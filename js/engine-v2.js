@@ -117,17 +117,41 @@
     }
     return {amount:discount,label:discount>0?'Segmento joven':null};
   }
-  function permanentAdjustments(plan,client,members){
+
+  // El 45%/55% no se aplica sobre el grupo completo: se aplica solo sobre
+  // la tarifa de los hijos elegibles. El porcentaje efectivo del grupo es
+  // importe del ajuste / valor de lista total del grupo.
+  function childAdjustmentDetails(plan,client,members){
+    const groupListPrice=members.reduce((s,m)=>s+m.listPrice,0);
     const children=members.filter(m=>m.kind==='child');
-    let childDiscount=0;
-    if(CHILD_ADJUST_PLANS.has(plan)){
-      const eligibleChildren=children.filter(m=>client.region==='AMBA'?m.age<=29:m.age<=20);
-      const rate=DATA.permanent.childAdjustment[client.region]||0;
-      childDiscount=eligibleChildren.reduce((s,m)=>s+m.listPrice,0)*rate;
-    }
-    const young=youngDiscount(plan,client,members,childDiscount);
-    const base=members.reduce((s,m)=>s+m.listPrice,0);
-    return {base,childDiscount,youngDiscount:young.amount,nominalAdjusted:base-childDiscount-young.amount};
+    const rate=CHILD_ADJUST_PLANS.has(plan)?n(DATA.permanent.childAdjustment[client.region]):0;
+    const eligibleChildren=rate
+      ? children.filter(m=>client.region==='AMBA'?m.age<=29:m.age<=20)
+      : [];
+    const eligibleListPrice=eligibleChildren.reduce((s,m)=>s+m.listPrice,0);
+    const amount=eligibleListPrice*rate;
+    const effectiveRate=groupListPrice>0?amount/groupListPrice:0;
+    return {
+      rate,
+      eligibleChildren,
+      eligibleListPrice,
+      amount,
+      effectiveRate,
+      groupListPrice,
+      priceAfterAdjustment:groupListPrice-amount
+    };
+  }
+
+  function permanentAdjustments(plan,client,members){
+    const child=childAdjustmentDetails(plan,client,members);
+    const young=youngDiscount(plan,client,members,child.amount);
+    return {
+      base:child.groupListPrice,
+      childDiscount:child.amount,
+      childAdjustment:child,
+      youngDiscount:young.amount,
+      nominalAdjusted:child.priceAfterAdjustment-young.amount
+    };
   }
 
   function filialDiscountPolicy(plan,client){
@@ -287,6 +311,7 @@
     const list=memberList(plan,client);
     if(!list.ok)return {status:'unavailable',reason:list.reason,plan};
     const permanent=permanentAdjustments(plan,client,list.members);
+    const child=permanent.childAdjustment;
     const filialPolicy=filialDiscountPolicy(plan,client);
     const filialRate=filialPolicy?.rate||0;
     const filialDiscountRaw=permanent.nominalAdjusted*filialRate;
@@ -302,7 +327,24 @@
     return {
       status:'ok',plan,members:list.members,
       listPrice:permanent.base,
-      childDiscount:permanent.childDiscount,
+
+      // Ajuste por hijos: regla tarifaria sobre la porción de hijos elegibles,
+      // no descuento porcentual sobre el grupo familiar completo.
+      childDiscount:child.amount,
+      childAdjustmentRate:child.rate,
+      childEligibleListPrice:child.eligibleListPrice,
+      childEffectiveDiscountRate:child.effectiveRate,
+      priceAfterChildAdjustment:child.priceAfterAdjustment,
+      childAdjustment:{
+        rate:child.rate,
+        eligibleListPrice:child.eligibleListPrice,
+        amount:child.amount,
+        effectiveRate:child.effectiveRate,
+        groupListPrice:child.groupListPrice,
+        priceAfterAdjustment:child.priceAfterAdjustment,
+        eligibleMembers:child.eligibleChildren.map(m=>({role:m.role,age:m.age,key:m.key,listPrice:m.listPrice}))
+      },
+
       youngDiscount:permanent.youngDiscount,
       filialDiscount:round2(filialDiscountRaw),filialRate,filialLabel:filialPolicy?.label||null,
       nominalAdjustedPrice:permanent.nominalAdjusted,
@@ -324,7 +366,8 @@
 
   const api={
     DATA,PLAN_ORDER,adultBand,adultKey,childKey,childStatus,payrollContribution,totalContribution,
-    strategicEligibility,gafEligibility,filialDiscountPolicy,tacticalFor,validateClient,quote,quoteAll,round2
+    childAdjustmentDetails,strategicEligibility,gafEligibility,filialDiscountPolicy,tacticalFor,
+    validateClient,quote,quoteAll,round2
   };
   root.MEDIFE_ENGINE=api;
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
