@@ -1,0 +1,44 @@
+/* Medifé V3 · configurador comercial manual */
+.form-step--promo .field-grid{align-items:stretch}
+.proposal-builder{max-width:1280px;margin:52px auto 120px;padding:0 24px;scroll-margin-top:24px}
+.proposal-shell{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:24px;align-items:start}
+.proposal-main{min-width:0}
+.proposal-title{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:18px}
+.proposal-title h2{margin:2px 0 8px;font-size:40px;letter-spacing:-.045em;color:#333}
+.proposal-title p:not(.eyebrow){margin:0;max-width:720px;color:#706d69;line-height:1.5}
+.proposal-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}
+.proposal-kpis>div{display:grid;gap:5px;min-height:118px;padding:20px;border:1px solid #e2ddd9;border-radius:20px;background:#fff;box-shadow:0 8px 24px rgba(45,39,35,.04)}
+.proposal-kpis>div.is-current{border-color:#e35205;background:#fff5ef}
+.proposal-kpis small{font-size:9px;font-weight:800;letter-spacing:.11em;color:#888}
+.proposal-kpis strong{font-size:29px;letter-spacing:-.045em;color:#333}
+.proposal-kpis .is-current strong{color:#e35205}
+.proposal-kpis span{font-size:11px;color:#777;line-height:1.35}
+.proposal-tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px}
+.button--ghost-dark{background:#ece8e4;color:#4b4845;border:1px solid #ddd7d2}
+.benefit-group{margin-top:18px;padding:24px;border:1px solid #e8e3df;border-radius:24px;background:#fff;box-shadow:0 14px 34px rgba(45,39,35,.05)}
+.benefit-group-head{display:grid;gap:5px;margin-bottom:16px}
+.benefit-group-head h3{margin:0;font-size:22px;letter-spacing:-.025em;color:#333}
+.benefit-group-head p{margin:0;color:#777;font-size:13px;line-height:1.45}
+.benefit-list{display:grid;gap:10px}
+.benefit-card{width:100%;display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:13px;align-items:center;padding:15px 16px;border:1px solid #ded9d5;border-radius:17px;background:#fff;text-align:left;cursor:pointer;transition:.17s ease;color:#333}
+.benefit-card:hover:not(:disabled){transform:translateY(-1px);border-color:#c9c2bc;box-shadow:0 9px 20px rgba(45,39,35,.07)}
+.benefit-card.is-selected{border-color:#e35205;background:#fff3ec;box-shadow:inset 0 0 0 1px rgba(227,82,5,.08)}
+.benefit-card.is-disabled{opacity:.62;background:#f4f2f0;cursor:not-allowed}
+.benefit-check{display:grid;place-items:center;width:30px;height:30px;border:1px solid #d7d1cc;border-radius:10px;background:#f5f2ef;color:#e35205;font-weight:900}
+.is-selected .benefit-check{border-color:#e35205;background:#e35205;color:#fff}
+.benefit-copy{display:grid;gap:3px;min-width:0}.benefit-copy b{font-size:14px}.benefit-copy small{color:#777;font-size:12px;line-height:1.4}.benefit-copy em{font-style:normal;color:#9c5a35;font-size:11px;font-weight:700}
+.benefit-impact{justify-self:end;padding:7px 9px;border-radius:999px;background:#f0eeeb;color:#555;font-size:10px;font-weight:800;white-space:nowrap}
+.is-selected .benefit-impact{background:#fff;color:#c84800}
+.proposal-summary{position:relative}
+.summary-sticky{position:sticky;top:18px;padding:26px;border-radius:28px;background:#363636;color:#fff;box-shadow:0 18px 42px rgba(35,35,35,.17)}
+.summary-sticky h3{margin:4px 0 20px;font-size:31px;letter-spacing:-.04em}
+.summary-base,.summary-lines>div{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.11)}
+.summary-base span,.summary-lines span{color:#d1ccc8;font-size:12px}.summary-base b,.summary-lines b{font-size:12px;text-align:right}
+.summary-empty{margin:16px 0;color:#bbb;font-size:12px;line-height:1.45}
+.summary-total{display:grid;gap:5px;margin:22px 0;padding-top:2px}.summary-total span{font-size:9px;font-weight:800;letter-spacing:.13em;color:#c8c2bd}.summary-total strong{font-size:36px;color:#fff;letter-spacing:-.05em}.summary-total small{color:#bcb6b1;font-size:11px}
+.summary-note{margin:13px 0 0;color:#aaa;font-size:10px;line-height:1.45;text-align:center}
+.base-price-label{margin-top:16px;color:#888;font-size:9px;font-weight:800;letter-spacing:.12em}
+.plan-price--base{margin-top:3px}.plan-price--base strong{font-size:33px}.plan-price--base small{min-height:30px;color:#777}
+.benefit-count{display:flex;align-items:center;gap:7px;margin:12px 0 16px;padding:9px 10px;border-radius:12px;background:#f4f1ef;color:#666;font-size:11px}.benefit-count b{display:grid;place-items:center;min-width:23px;height:23px;border-radius:8px;background:#fff;color:#e35205}.featured .benefit-count{background:rgba(255,255,255,.15);color:#fff}.featured .benefit-count b{color:#e35205}
+@media(max-width:1000px){.proposal-shell{grid-template-columns:1fr}.summary-sticky{position:static}.proposal-kpis{grid-template-columns:1fr 1fr}.proposal-kpis>div:last-child{grid-column:1/-1}}
+@media(max-width:700px){.proposal-builder{padding:0 14px;margin-top:34px}.proposal-title{display:grid}.proposal-title h2{font-size:34px}.proposal-kpis{grid-template-columns:1fr}.proposal-kpis>div:last-child{grid-column:auto}.benefit-group{padding:17px 13px;border-radius:20px}.benefit-card{grid-template-columns:30px minmax(0,1fr);padding:13px 12px}.benefit-impact{grid-column:2;justify-self:start}.proposal-tools{display:grid;grid-template-columns:1fr}.proposal-tools .button{width:100%}.summary-sticky{border-radius:22px}.summary-total strong{font-size:32px}}
