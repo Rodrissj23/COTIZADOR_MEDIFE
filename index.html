@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="css/v2.css">
   <link rel="stylesheet" href="css/form-v2.css">
   <link rel="stylesheet" href="css/brand-wordmark.css">
+  <link rel="stylesheet" href="css/configurator-v3.css">
 </head>
 <body>
   <header class="site-header">
@@ -24,9 +25,9 @@
       <div class="hero-copy">
         <p class="eyebrow eyebrow--white">COTIZADOR COMERCIAL · SEPTIEMBRE 2026</p>
         <h1>Con Medifé,<br>tenés más.</h1>
-        <p>Armá una propuesta clara con grupo familiar, aportes, promociones y el valor de cada plan en un solo recorrido.</p>
+        <p>Partí del precio base y armá la propuesta comercial eligiendo únicamente beneficios válidos para cada caso.</p>
         <button class="button button--white" data-scroll="#cotizador">Empezar cotización <span>↓</span></button>
-        <div class="hero-pills"><span>6 planes</span><span>5 regiones</span><span>Aportes automáticos</span><span>PDF comercial</span></div>
+        <div class="hero-pills"><span>6 planes</span><span>5 regiones</span><span>Beneficios configurables</span><span>PDF comercial</span></div>
       </div>
       <div class="hero-art">
         <div class="hero-brand-card">
@@ -41,7 +42,7 @@
 
     <section class="quote-layout" id="cotizador">
       <div class="form-card">
-        <div class="section-heading"><span>01</span><div><p class="eyebrow">NUEVA PROPUESTA</p><h2>Armemos el caso.</h2><p>La información está ordenada en cuatro bloques para cotizar más rápido.</p></div></div>
+        <div class="section-heading"><span>01</span><div><p class="eyebrow">NUEVA PROPUESTA</p><h2>Armemos el caso.</h2><p>Cargá los datos reales del cliente. Los descuentos se eligen después, sobre cada plan.</p></div></div>
         <form id="quoteForm">
           <section class="form-step">
             <div class="section-heading section-heading--small"><span>1</span><div><h3>Datos del cliente</h3><p>Identificación, región tarifaria y filial comercial.</p></div></div>
@@ -50,7 +51,7 @@
               <label><span>DNI <small class="field-help">Opcional</small></span><input id="clientDni" inputmode="numeric" placeholder="Sin puntos"></label>
               <label><span>Región tarifaria</span><select id="region"><option>AMBA</option><option>Norte</option><option>Sur</option><option>Patagonia</option><option>Bahía/MDQ</option></select></label>
               <label><span>Filial comercial</span><select id="filial"></select></label>
-              <label id="noaProvinceWrap" hidden><span>Provincia NOA</span><select id="noaProvince"><option>Tucumán</option><option>Salta</option><option>Jujuy</option><option>Otra</option></select><small class="field-help">Necesaria para determinar el descuento permanente de filial.</small></label>
+              <label id="noaProvinceWrap" hidden><span>Provincia NOA</span><select id="noaProvince"><option>Tucumán</option><option>Salta</option><option>Jujuy</option><option>Otra</option></select><small class="field-help">Necesaria para determinar beneficios válidos de filial.</small></label>
             </div>
           </section>
 
@@ -100,27 +101,26 @@
           </section>
 
           <section class="form-step form-step--promo">
-            <div class="section-heading section-heading--small"><span>4</span><div><h3>Promoción comercial</h3><p>El sistema combina únicamente beneficios compatibles con el caso.</p></div></div>
+            <div class="section-heading section-heading--small"><span>4</span><div><h3>Condiciones especiales</h3><p>Marcá solo condiciones reales del cliente. Los beneficios se eligen después.</p></div></div>
             <div class="field-grid field-grid--2">
               <label><span>Promoción estratégica</span><select id="promotion"></select></label>
-              <label class="check-card"><input id="exAssociate" type="checkbox"><span><b>Ex asociado Medifé</b><small>Habilita Opción 7, no acumulable con otros descuentos comerciales.</small></span></label>
-              <label><span>Convenio / afinidad</span><select id="gaf"></select><small class="field-help">Se aplica al final del cálculo cuando corresponde.</small></label>
-              <label id="uccWrap" class="check-card" hidden><input id="ucc" type="checkbox"><span><b>Empleador UCC</b><small>Beneficio acumulable del 15% para región Norte.</small></span></label>
+              <label class="check-card"><input id="exAssociate" type="checkbox"><span><b>Es ex asociado Medifé</b><small>Habilita Opción 7 al armar la propuesta.</small></span></label>
+              <label><span>Convenio / afinidad</span><select id="gaf"></select></label>
+              <label id="uccWrap" class="check-card" hidden><input id="ucc" type="checkbox"><span><b>Tiene empleador UCC</b><small>Habilita el beneficio UCC para región Norte.</small></span></label>
             </div>
-            <label id="option5Wrap" class="check-card standalone-check" hidden><input id="option5" type="checkbox"><span><b>Agregar Opción 5 · 5% x 6</b><small>Solo con opciones 1, 2 o 3 y procedencia comprobable.</small></span></label>
+            <label id="option5Wrap" class="check-card standalone-check" hidden><input id="option5" type="checkbox"><span><b>Opción 5</b></span></label>
             <details class="campaign-info">
-              <summary><span class="campaign-info-icon">i</span><span><b>Cómo calcula el cotizador</b><small>Ver reglas automáticas aplicadas.</small></span><span class="campaign-toggle"></span></summary>
+              <summary><span class="campaign-info-icon">i</span><span><b>Cómo funciona</b><small>Primero precio base, después beneficios.</small></span><span class="campaign-toggle"></span></summary>
               <div class="campaign-info-body">
-                <p>Tarifas de septiembre 2026 según región, categoría, edad y composición.</p>
-                <p>Ajustes por hijos, segmento joven y descuentos permanentes de filial se determinan automáticamente.</p>
-                <p>Los tácticos se detectan por filial, edad, categoría y plan; el vendedor no necesita seleccionarlos.</p>
-                <p>GAF se aplica al final. UCC es un beneficio acumulable previo a aportes/IVA. Opción 6 queda fuera hasta confirmar la condición de medio de pago.</p>
+                <p>Primero se muestra el valor de lista puro de cada plan.</p>
+                <p>Al elegir uno, el sistema muestra solo beneficios compatibles con ese caso.</p>
+                <p>El asesor decide cuáles aplicar; IVA y aportes siguen siendo automáticos.</p>
               </div>
             </details>
           </section>
 
           <p id="formError" class="form-error" role="alert"></p>
-          <button class="button button--primary button--wide submit-quote" type="submit"><span>Ver planes disponibles</span><span>→</span></button>
+          <button class="button button--primary button--wide submit-quote" type="submit"><span>Ver precios base</span><span>→</span></button>
         </form>
       </div>
 
@@ -128,17 +128,17 @@
         <p class="eyebrow eyebrow--white">CASO ACTUAL</p><h3 id="caseName">Nueva cotización</h3>
         <div class="case-person"><span id="caseInitials">MF</span><div><b id="caseComposition">Titular · 35 años</b><small id="caseMode">Obligatorio · AMBA · CABA</small></div></div>
         <dl><div><dt>Planes</dt><dd>6</dd></div><div><dt>Tarifario</dt><dd>Sep. 2026</dd></div><div><dt>Vigencia</dt><dd>7 días hábiles</dd></div><div><dt>Filial</dt><dd id="caseFilial">CABA</dd></div></dl>
-        <p class="case-foot">Filial, edad y condiciones comerciales determinan automáticamente los beneficios aplicables.</p>
+        <p class="case-foot">Primero comparás precios base. Después elegís qué beneficios válidos aplicar a cada propuesta.</p>
       </aside>
     </section>
 
     <section class="plans-section" id="resultados" hidden>
-      <div class="results-head"><div><p class="eyebrow">PROPUESTA PREPARADA</p><h2>Compará los planes.</h2><p>El importe destacado corresponde a la primera cuota estimada.</p></div><button class="button button--outline" data-scroll="#cotizador">← Modificar datos</button></div>
+      <div class="results-head"><div><p class="eyebrow">PRECIOS BASE</p><h2>Elegí el plan para armar la propuesta.</h2><p>Los importes mostrados son valores de lista del grupo, sin descuentos comerciales aplicados.</p></div><button class="button button--outline" data-scroll="#cotizador">← Modificar datos</button></div>
       <div class="plans-grid" id="plansGrid"></div>
     </section>
 
     <section class="selected-bar" id="selectedBar" hidden>
-      <div><p>PLAN SELECCIONADO</p><h2 id="selectedName">PLATA</h2><small id="selectedPromo">Propuesta preparada</small></div>
+      <div><p>PLAN SELECCIONADO</p><h2 id="selectedName">PLATA</h2><small id="selectedPromo">Propuesta configurada</small></div>
       <div class="selected-price"><p>PRIMERA CUOTA ESTIMADA</p><strong id="selectedPrice">—</strong><small id="selectedRegular">—</small></div>
       <div class="selected-actions"><button class="button button--ghost" data-scroll="#resultados">Cambiar</button><button class="button button--white" id="openQuote">Ver cotización →</button></div>
     </section>
@@ -157,5 +157,6 @@
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
   <script src="js/app-v2.js"></script>
   <script src="js/quote-v2.js"></script>
+  <script src="js/configurator-v3.js"></script>
 </body>
 </html>
