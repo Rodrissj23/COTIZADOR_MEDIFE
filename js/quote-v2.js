@@ -93,10 +93,9 @@
       </section>`;
   };
 
-  // Capas visuales/comerciales cargadas después de la app auditada.
+  // Solo la capa visual del PDF se carga acá. V3 funcional y V4 visual ya
+  // están declarados una única vez en index.html para preservar el orden.
   if(typeof document!=='undefined'){
     const pdfCss=document.createElement('link');pdfCss.rel='stylesheet';pdfCss.href='css/pdf-v4.css';document.head.appendChild(pdfCss);
-    const css=document.createElement('link');css.rel='stylesheet';css.href='css/configurator-v3.css';document.head.appendChild(css);
-    const script=document.createElement('script');script.src='js/configurator-v3.js';document.body.appendChild(script);
   }
 })();
