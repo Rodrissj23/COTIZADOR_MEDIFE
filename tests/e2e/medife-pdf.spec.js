@@ -8,7 +8,7 @@ test('PDF · genera y descarga la propuesta manual como PDF real', async ({ page
   await expect(page.locator('html')).toHaveAttribute('data-medife-configurator','ready');
   await page.locator('#clientName').fill('QA PDF');
   await page.locator('#receiptContribution').fill('30000');
-  await page.getByRole('button',{name:/Ver planes disponibles/i}).click();
+  await page.getByRole('button',{name:/Ver (planes disponibles|precios base)/i}).click();
   const plata=page.locator('.plan-card').filter({has:page.getByRole('heading',{name:'PLATA',exact:true})});
   await plata.getByRole('button',{name:/Armar propuesta/i}).click();
   await expect(page.locator('#proposalBuilder')).toBeVisible();
