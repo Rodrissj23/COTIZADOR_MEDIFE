@@ -11,7 +11,7 @@ async function fillMandatoryContribution(page, value='30000') {
   await page.locator('#receiptContribution').fill(value);
 }
 async function submit(page) {
-  await page.getByRole('button',{name:/Ver planes disponibles/i}).click();
+  await page.getByRole('button',{name:/Ver (planes disponibles|precios base)/i}).click();
 }
 function planCard(page, plan) {
   return page.locator('.plan-card').filter({has:page.getByRole('heading',{name:plan,exact:true})});
