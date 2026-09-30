@@ -23,6 +23,7 @@ async function choosePlan(page, plan) {
   await expect(page.locator('#proposalHeader')).toContainText(plan);
 }
 function benefit(page,title){return page.locator('.benefit-card').filter({hasText:title});}
+function benefitId(page,id){return page.locator(`.benefit-card[data-benefit-id="${id}"]`);}
 function digitsOnly(text){return String(text||'').replace(/\D/g,'');}
 
 
@@ -93,45 +94,48 @@ test.describe('Cotizador Medifé · QA funcional configurador V3',()=>{
     await openApp(page);await page.locator('#receiptContribution').fill('');await submit(page);await expect(page.locator('#formError')).toContainText('aporte del 3%');await expect(page.locator('#resultados')).toBeHidden();
   });
 
-  test('12 · elegir plan abre configurador con todos los beneficios apagados',async({page})=>{
+  test('12 · elegir plan abre configurador con beneficios comerciales apagados y aportes automáticos',async({page})=>{
     await openApp(page);await fillMandatoryContribution(page);await submit(page);await choosePlan(page,'PLATA');
-    await expect(page.locator('.benefit-card.is-selected')).toHaveCount(0);await expect(page.locator('#proposalSummary')).toContainText('Todavía no agregaste beneficios comerciales');
+    await expect(page.locator('.benefit-card.is-selected')).toHaveCount(0);
+    await expect(page.locator('#proposalSummary')).toContainText('Aportes');
+    await expect(page.locator('#proposalSummary')).not.toContainText('Beneficios comerciales mes 1');
     await expect(page.locator('#proposalHeader')).toContainText('VALOR BASE DEL GRUPO');
   });
 
   test('13 · AMBA explica 45% sobre hijos y muestra impacto real sobre el grupo',async({page})=>{
     await openApp(page);await page.locator('#age').fill('35');await page.locator('#children').fill('1');await page.locator('.child-age').fill('10');await fillMandatoryContribution(page);await submit(page);await choosePlan(page,'PLATA');
-    const child=benefit(page,'Ajuste por hijos');await expect(child).toBeVisible();await expect(child).toContainText('45% sobre tarifa de hijos elegibles');await expect(child).toContainText('impacto máximo sobre este grupo');
+    const child=benefitId(page,'child');await expect(child).toBeVisible();await expect(child).toContainText('45% sobre tarifa de hijos elegibles');await expect(child).toContainText('impacto máximo sobre este grupo');
     const txt=await child.textContent();expect(txt).not.toMatch(/impacto máximo sobre este grupo 45%/);
   });
 
   test('14 · Interior explica 55% sobre hijos sin presentarlo como 55% del grupo',async({page})=>{
     await openApp(page);await page.locator('#region').selectOption('Sur');await page.locator('#filial').selectOption('Mendoza');await page.locator('#hasPartner').check();await page.locator('#children').fill('1');await page.locator('.child-age').fill('10');await fillMandatoryContribution(page);await submit(page);await choosePlan(page,'PLATA');
-    const child=benefit(page,'Ajuste por hijos');await expect(child).toContainText('55% sobre tarifa de hijos elegibles');
+    const child=benefitId(page,'child');await expect(child).toContainText('55% sobre tarifa de hijos elegibles');
     const txt=await child.textContent();expect(txt).not.toMatch(/impacto máximo sobre este grupo 55%/);
   });
 
   test('15 · AMBA bloquea segmento joven al aplicar ajuste por hijos',async({page})=>{
     await openApp(page);await page.locator('#age').fill('25');await page.locator('#children').fill('1');await page.locator('.child-age').fill('10');await fillMandatoryContribution(page);await submit(page);await choosePlan(page,'PLATA');
-    const child=benefit(page,'Ajuste por hijos');const young=benefit(page,'Segmento joven');await expect(young).toBeEnabled();await child.click();await expect(child).toHaveClass(/is-selected/);await expect(young).toBeDisabled();await expect(young).toContainText('no se combina');
+    const child=benefitId(page,'child');const young=benefitId(page,'young');await expect(young).toBeEnabled();await child.click();await expect(benefitId(page,'child')).toHaveClass(/is-selected/);await expect(benefitId(page,'young')).toBeDisabled();await expect(benefitId(page,'young')).toContainText('no se combina');
   });
 
   test('16 · táctico válido aparece disponible pero no se aplica hasta que el asesor lo elige',async({page})=>{
     await openApp(page);await page.locator('#filial').selectOption('GBA Sur');await page.locator('#age').fill('38');await fillMandatoryContribution(page);await submit(page);await choosePlan(page,'BRONCE');
-    const tactical=benefit(page,'Dto Mes 36/40_Bronce');await expect(tactical).toBeVisible();await expect(tactical).not.toHaveClass(/is-selected/);
-    const before=digitsOnly(await page.locator('.summary-total strong').textContent());await tactical.click();await expect(tactical).toHaveClass(/is-selected/);const after=digitsOnly(await page.locator('.summary-total strong').textContent());expect(Number(after)).toBeLessThan(Number(before));
+    const tactical=benefitId(page,'tactical');await expect(tactical).toBeVisible();await expect(tactical).not.toHaveClass(/is-selected/);
+    const before=digitsOnly(await page.locator('.summary-total strong').textContent());await tactical.click();await expect(benefitId(page,'tactical')).toHaveClass(/is-selected/);const after=digitsOnly(await page.locator('.summary-total strong').textContent());expect(Number(after)).toBeLessThan(Number(before));
   });
 
   test('17 · Opción 7 y táctico incompatible se bloquean de forma explicable',async({page})=>{
     await openApp(page);await page.locator('#age').fill('40');await fillMandatoryContribution(page);await page.locator('#exAssociate').check();await submit(page);await choosePlan(page,'PLATA');
-    const tactical=benefit(page,'Dto Mes 36/65_Plata');const option7=benefit(page,'Opción 7');await tactical.click();await expect(option7).toBeDisabled();await expect(option7).toContainText('Desactivá primero el táctico');
-    await tactical.click();await expect(option7).toBeEnabled();await option7.click();await expect(option7).toHaveClass(/is-selected/);await expect(tactical).toBeDisabled();
+    await benefitId(page,'tactical').click();await expect(benefitId(page,'strategic:7')).toBeDisabled();await expect(benefitId(page,'strategic:7')).toContainText('Desactivá primero el táctico');
+    await benefitId(page,'tactical').click();await expect(benefitId(page,'strategic:7')).toBeEnabled();await benefitId(page,'strategic:7').click();await expect(benefitId(page,'strategic:7')).toHaveClass(/is-selected/);await expect(benefitId(page,'tactical')).toBeDisabled();
   });
 
-  test('18 · aplicar mejor combinación selecciona beneficios sin crear combinaciones inválidas',async({page})=>{
+  test('18 · aplicar mejor combinación selecciona beneficios válidos pero nunca acredita un convenio por sí sola',async({page})=>{
     await openApp(page);await page.locator('#age').fill('38');await page.locator('#filial').selectOption('GBA Sur');await page.locator('#children').fill('1');await page.locator('.child-age').fill('8');await fillMandatoryContribution(page);await submit(page);await choosePlan(page,'PLATA');
     const before=Number(digitsOnly(await page.locator('.summary-total strong').textContent()));await page.locator('#bestBenefits').click();
     const after=Number(digitsOnly(await page.locator('.summary-total strong').textContent()));expect(after).toBeLessThanOrEqual(before);expect(await page.locator('.benefit-card.is-selected').count()).toBeGreaterThan(0);
+    await expect(page.locator('.benefit-card[data-benefit-kind="gaf"].is-selected')).toHaveCount(0);
   });
 
   test('19 · convenios se ofrecen recién al armar propuesta y filtrados por zona',async({page})=>{
@@ -141,7 +145,7 @@ test.describe('Cotizador Medifé · QA funcional configurador V3',()=>{
 
   test('20 · flujo completo permite seleccionar beneficios y genera vista previa coherente sin desborde',async({page})=>{
     await openApp(page);await page.locator('#clientName').fill('María QA');await page.locator('#age').fill('35');await page.locator('#children').fill('1');await page.locator('.child-age').fill('8');await fillMandatoryContribution(page);await page.locator('#procedencia').check();await submit(page);await choosePlan(page,'PLATA');
-    await benefit(page,'Ajuste por hijos').click();await benefit(page,'Opción 1').click();
+    await benefitId(page,'child').click();await benefitId(page,'strategic:1').click();
     await page.locator('#openManualQuote').click();await expect(page.locator('#quoteDialog')).toBeVisible();await expect(page.locator('#quotePages')).toContainText('María');await expect(page.locator('#quotePages')).toContainText('PLATA');await expect(page.locator('#quotePages')).toContainText('Ajuste hijos');await expect(page.locator('#quotePages')).toContainText('Opción 1');await expect(page.locator('#quotePages')).toContainText('7 días hábiles');
     const overflow=await page.evaluate(()=>({width:document.documentElement.scrollWidth,viewport:window.innerWidth}));expect(overflow.width).toBeLessThanOrEqual(overflow.viewport+1);
   });
