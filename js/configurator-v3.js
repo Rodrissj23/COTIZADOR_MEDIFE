@@ -189,7 +189,9 @@
     const tacticalOpts=bool(Boolean(ctx.tactical));
     const uccOpts=bool(Boolean(client.uccEligible&&client.region===D.ucc?.region));
     const strategicOpts=['none',...ctx.strategicOptions.map(x=>String(x.value))];
-    const gafOpts=['none',...ctx.gafOptions.map(x=>String(x.value))];
+    // Los convenios/afinidades requieren acreditación del cliente. Aunque el
+    // motor pueda filtrarlos por zona/categoría, nunca los elegimos por él.
+    const gafOpts=['none'];
     let bestSel=blankSelection(), bestQuote=manualQuoteWithContext(ctx,client,bestSel);
 
     for(const child of childOpts) for(const young of youngOpts){
@@ -381,7 +383,7 @@
         detail:`${pctV3(def?.rate)}${def?.months==null?' · sin plazo definido':` x ${def.months} meses`}`,
         impact:benefitImpact(x=>x.gaf=selected?'none':value)}));
     }
-    if(affinities.length) groups.push({title:'Convenios y afinidades',subtitle:'Elegí únicamente el convenio que el cliente realmente acredita.',items:affinities});
+    if(affinities.length) groups.push({title:'Convenios y afinidades',subtitle:'Elegí únicamente el convenio que el cliente realmente acredita. “Mejor combinación” nunca selecciona convenios automáticamente.',items:affinities});
     return groups;
   }
 
@@ -411,7 +413,7 @@
       <div class="proposal-kpis">
         <div><small>VALOR BASE DEL GRUPO</small><strong>${moneyV3(q.listPrice)}</strong></div>
         <div class="is-current"><small>PRIMERA CUOTA ACTUAL</small><strong>${moneyV3(q.finalPrice)}</strong></div>
-        <div><small>MENOR PRIMERA CUOTA DISPONIBLE</small><strong>${moneyV3(best.quote.finalPrice)}</strong><span>Potencial ${moneyV3(maxSaving)} vs. base con aportes/IVA</span></div>
+        <div><small>MENOR PRIMERA CUOTA DISPONIBLE</small><strong>${moneyV3(best.quote.finalPrice)}</strong><span>Potencial ${moneyV3(maxSaving)} vs. base con aportes/IVA · sin asumir convenios</span></div>
       </div>
       <div class="proposal-tools"><button type="button" class="button button--primary" id="bestBenefits">Aplicar mejor combinación</button><button type="button" class="button button--ghost-dark" id="clearBenefits">Quitar beneficios</button></div>`;
 
