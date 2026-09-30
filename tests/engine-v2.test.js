@@ -42,12 +42,46 @@ assert.deepEqual(E.PLAN_ORDER,['INDIE','BRONCE CLASSIC','BRONCE','PLATA','ORO','
   approx(q.finalPrice,228218.17);
 }
 
+// Regla canónica hijos: 45%/55% se aplica SOLO a la tarifa de hijos elegibles,
+// nunca al valor total del grupo. El motor expone también el impacto efectivo real.
+{
+  const q=E.quote('BRONCE CLASSIC',baseClient({age:35,childrenAges:[10]}));
+  assert.equal(q.status,'ok');
+  approx(q.childAdjustmentRate,.45);
+  assert.equal(q.childAdjustment.eligibleMembers.length,1);
+  approx(q.childEligibleListPrice,q.childAdjustment.eligibleMembers[0].listPrice);
+  approx(q.childDiscount,q.childEligibleListPrice*.45);
+  approx(q.childEffectiveDiscountRate,q.childDiscount/q.listPrice,1e-10);
+  approx(q.priceAfterChildAdjustment,q.listPrice-q.childDiscount);
+  assert.ok(q.childEffectiveDiscountRate<q.childAdjustmentRate,'45% sobre el hijo no debe presentarse como 45% sobre todo el grupo');
+}
+
+// Interior: 55% también se aplica solo a la porción de hijos elegibles.
+// Con titular + pareja + hijo, el impacto efectivo sobre el grupo necesariamente es menor a 55%.
+{
+  const q=E.quote('PLATA',baseClient({
+    region:'Sur',filial:'Mendoza',age:35,hasPartner:true,partnerAge:35,childrenAges:[10]
+  }));
+  assert.equal(q.status,'ok');
+  approx(q.childAdjustmentRate,.55);
+  assert.equal(q.childAdjustment.eligibleMembers.length,1);
+  approx(q.childDiscount,q.childEligibleListPrice*.55);
+  approx(q.childEffectiveDiscountRate,q.childDiscount/q.listPrice,1e-10);
+  approx(q.priceAfterChildAdjustment,q.listPrice-q.childDiscount);
+  assert.ok(q.childEffectiveDiscountRate>0);
+  assert.ok(q.childEffectiveDiscountRate<.55,'55% es tasa sobre hijos elegibles, no descuento del grupo completo');
+}
+
 // Golden case 3: Interior, hijo 21-29 es HIJO MAYOR A CARGO y NO recibe ajuste hijos 55%.
 {
   const q=E.quote('BRONCE CLASSIC',baseClient({region:'Sur',filial:'Mendoza',age:25,childrenAges:[22]}));
   assert.equal(q.status,'ok');
   approx(q.listPrice,524748.7448);
   approx(q.childDiscount,0);
+  approx(q.childAdjustmentRate,.55);
+  approx(q.childEligibleListPrice,0);
+  approx(q.childEffectiveDiscountRate,0);
+  approx(q.priceAfterChildAdjustment,q.listPrice);
   approx(q.youngDiscount,52924.332318);
   approx(q.finalPrice,400679.41);
   assert.equal(q.tactical,null);
@@ -197,4 +231,4 @@ approx(E.DATA.discountCap,.85);
   assert.doesNotMatch(joined,/VALIDITY_HOURS/);
 }
 
-console.log('OK - motor Medifé v2.1: auditoría fina y regresiones validadas');
+console.log('OK - motor Medifé: ajuste hijos explícito + auditoría fina y regresiones validadas');
