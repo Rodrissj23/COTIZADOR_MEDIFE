@@ -15,7 +15,17 @@ test('PDF · genera y descarga la propuesta manual como PDF real', async ({ page
   await page.locator('.benefit-card[data-benefit-id="strategic:1"]').click();
   await page.locator('#openManualQuote').click();
   await expect(page.locator('#quoteDialog')).toBeVisible();
-  await expect(page.locator('#quotePages')).toContainText('Hola, QA.');
+
+  const cover=page.locator('.medife-cover');
+  await expect(cover).toBeVisible();
+  await expect(cover.locator(':scope > *')).toHaveCount(1);
+  await expect(cover.locator('img.medife-cover-photo')).toHaveCount(1);
+  await expect(cover).not.toContainText('Hola');
+  await page.waitForFunction(()=>{
+    const img=document.querySelector('.medife-cover-photo');
+    return Boolean(img && img.complete && img.naturalWidth>0 && img.naturalHeight>0);
+  },null,{timeout:15000});
+
   await expect(page.locator('#quotePages')).toContainText('PLATA');
   await expect(page.locator('#quotePages')).toContainText('Opción 1');
   await expect(page.locator('#quotePages')).toContainText('7 días hábiles');
