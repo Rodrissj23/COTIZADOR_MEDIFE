@@ -1,4 +1,4 @@
-/* PDF v2: portada Medifé + resumen comercial tipo resto de cotizadores. */
+/* PDF v2: portada fotográfica + resumen comercial. */
 (() => {
   const logoWord=()=>`<span class="medife-wordmark">Medifé</span>`;
   const qFooter=(page,total)=>`<div class="medife-pdf-footer"><span>Tarifario ${esc(DATA.version)} · vigencia ${esc(VALIDITY_LABEL)}</span><span>${page} / ${total} · Grupo Zeroka</span></div>`;
@@ -20,8 +20,6 @@
   buildQuote = function buildQuoteV2(){
     const c=state.client,q=state.quote,plan=state.plan;if(!q||!plan)return;
     const dates=quoteDates(),total=3;
-    const clientName=String(c.name||'Cliente').trim();
-    const firstName=esc(clientName.split(/\s+/)[0]||clientName);
     const promoLabel=selectedPromotionLabel(c,q);
     const permanent=[];
     if(q.childDiscount){
@@ -34,7 +32,6 @@
     const adjustmentLabel=permanent.length?permanent.join(' · '):'Sin ajustes seleccionados';
     const contributionLabel=c.category==='Obligatorio'?`- ${money(q.contribution)}`:'10,5%';
     const contributionNote=c.category==='Obligatorio'?'Aporte computable estimado':'IVA aplicado luego de descuentos';
-    const meta=[c.dni?`DNI ${c.dni}`:null,c.region,c.filial,c.category].filter(Boolean).join(' · ');
     const rows=[
       ['Grupo familiar',compositionLabel(c),''],
       ['Región · filial',`${c.region} · ${c.filial}`,''],
@@ -51,20 +48,11 @@
       const period=g.start===g.end?`Mes ${g.start}`:`Meses ${g.start}–${g.end}`;
       return `<div class="month-card"><b>${period}</b><span>${money(g.row.price)}</span><small>${timelineLabel(g.row)}</small></div>`;
     }).join('');
+    const coverSrc=window.MEDIFE_COVER_B64?`data:image/jpeg;base64,${window.MEDIFE_COVER_B64}`:'';
 
     $('#quotePages').innerHTML=`
-      <section class="quote-page medife-pdf-page medife-cover">
-        <div class="medife-cover-logo">${logoWord()}</div>
-        <div class="medife-cover-kicker">PROPUESTA MEDIFÉ · ${esc(DATA.version.toUpperCase())}</div>
-        <h1>Hola, ${firstName}.<br>Esta es tu propuesta.</h1>
-        <p class="medife-cover-sub">Plan, primera cuota y evolución de los beneficios elegidos para este caso, presentados de forma simple.</p>
-        <div class="medife-cover-meta">${esc(meta)} · Emitida ${esc(dates.issued)} · vigencia ${esc(VALIDITY_LABEL)}</div>
-        <div class="medife-cover-card">
-          <div><span>PLAN ELEGIDO</span><strong>${esc(plan)}</strong></div>
-          <div><span>GRUPO FAMILIAR</span><strong>${esc(compositionLabel(c))}</strong></div>
-          <div><span>PRIMERA CUOTA ESTIMADA</span><strong>${money(q.finalPrice)}</strong></div>
-        </div>
-        ${qFooter(1,total)}
+      <section class="quote-page medife-pdf-page medife-cover" aria-label="Portada de la cotización">
+        <img class="medife-cover-photo" src="${coverSrc}" alt="">
       </section>
 
       <section class="quote-page medife-pdf-page medife-summary">
@@ -79,6 +67,7 @@
           </div>
           <div class="medife-summary-brand"><span class="logo-box">${logoWord()}</span><b>Grupo Zeroka · ${esc(dates.issued)}</b></div>
         </div>
+        ${qFooter(2,total)}
       </section>
 
       <section class="quote-page medife-pdf-page medife-timeline">
@@ -93,8 +82,6 @@
       </section>`;
   };
 
-  // Solo la capa visual del PDF se carga acá. V3 funcional y V4 visual ya
-  // están declarados una única vez en index.html para preservar el orden.
   if(typeof document!=='undefined'){
     const pdfCss=document.createElement('link');pdfCss.rel='stylesheet';pdfCss.href='css/pdf-v4.css';document.head.appendChild(pdfCss);
   }
