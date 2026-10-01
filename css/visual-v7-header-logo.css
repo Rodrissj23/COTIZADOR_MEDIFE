@@ -1,0 +1,33 @@
+/* Medifé V7 · corrección puntual del wordmark en header.
+   La web usa la palabra Medifé en naranja sobre blanco, sin placa/fondo. */
+.site-header .brand-logo-shell{
+  width:auto!important;
+  min-width:0!important;
+  height:auto!important;
+  padding:0!important;
+  margin:0!important;
+  overflow:visible!important;
+  background:none!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+
+.site-header .brand-logo-shell .medife-wordmark{
+  display:inline-block!important;
+  width:auto!important;
+  height:auto!important;
+  background-image:none!important;
+  background:none!important;
+  text-indent:0!important;
+  color:var(--medife-brand,#af4708)!important;
+  font-family:Georgia,'Times New Roman',serif!important;
+  font-size:31px!important;
+  font-weight:700!important;
+  line-height:1!important;
+  letter-spacing:-.055em!important;
+  white-space:nowrap!important;
+}
+
+@media(max-width:700px){
+  .site-header .brand-logo-shell .medife-wordmark{font-size:28px!important}
+}
