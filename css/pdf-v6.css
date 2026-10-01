@@ -1,0 +1,322 @@
+/* Medifé PDF V6 · cierre visual editorial
+   Mantiene contenido y lógica. Solo cambia presentación del PDF. */
+
+/* PÁGINA 1 · la imagen original ocupa la portada; el export V6 la inserta directo */
+.medife-cover{
+  background:#fff!important;
+  overflow:hidden!important;
+}
+.medife-cover-photo{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  image-rendering:auto!important;
+}
+
+/* PÁGINA 2 · propuesta: blanca, limpia, sin marco negro */
+.medife-summary{
+  background:#fff!important;
+  color:#302d2a!important;
+}
+.medife-summary:before{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  top:0!important;left:0!important;right:0!important;
+  height:13px!important;
+  background:#af4708!important;
+  z-index:3!important;
+}
+.medife-summary-panel{
+  left:26px!important;
+  right:26px!important;
+  top:27px!important;
+  bottom:27px!important;
+  border:1px solid #eee8e3!important;
+  border-radius:18px!important;
+  background:#fff!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+}
+.medife-summary-title{
+  width:auto!important;
+  height:68px!important;
+  padding:0 30px!important;
+  border-radius:0!important;
+  border-bottom:1px solid #eee8e3!important;
+  background:#fff!important;
+  color:#34302d!important;
+}
+.medife-summary-title span{
+  color:#8b837d!important;
+  font-size:15px!important;
+  font-weight:500!important;
+}
+.medife-summary-title strong{
+  margin-left:6px!important;
+  color:#af4708!important;
+  font-size:17px!important;
+  font-weight:800!important;
+  letter-spacing:.08em!important;
+}
+.medife-summary-plan{
+  height:105px!important;
+  padding:0 30px!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  border-bottom:1px solid #f0ebe7!important;
+  background:linear-gradient(180deg,#fff 0%,#fcfaf8 100%)!important;
+}
+.medife-summary-plan span{
+  color:#9c958f!important;
+  font-size:8px!important;
+  letter-spacing:.16em!important;
+}
+.medife-summary-plan strong{
+  margin-top:5px!important;
+  color:#2d2926!important;
+  font-size:43px!important;
+  line-height:.95!important;
+  letter-spacing:-1.8px!important;
+}
+.medife-summary-table{
+  width:646px!important;
+  margin:22px auto 0!important;
+  border:0!important;
+  border-top:1px solid #e8e1dc!important;
+  border-radius:0!important;
+  overflow:visible!important;
+  background:#fff!important;
+}
+.medife-summary-row{
+  grid-template-columns:205px minmax(0,1fr)!important;
+  border-bottom:1px solid #eee9e5!important;
+  background:#fff!important;
+}
+.medife-summary-row>b{
+  min-height:45px!important;
+  padding:10px 13px!important;
+  background:#fff!important;
+  color:#77706a!important;
+  font-size:9px!important;
+  font-weight:700!important;
+  letter-spacing:.015em!important;
+}
+.medife-summary-row>span{
+  min-height:45px!important;
+  padding:9px 13px!important;
+  background:#fff!important;
+  color:#302d2a!important;
+  font-size:13px!important;
+  font-weight:650!important;
+}
+.medife-summary-row small{
+  margin-top:3px!important;
+  color:#aaa29c!important;
+  font-size:7px!important;
+  font-weight:500!important;
+}
+.medife-summary-total{
+  width:646px!important;
+  min-height:86px!important;
+  margin:17px auto 0!important;
+  padding:0 20px!important;
+  border:1px solid rgba(175,71,8,.20)!important;
+  border-radius:13px!important;
+  background:#fbf0e9!important;
+  display:grid!important;
+  grid-template-columns:1fr auto!important;
+  align-items:center!important;
+  overflow:hidden!important;
+}
+.medife-summary-total b{
+  height:auto!important;
+  padding:0!important;
+  background:transparent!important;
+  color:#7f5a43!important;
+  font-size:9px!important;
+  font-weight:800!important;
+  letter-spacing:.11em!important;
+}
+.medife-summary-total strong{
+  height:auto!important;
+  padding:0!important;
+  background:transparent!important;
+  color:#af4708!important;
+  font-size:35px!important;
+  line-height:1!important;
+  letter-spacing:-1.2px!important;
+}
+.medife-summary-legal{
+  left:52px!important;
+  right:52px!important;
+  bottom:68px!important;
+  color:#918981!important;
+  font-size:7px!important;
+  line-height:1.4!important;
+}
+.medife-summary-brand{
+  left:52px!important;
+  right:52px!important;
+  bottom:23px!important;
+  align-items:center!important;
+}
+.medife-summary-brand .logo-box{
+  width:auto!important;
+  height:auto!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+}
+.medife-summary-brand .medife-wordmark{
+  display:inline-block!important;
+  color:#af4708!important;
+  background:none!important;
+  text-indent:0!important;
+  width:auto!important;
+  height:auto!important;
+  font-size:28px!important;
+  line-height:1!important;
+}
+.medife-summary-brand b{
+  color:#9a928c!important;
+  font-size:7px!important;
+  font-weight:600!important;
+}
+
+/* PÁGINA 3 · evolución, misma idea pero más terminada */
+.medife-timeline{
+  background:#fff!important;
+}
+.medife-timeline:before{
+  content:"";
+  position:absolute;
+  top:0;left:0;right:0;
+  height:13px;
+  background:#af4708;
+}
+.medife-timeline .quote-content{
+  padding:55px 56px!important;
+}
+.medife-timeline-head{
+  margin-bottom:13px!important;
+  padding-bottom:17px!important;
+  border-bottom:1px solid #eee8e3!important;
+}
+.medife-timeline-head h2{
+  margin:4px 0 0!important;
+  color:#292623!important;
+  font-size:40px!important;
+  line-height:1!important;
+  letter-spacing:-1.6px!important;
+}
+.medife-timeline-head .eyebrow{
+  color:#af4708!important;
+  font-size:8px!important;
+  letter-spacing:.16em!important;
+}
+.medife-timeline-logo{
+  width:auto!important;
+  height:auto!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+}
+.medife-timeline-logo .medife-wordmark{
+  display:inline-block!important;
+  color:#af4708!important;
+  background:none!important;
+  text-indent:0!important;
+  width:auto!important;
+  height:auto!important;
+  font-size:28px!important;
+  line-height:1!important;
+}
+.medife-timeline .quote-content>p{
+  max-width:585px!important;
+  margin:13px 0 20px!important;
+  color:#817a74!important;
+  font-size:10px!important;
+  line-height:1.55!important;
+}
+.medife-timeline .quote-kpis{
+  grid-template-columns:repeat(3,1fr)!important;
+  gap:10px!important;
+  margin:19px 0 25px!important;
+  border:0!important;
+}
+.medife-timeline .quote-kpi{
+  min-height:82px!important;
+  padding:14px 15px!important;
+  border:1px solid #e8e1dc!important;
+  border-radius:11px!important;
+  background:#fcfaf8!important;
+}
+.medife-timeline .quote-kpi:first-child{
+  border-color:rgba(175,71,8,.24)!important;
+  background:#fbf0e9!important;
+}
+.medife-timeline .quote-kpi small{
+  color:#9a928c!important;
+  font-size:7px!important;
+  font-weight:650!important;
+  letter-spacing:.07em!important;
+}
+.medife-timeline .quote-kpi strong{
+  margin-top:5px!important;
+  color:#302c29!important;
+  font-size:18px!important;
+}
+.medife-timeline .quote-kpi:first-child strong{color:#af4708!important}
+.medife-timeline .timeline{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;
+  border:0!important;
+}
+.medife-timeline .month-card{
+  position:relative!important;
+  min-height:96px!important;
+  padding:16px 17px 15px 20px!important;
+  border:1px solid #e9e3de!important;
+  border-radius:11px!important;
+  background:#fff!important;
+  overflow:hidden!important;
+}
+.medife-timeline .month-card:before{
+  content:"";
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:4px;
+  background:#af4708;
+}
+.medife-timeline .month-card b{
+  color:#8c857f!important;
+  font-size:8px!important;
+  letter-spacing:.10em!important;
+}
+.medife-timeline .month-card span{
+  margin:6px 0 3px!important;
+  color:#2e2a27!important;
+  font-size:22px!important;
+  font-weight:800!important;
+}
+.medife-timeline .month-card small{
+  color:#af4708!important;
+  font-size:8px!important;
+  font-weight:750!important;
+}
+.medife-timeline .quote-note{
+  margin-top:23px!important;
+  padding:13px 15px!important;
+  border:0!important;
+  border-radius:9px!important;
+  background:#faf7f4!important;
+  color:#8a827c!important;
+  font-size:7px!important;
+  line-height:1.45!important;
+}
+.medife-pdf-footer{color:#9c958f!important}
