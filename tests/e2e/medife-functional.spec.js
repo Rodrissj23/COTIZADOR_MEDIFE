@@ -146,7 +146,9 @@ test.describe('Cotizador Medifé · QA funcional configurador V3',()=>{
   test('20 · flujo completo permite seleccionar beneficios y genera vista previa coherente sin desborde',async({page})=>{
     await openApp(page);await page.locator('#clientName').fill('María QA');await page.locator('#age').fill('35');await page.locator('#children').fill('1');await page.locator('.child-age').fill('8');await fillMandatoryContribution(page);await page.locator('#procedencia').check();await submit(page);await choosePlan(page,'PLATA');
     await benefitId(page,'child').click();await benefitId(page,'strategic:1').click();
-    await page.locator('#openManualQuote').click();await expect(page.locator('#quoteDialog')).toBeVisible();await expect(page.locator('#quotePages')).toContainText('María');await expect(page.locator('#quotePages')).toContainText('PLATA');await expect(page.locator('#quotePages')).toContainText('Ajuste hijos');await expect(page.locator('#quotePages')).toContainText('Opción 1');await expect(page.locator('#quotePages')).toContainText('7 días hábiles');
+    await page.locator('#openManualQuote').click();await expect(page.locator('#quoteDialog')).toBeVisible();
+    const cover=page.locator('.medife-cover');await expect(cover).toBeVisible();await expect(cover.locator(':scope > *')).toHaveCount(1);await expect(cover.locator('img.medife-cover-photo')).toHaveCount(1);
+    await expect(page.locator('#quotePages')).toContainText('PLATA');await expect(page.locator('#quotePages')).toContainText('Ajuste hijos');await expect(page.locator('#quotePages')).toContainText('Opción 1');await expect(page.locator('#quotePages')).toContainText('7 días hábiles');
     const overflow=await page.evaluate(()=>({width:document.documentElement.scrollWidth,viewport:window.innerWidth}));expect(overflow.width).toBeLessThanOrEqual(overflow.viewport+1);
   });
 });
