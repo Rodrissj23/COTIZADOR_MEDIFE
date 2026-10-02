@@ -51,6 +51,22 @@ test('PDF · genera y descarga la propuesta manual como PDF real', async ({ page
   await expect(page.locator('#downloadQuote')).toBeEnabled();
 });
 
+test('PDF · cinco etapas de cuota entran en una sola hoja',async({page},testInfo)=>{
+  await page.goto('/index.html');
+  await expect(page.locator('html')).toHaveAttribute('data-medife-configurator','ready');
+  await page.locator('#age').fill('40');
+  await page.locator('#receiptContribution').fill('30000');
+  await page.getByRole('button',{name:/Ver precios base/}).click();
+  await page.locator('.plan-card').filter({has:page.getByRole('heading',{name:'PLATA',exact:true})}).getByRole('button',{name:/Armar propuesta/}).click();
+  for(const id of ['tactical','strategic:1','gaf:prestadores_amba'])await page.locator(`.benefit-card[data-benefit-id="${id}"]`).click();
+  await page.locator('#openManualQuote').click();
+  await expect(page.locator('.medife-timeline .month-card')).toHaveCount(5);
+  const note=await page.locator('.medife-timeline .quote-note').boundingBox();
+  const footer=await page.locator('.medife-timeline .medife-pdf-footer').boundingBox();
+  expect(note.y+note.height).toBeLessThan(footer.y);
+  await page.locator('.medife-timeline').screenshot({path:testInfo.outputPath('evolucion-cinco-etapas.png')});
+});
+
 test('PDF · resumen completo con UCC, convenio y ajustes sin recortes', async ({page},testInfo)=>{
   await page.goto('/index.html');
   await expect(page.locator('html')).toHaveAttribute('data-medife-configurator','ready');
