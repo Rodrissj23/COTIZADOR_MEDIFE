@@ -283,7 +283,7 @@
         ? `Aportes estimados ${moneyV3(q.contribution)} · se descuentan después`
         : 'IVA 10,5% · se suma automáticamente después';
       return `<article class="plan-card ${q.plan==='PLATA'?'featured':''}">
-        <div class="plan-top"><h3>${escV3(q.plan)}</h3><span class="tag">${escV3(meta?.tag||'Medifé')}</span></div>
+        <div class="plan-top"><h3>${escV3(q.plan)}</h3><div class="plan-badges">${q.plan==='PLATA'?'<span class="plan-recommended">Recomendado</span>':''}<span class="tag">${escV3(meta?.tag||'Medifé')}</span></div></div>
         <p class="plan-family">${escV3(compositionLabel(c))}</p>
         <div class="base-price-label">VALOR BASE DEL GRUPO</div>
         <div class="plan-price plan-price--base"><strong>${moneyV3(q.listPrice)}</strong><small>${escV3(autoNote)}</small></div>
@@ -316,8 +316,8 @@
 
   function card({id,title,detail,selected=false,disabled=false,reason='',impact=null,kind='toggle'}){
     const impactText=impact==null?'':(impact>=0?`Ahorra ${moneyV3(impact)}`:`Suma ${moneyV3(Math.abs(impact))}`);
-    return `<button type="button" class="benefit-card ${selected?'is-selected':''} ${disabled?'is-disabled':''}" data-benefit-id="${escV3(id)}" data-benefit-kind="${escV3(kind)}" ${disabled?'disabled':''}>
-      <span class="benefit-check">${disabled?'🔒':(selected?'✓':'')}</span>
+    return `<button type="button" class="benefit-card ${selected?'is-selected':''} ${disabled?'is-disabled':''}" data-benefit-id="${escV3(id)}" data-benefit-kind="${escV3(kind)}" aria-pressed="${selected}" ${disabled?'disabled':''}>
+      <span class="benefit-check" aria-hidden="true">${disabled?'🔒':(selected?'✓':'')}</span>
       <span class="benefit-copy"><b>${escV3(title)}</b><small>${escV3(detail)}</small>${reason?`<em>${escV3(reason)}</em>`:''}</span>
       ${impactText?`<span class="benefit-impact">${escV3(impactText)}</span>`:''}
     </button>`;
@@ -477,7 +477,7 @@
     const builder=$v3('#proposalBuilder');if(builder)builder.hidden=true;
     $v3('#selectedBar').hidden=true;
     const head=results.querySelector('.results-head');
-    if(head){const eyebrow=head.querySelector('.eyebrow'),h2=head.querySelector('h2'),p=head.querySelector('p');if(eyebrow)eyebrow.textContent='01 · PRECIOS BASE';if(h2)h2.textContent='Elegí el plan para armar la propuesta.';if(p)p.textContent='Estos importes son valores de lista del grupo, sin beneficios comerciales aplicados.';}
+    if(head){const eyebrow=head.querySelector('.eyebrow'),h2=head.querySelector('h2'),p=head.querySelector('p:not(.eyebrow)');if(eyebrow)eyebrow.textContent='01 · PRECIOS BASE';if(h2)h2.textContent='Elegí el plan para armar la propuesta.';if(p)p.textContent='Estos importes son valores de lista del grupo, sin beneficios comerciales aplicados.';}
     results.scrollIntoView({behavior:'smooth'});
   }
 
