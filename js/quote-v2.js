@@ -48,7 +48,7 @@
       const period=g.start===g.end?`Mes ${g.start}`:`Meses ${g.start}–${g.end}`;
       return `<div class="month-card"><b>${period}</b><span>${money(g.row.price)}</span><small>${timelineLabel(g.row)}</small></div>`;
     }).join('');
-    const coverSrc=window.MEDIFE_COVER_B64?`data:image/jpeg;base64,${window.MEDIFE_COVER_B64}`:'';
+    const coverSrc='assets/quote-cover.png';
 
     $('#quotePages').innerHTML=`
       <section class="quote-page medife-pdf-page medife-cover" aria-label="Portada de la cotización">

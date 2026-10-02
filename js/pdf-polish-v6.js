@@ -20,19 +20,21 @@
   const pageW = 595.28;
   const pageH = 841.89;
 
-  function addCoverDirect(pdf) {
-    if (!window.MEDIFE_COVER_B64) return false;
-    const src = `data:image/jpeg;base64,${window.MEDIFE_COVER_B64}`;
-    const props = pdf.getImageProperties(src);
-    if (!props?.width || !props?.height) return false;
+  async function addCoverDirect(pdf, page) {
+    const image = page.querySelector('.medife-cover-photo');
+    if (!image) return false;
+    await image.decode();
+    if (!image.naturalWidth || !image.naturalHeight) {
+      throw new Error('No se pudo cargar la portada. Intentá descargar de nuevo.');
+    }
 
     // Mantener proporción original y cubrir A4 sin deformar la imagen.
-    const scale = Math.max(pageW / props.width, pageH / props.height);
-    const width = props.width * scale;
-    const height = props.height * scale;
+    const scale = Math.max(pageW / image.naturalWidth, pageH / image.naturalHeight);
+    const width = image.naturalWidth * scale;
+    const height = image.naturalHeight * scale;
     const x = (pageW - width) / 2;
     const y = (pageH - height) / 2;
-    pdf.addImage(src, 'JPEG', x, y, width, height, undefined, 'FAST');
+    pdf.addImage(image, 'PNG', x, y, width, height, undefined, 'FAST');
     return true;
   }
 
@@ -54,8 +56,8 @@
       for (let i = 0; i < pages.length; i++) {
         if (i > 0) pdf.addPage('a4', 'portrait');
 
-        // La portada entra como JPEG original: no se vuelve a rasterizar.
-        if (i === 0 && addCoverDirect(pdf)) continue;
+        // La portada se inserta con sus píxeles originales y compresión sin pérdida.
+        if (i === 0 && await addCoverDirect(pdf, pages[i])) continue;
 
         // Las páginas con texto se exportan a mayor escala y como PNG para mantener nitidez.
         const canvas = await html2canvas(pages[i], {
