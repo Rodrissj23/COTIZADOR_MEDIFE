@@ -1,7 +1,7 @@
 /* Medifé PDF V6 · cierre visual editorial
    Mantiene contenido y lógica. Solo cambia presentación del PDF. */
 
-/* PÁGINA 1 · la imagen original ocupa la portada; el export V6 la inserta directo */
+/* PÁGINA 1 · imagen original con wordmark actual de Grupo Zeroka. */
 .medife-cover{
   background:#fff!important;
   overflow:hidden!important;
@@ -13,10 +13,30 @@
   object-position:center!important;
   image-rendering:auto!important;
 }
-
-/* PÁGINA 2 · propuesta: blanca, limpia, sin marco negro */
-.medife-summary{
+.medife-cover-logo-fix{
+  position:absolute!important;
+  z-index:2!important;
+  right:4.8%!important;
+  bottom:2.55%!important;
+  width:27%!important;
+  height:7.2%!important;
+  padding:1.2% 1.2% 0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
   background:#fff!important;
+}
+.medife-cover-logo-fix img{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+}
+
+/* PÁGINA 2 · plan destacado, detalle cálido y cuota en naranja. */
+.medife-summary{
+  background:#fff9f5!important;
   color:#302d2a!important;
 }
 .medife-summary:before{
@@ -25,7 +45,7 @@
   position:absolute!important;
   top:0!important;left:0!important;right:0!important;
   height:13px!important;
-  background:#af4708!important;
+  background:#c74f0a!important;
   z-index:3!important;
 }
 .medife-summary-panel{
@@ -45,7 +65,7 @@
   padding:0 30px!important;
   border-radius:0!important;
   border-bottom:1px solid #eee8e3!important;
-  background:#fff!important;
+  background:linear-gradient(90deg,#fff4ea 0%,#fff 68%)!important;
   color:#34302d!important;
 }
 .medife-summary-title span{
@@ -61,24 +81,34 @@
   letter-spacing:.08em!important;
 }
 .medife-summary-plan{
+  position:relative!important;
   height:105px!important;
   padding:0 30px!important;
   align-items:flex-start!important;
   justify-content:center!important;
   border-bottom:1px solid #f0ebe7!important;
-  background:linear-gradient(180deg,#fff 0%,#fcfaf8 100%)!important;
+  background:linear-gradient(110deg,#302b27 0%,#4a3325 100%)!important;
 }
 .medife-summary-plan span{
-  color:#9c958f!important;
+  color:#ffbd8c!important;
   font-size:8px!important;
   letter-spacing:.16em!important;
 }
 .medife-summary-plan strong{
   margin-top:5px!important;
-  color:#2d2926!important;
+  color:#fff!important;
   font-size:43px!important;
   line-height:.95!important;
   letter-spacing:-1.8px!important;
+}
+.medife-summary-plan small{
+  position:absolute!important;
+  right:30px!important;
+  top:32px!important;
+  width:205px!important;
+  color:#fff2e9!important;
+  font-size:12px!important;
+  line-height:1.5!important;
 }
 .medife-summary-table{
   width:646px!important;
@@ -88,6 +118,7 @@
   border-radius:0!important;
   overflow:visible!important;
   background:#fff!important;
+  box-shadow:0 8px 24px rgba(93,47,19,.06)!important;
 }
 .medife-summary-row{
   grid-template-columns:205px minmax(0,1fr)!important;
@@ -97,8 +128,8 @@
 .medife-summary-row>b{
   min-height:45px!important;
   padding:10px 13px!important;
-  background:#fff!important;
-  color:#77706a!important;
+  background:#fff8f2!important;
+  color:#8b4d2c!important;
   font-size:9px!important;
   font-weight:700!important;
   letter-spacing:.015em!important;
@@ -111,6 +142,8 @@
   font-size:13px!important;
   font-weight:650!important;
 }
+.medife-summary-row:nth-child(even)>b{background:#fff1e6!important}
+.medife-summary-row:nth-child(even)>span{background:#fffcfa!important}
 .medife-summary-row small{
   margin-top:3px!important;
   color:#aaa29c!important;
@@ -124,7 +157,7 @@
   padding:0 20px!important;
   border:1px solid rgba(175,71,8,.20)!important;
   border-radius:13px!important;
-  background:#fbf0e9!important;
+  background:linear-gradient(100deg,#cf5107 0%,#e35205 100%)!important;
   display:grid!important;
   grid-template-columns:1fr auto!important;
   align-items:center!important;
@@ -134,7 +167,7 @@
   height:auto!important;
   padding:0!important;
   background:transparent!important;
-  color:#7f5a43!important;
+  color:#fff!important;
   font-size:9px!important;
   font-weight:800!important;
   letter-spacing:.11em!important;
@@ -143,7 +176,7 @@
   height:auto!important;
   padding:0!important;
   background:transparent!important;
-  color:#af4708!important;
+  color:#fff!important;
   font-size:35px!important;
   line-height:1!important;
   letter-spacing:-1.2px!important;

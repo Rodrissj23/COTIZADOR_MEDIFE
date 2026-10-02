@@ -1,0 +1,62 @@
+/* Login y vista previa: conservar el diseño completo en pantallas pequeñas. */
+.login-shell { grid-template-columns: minmax(0, 53fr) minmax(0, 47fr); }
+.login-card, .login-brand, .login-card form, .login-card label { min-width: 0; }
+.login-copy h1, .login-card h2 { font-family: 'Manrope', 'DM Sans', Arial, Helvetica, sans-serif; }
+.login-card input { width: 100%; min-width: 0; font-size: 16px; }
+.password-wrap { display: block; width: 100%; }
+.password-wrap input { padding-right: 76px; }
+.login-official-logo { justify-content: flex-start; }
+.login-official-logo .medife-wordmark { background-position: left center; }
+.brand-symbol { display: block; width: 32px; height: 32px; flex: 0 0 32px; border-radius: 8px; }
+
+.quote-dialog { max-width: 100vw; max-height: 100dvh; }
+.quote-pages { display: grid; justify-items: center; gap: 24px; }
+.quote-page-preview { position: relative; flex: none; }
+.quote-page-preview > .quote-page { margin: 0!important; transform-origin: top left; }
+.dialog-toolbar > div:first-child { min-width: 0; }
+.dialog-toolbar > div:last-child { flex-shrink: 0; }
+
+@media (max-width: 1050px) {
+  .login-page .login-shell { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 700px) {
+  body.login-page { display: block; padding: 0; }
+  .login-page .login-shell {
+    width: 100%; min-height: 100vh; min-height: 100dvh;
+    grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr;
+    border-radius: 0; box-shadow: none;
+  }
+  .login-page .login-brand { min-height: 0; padding: 24px; }
+  .login-page .login-official-logo { width: 144px!important; min-width: 0!important; height: 76px!important; }
+  .login-page .login-official-logo .medife-wordmark { width: 144px; height: 76px; }
+  .login-page .login-copy { margin-top: 20px; }
+  .login-page .login-copy .eyebrow { margin-bottom: 12px; font-size: 10px; }
+  .login-page .login-copy h1 { font-size: 34px; line-height: 1.08; }
+  .login-page .login-copy > p:last-child { margin: 14px 0 0; max-width: 360px; font-size: 14px; line-height: 1.5; }
+  .login-page .zeroka { position: static; margin-top: 20px; font-size: 9px; }
+  .login-page .login-card { align-self: stretch; margin: 0; padding: 28px 24px 36px; border-radius: 24px 24px 0 0; }
+  .login-page .login-card h2 { font-size: 30px; line-height: 1.12; }
+  .login-page .login-card > .muted { font-size: 14px; line-height: 1.5; }
+  .login-page .login-card form { margin-top: 24px; gap: 18px; }
+  .login-page .login-card input { min-height: 52px; border-radius: 12px; }
+  .login-page .login-card .button { min-height: 52px; border-radius: 12px; }
+
+  .site-header { padding-inline: 18px; }
+  .site-header .brand-logo-shell .medife-wordmark { color: #e35205!important; font-size: 32px!important; }
+  .site-header .header-actions .link-button { font-size: 12px; }
+  .hero .eyebrow { font-size: 10px; letter-spacing: .1em; line-height: 1.5; }
+
+  .quote-dialog { inset: 0; margin: 0; width: 100vw; height: 100vh; height: 100dvh; border-radius: 0; }
+  .quote-pages { padding: 12px; gap: 18px; overflow: hidden; }
+  .dialog-toolbar { padding: 12px; gap: 8px; }
+  .dialog-toolbar b { font-size: 12px; line-height: 1.3; }
+  .dialog-toolbar .button { padding: 0 12px; min-height: 44px; font-size: 12px; white-space: nowrap; }
+  .dialog-toolbar .icon-button { width: 40px; flex-basis: 40px; }
+}
+
+@media print {
+  .quote-pages { display: block; }
+  .quote-page-preview { width: 794px!important; height: 1123px!important; margin: 0; }
+  .quote-page-preview > .quote-page { transform: none!important; }
+}

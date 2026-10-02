@@ -1,8 +1,8 @@
 const { test, expect } = require('@playwright/test');
 const fs = require('node:fs');
 
-test('PDF · genera y descarga la propuesta manual como PDF real', async ({ page }, testInfo) => {
-  test.skip(testInfo.project.name !== 'desktop-chromium', 'El binario PDF se valida una sola vez por corrida.');
+test('PDF · genera y descarga la propuesta manual como PDF real', async ({ page }) => {
+  test.setTimeout(60000);
   await page.goto('/index.html');
   await expect(page.locator('#quoteForm')).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('data-medife-configurator','ready');
@@ -18,8 +18,9 @@ test('PDF · genera y descarga la propuesta manual como PDF real', async ({ page
 
   const cover=page.locator('.medife-cover');
   await expect(cover).toBeVisible();
-  await expect(cover.locator(':scope > *')).toHaveCount(1);
+  await expect(cover.locator(':scope > *')).toHaveCount(2);
   await expect(cover.locator('img.medife-cover-photo')).toHaveCount(1);
+  await expect(cover.locator('.medife-cover-logo-fix img')).toHaveAttribute('src', /grupo-zeroka-wordmark-red\.png$/);
   await expect(cover).not.toContainText('Hola');
   await page.waitForFunction(()=>{
     const img=document.querySelector('.medife-cover-photo');
@@ -35,5 +36,6 @@ test('PDF · genera y descarga la propuesta manual como PDF real', async ({ page
   const download=await downloadPromise;const filePath=await download.path();
   expect(download.suggestedFilename()).toMatch(/^Cotizacion_Medife_QA_PDF_PLATA\.pdf$/);expect(filePath).toBeTruthy();
   const bytes=fs.readFileSync(filePath);expect(bytes.length).toBeGreaterThan(20000);expect(bytes.subarray(0,5).toString('ascii')).toBe('%PDF-');
+  expect(bytes.toString('latin1').match(/\/Type \/Page\b/g)).toHaveLength(3);
   await expect(page.locator('#downloadQuote')).toBeEnabled();
 });
