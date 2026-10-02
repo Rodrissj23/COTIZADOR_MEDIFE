@@ -39,8 +39,8 @@ jobs:
       - name: Run seller functional QA
         run: npx playwright test tests/e2e
 
-      - name: Upload Playwright report on failure
-        if: failure()
+      - name: Upload browser verification artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: medife-playwright-report
