@@ -53,12 +53,13 @@
     $('#quotePages').innerHTML=`
       <section class="quote-page medife-pdf-page medife-cover" aria-label="Portada de la cotización">
         <img class="medife-cover-photo" src="${coverSrc}" alt="">
+        <div class="medife-cover-logo-fix" aria-label="Grupo Zeroka"><img src="assets/grupo-zeroka-wordmark-red.png" alt="Grupo Zeroka"></div>
       </section>
 
       <section class="quote-page medife-pdf-page medife-summary">
         <div class="medife-summary-panel">
           <header class="medife-summary-title"><span>Tu</span><strong>PROPUESTA</strong></header>
-          <div class="medife-summary-plan"><span>PLAN</span><strong>${esc(plan)}</strong></div>
+          <div class="medife-summary-plan"><span>TU PLAN MEDIFÉ</span><strong>${esc(plan)}</strong><small>Una propuesta para tu grupo, con los beneficios seleccionados.</small></div>
           <div class="medife-summary-table">${rows.map(r=>summaryRow(...r)).join('')}</div>
           <div class="medife-summary-total"><b>PRIMERA CUOTA ESTIMADA</b><strong>${money(q.finalPrice)}</strong></div>
           <div class="medife-summary-legal">
