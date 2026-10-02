@@ -149,6 +149,9 @@ test.describe('Cotizador Medifé · QA funcional configurador V3',()=>{
     await page.locator('#openManualQuote').click();await expect(page.locator('#quoteDialog')).toBeVisible();
     const cover=page.locator('.medife-cover');await expect(cover).toBeVisible();await expect(cover.locator(':scope > *')).toHaveCount(2);await expect(cover.locator('img.medife-cover-photo')).toHaveCount(1);await expect(cover.locator('.medife-cover-logo-fix img')).toHaveAttribute('src',/grupo-zeroka-wordmark-red\.png$/);
     await expect(page.locator('#quotePages')).toContainText('PLATA');await expect(page.locator('#quotePages')).toContainText('Ajuste hijos');await expect(page.locator('#quotePages')).toContainText('Opción 1');await expect(page.locator('#quotePages')).toContainText('7 días hábiles');
+    const totalBox=await page.locator('.medife-summary-total').boundingBox();
+    const legalBox=await page.locator('.medife-summary-legal').boundingBox();
+    expect(totalBox.y+totalBox.height).toBeLessThan(legalBox.y);
     const overflow=await page.evaluate(()=>({width:document.documentElement.scrollWidth,viewport:window.innerWidth}));expect(overflow.width).toBeLessThanOrEqual(overflow.viewport+1);
   });
 });

@@ -24,7 +24,7 @@
   display:flex!important;
   align-items:center!important;
   justify-content:center!important;
-  background:#fff!important;
+  background:#f7f6f4!important;
 }
 .medife-cover-logo-fix img{
   display:block!important;
@@ -82,7 +82,7 @@
 }
 .medife-summary-plan{
   position:relative!important;
-  height:105px!important;
+  height:125px!important;
   padding:0 30px!important;
   align-items:flex-start!important;
   justify-content:center!important;
@@ -126,20 +126,20 @@
   background:#fff!important;
 }
 .medife-summary-row>b{
-  min-height:45px!important;
+  min-height:54px!important;
   padding:10px 13px!important;
   background:#fff8f2!important;
   color:#8b4d2c!important;
-  font-size:9px!important;
+  font-size:10px!important;
   font-weight:700!important;
   letter-spacing:.015em!important;
 }
 .medife-summary-row>span{
-  min-height:45px!important;
+  min-height:54px!important;
   padding:9px 13px!important;
   background:#fff!important;
   color:#302d2a!important;
-  font-size:13px!important;
+  font-size:14px!important;
   font-weight:650!important;
 }
 .medife-summary-row:nth-child(even)>b{background:#fff1e6!important}
@@ -147,12 +147,12 @@
 .medife-summary-row small{
   margin-top:3px!important;
   color:#aaa29c!important;
-  font-size:7px!important;
+  font-size:8px!important;
   font-weight:500!important;
 }
 .medife-summary-total{
   width:646px!important;
-  min-height:86px!important;
+  min-height:100px!important;
   margin:17px auto 0!important;
   padding:0 20px!important;
   border:1px solid rgba(175,71,8,.20)!important;
