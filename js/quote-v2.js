@@ -10,7 +10,7 @@
   const timelineGroups=timeline=>{
     const groups=[];
     for(const m of timeline||[]){
-      const key=[Number(m.price).toFixed(2),Number(m.commercialRate||0).toFixed(6),Number(m.gafRate||0).toFixed(6),Number(m.uccRate||0).toFixed(6)].join('|');
+      const key=[Number(m.price).toFixed(2),Number(m.commercialRate||0).toFixed(6),Number(m.option6Rate||0).toFixed(6),Number(m.gafRate||0).toFixed(6),Number(m.uccRate||0).toFixed(6)].join('|');
       const prev=groups[groups.length-1];
       if(prev&&prev.key===key&&prev.end===m.month-1){prev.end=m.month;continue;}
       groups.push({key,start:m.month,end:m.month,row:m});

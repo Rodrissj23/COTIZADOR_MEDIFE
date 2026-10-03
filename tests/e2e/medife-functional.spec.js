@@ -170,6 +170,7 @@ test.describe('Cotizador Medifé · QA funcional configurador V3',()=>{
     await expect(page.locator('.medife-summary')).toContainText('Débito automático con tarjeta de crédito');
     await expect(page.locator('.medife-timeline')).toContainText('Meses 13–24');
     await expect(page.locator('.medife-timeline')).toContainText('Opción 6 · 20% por tarjeta');
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual((await page.evaluate(()=>innerWidth))+1);
     const legal=await page.locator('.medife-summary-legal').boundingBox();
     const total=await page.locator('.medife-summary-total').boundingBox();
     expect(total.y+total.height).toBeLessThan(legal.y);
