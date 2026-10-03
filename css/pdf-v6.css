@@ -70,10 +70,6 @@
 .medife-timeline .month-card.is-first{background:#e35205!important;border-color:#e35205!important}
 .medife-timeline .month-card.is-first b,.medife-timeline .month-card.is-first>span{color:#fff!important}
 .medife-timeline .month-card.is-first small{color:#ffe4d2!important}
-.medife-timeline--dense .timeline{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-.medife-timeline--dense .month-card{padding:16px 14px!important}
-.medife-timeline--dense .month-card>span{font-size:23px!important}
-.medife-timeline--dense .month-card small{font-size:9px!important}
 .month-card.is-first .month-card-head i{background:#fff;color:#c34700}
 .month-card.is-first .month-price-track{background:#c94200}
 .month-card.is-first .month-price-track>div{background:#ffd6ba}

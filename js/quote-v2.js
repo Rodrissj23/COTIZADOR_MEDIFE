@@ -70,7 +70,7 @@
         ${qFooter(2,total)}
       </section>
 
-      <section class="quote-page medife-pdf-page medife-timeline${groups.length>4?' medife-timeline--dense':''}">
+      <section class="quote-page medife-pdf-page medife-timeline">
         <header class="medife-timeline-head"><p class="eyebrow">EVOLUCIÓN DE TU COTIZACIÓN</p><h2>Tu cuota,<br>etapa por etapa.</h2><p>Los valores y beneficios de la propuesta que elegiste, ordenados en el tiempo.</p></header>
         <div class="quote-content">
           <div class="quote-kpis"><div class="quote-kpi"><small>Primera cuota</small><strong>${money(q.finalPrice)}</strong></div><div class="quote-kpi"><small>Valor regular actual</small><strong>${money(q.regularPrice)}</strong></div><div class="quote-kpi"><small>Beneficio comercial</small><strong>${esc(promoLabel)}</strong></div></div>

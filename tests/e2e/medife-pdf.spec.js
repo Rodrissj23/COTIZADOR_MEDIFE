@@ -54,6 +54,7 @@ test('PDF · genera y descarga la propuesta manual como PDF real', async ({ page
 test('PDF · cinco etapas de cuota entran en una sola hoja',async({page},testInfo)=>{
   await page.goto('/index.html');
   await expect(page.locator('html')).toHaveAttribute('data-medife-configurator','ready');
+  await page.locator('#clientName').fill('QA cinco etapas');
   await page.locator('#age').fill('40');
   await page.locator('#receiptContribution').fill('30000');
   await page.getByRole('button',{name:/Ver precios base/}).click();
