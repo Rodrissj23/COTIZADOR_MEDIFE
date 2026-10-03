@@ -71,14 +71,23 @@
 .medife-timeline .month-card.is-first b,.medife-timeline .month-card.is-first>span{color:#fff!important}
 .medife-timeline .month-card.is-first small{color:#ffe4d2!important}
 .medife-timeline--dense .timeline{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-.medife-timeline--dense .month-card{min-height:115px!important;padding:12px 14px!important}
+.medife-timeline--dense .medife-timeline-head{height:192px!important;padding-top:24px!important}
+.medife-timeline--dense .medife-timeline-head h2{font-size:42px!important}
+.medife-timeline--dense .medife-timeline-head>p:last-child{margin-top:10px!important}
+.medife-timeline--dense .quote-content{padding-top:16px!important}
+.medife-timeline--dense .quote-kpis{margin-bottom:15px!important}
+.medife-timeline--dense .quote-kpi{min-height:72px!important;padding:11px 15px!important}
+.medife-timeline--dense .medife-stages-title{margin-bottom:8px!important}
+.medife-timeline--dense .timeline{gap:9px!important}
+.medife-timeline--dense .month-card{min-height:95px!important;padding:9px 13px!important}
 .medife-timeline--dense .month-card>span{font-size:23px!important}
 .medife-timeline--dense .month-card small{font-size:9px!important}
-.medife-timeline--dense .medife-timeline-guide{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:17px;padding:16px 18px}
+.medife-timeline--dense .medife-timeline-guide{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px;padding:12px 15px}
 .medife-timeline--dense .medife-timeline-guide h3{grid-column:1/-1;margin-bottom:2px;font-size:16px}
 .medife-timeline--dense .medife-timeline-guide>div{margin:0;padding-left:8px;border-left-width:2px}
 .medife-timeline--dense .medife-timeline-guide b{font-size:11px;line-height:1.2}
 .medife-timeline--dense .medife-timeline-guide p{font-size:10px;line-height:1.25}
+.medife-timeline--dense .quote-note{margin-top:11px!important}
 .month-card.is-first .month-card-head i{background:#fff;color:#c34700}
 .month-card.is-first .month-price-track{background:#c94200}
 .month-card.is-first .month-price-track>div{background:#ffd6ba}

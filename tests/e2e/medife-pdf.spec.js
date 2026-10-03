@@ -62,8 +62,11 @@ test('PDF · cinco etapas de cuota entran en una sola hoja',async({page},testInf
   for(const id of ['tactical','strategic:1','gaf:prestadores_amba'])await page.locator(`.benefit-card[data-benefit-id="${id}"]`).click();
   await page.locator('#openManualQuote').click();
   await expect(page.locator('.medife-timeline .month-card')).toHaveCount(5);
+  await expect(page.locator('.medife-timeline')).toHaveClass(/medife-timeline--dense/);
+  const guide=await page.locator('.medife-timeline .medife-timeline-guide').boundingBox();
   const note=await page.locator('.medife-timeline .quote-note').boundingBox();
   const footer=await page.locator('.medife-timeline .medife-pdf-footer').boundingBox();
+  expect(guide.y+guide.height).toBeLessThan(note.y);
   expect(note.y+note.height).toBeLessThan(footer.y);
   await page.locator('.medife-timeline').screenshot({path:testInfo.outputPath('evolucion-cinco-etapas.png')});
 });
