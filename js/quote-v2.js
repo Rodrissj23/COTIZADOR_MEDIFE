@@ -1,8 +1,7 @@
 /* PDF v2: portada fotográfica + resumen comercial. */
 (() => {
-  const logoWord=()=>`<span class="medife-wordmark">Medifé</span>`;
   const qFooter=(page,total)=>`<div class="medife-pdf-footer"><span>Tarifario ${esc(DATA.version)} · vigencia ${esc(VALIDITY_LABEL)}</span><span>${page} / ${total} · Grupo Zeroka</span></div>`;
-  const summaryRow=(label,value,note='')=>`<div class="medife-summary-row"><b>${esc(label)}</b><span>${esc(value)}${note?`<small>${esc(note)}</small>`:''}</span></div>`;
+  const summaryRow=(label,value,note='')=>`<div class="medife-summary-row${note?' has-note':''}${note.length>95?' has-long-note':''}"><b>${esc(label)}</b><span class="${value.length>35?'is-long':value.length>24?'is-medium':''}">${esc(value)}${note?`<small>${esc(note)}</small>`:''}</span></div>`;
   const timelineLabel=m=>m.commercialRate
     ? `${pct(m.commercialRate)} beneficio comercial`
     : (m.gafRate?`${pct(m.gafRate)} convenio`:(m.uccRate?`${pct(m.uccRate)} UCC`:'sin beneficio temporal'));
@@ -19,7 +18,7 @@
 
   buildQuote = function buildQuoteV2(){
     const c=state.client,q=state.quote,plan=state.plan;if(!q||!plan)return;
-    const dates=quoteDates(),total=3;
+    const total=3;
     const promoLabel=selectedPromotionLabel(c,q);
     const permanent=[];
     if(q.childDiscount){
@@ -44,39 +43,40 @@
       ...(q.gafRate?[['Convenio / afinidad',`${q.gaf?.label||'GAF'} · ${pct(q.gafRate)}`,'Aplicado sobre el valor final previo al convenio']]:[]),
       ['Valor regular actual',money(q.regularPrice),'Sin beneficios temporales']
     ];
-    const timeline=timelineGroups(q.timeline).map(g=>{
+    const groups=timelineGroups(q.timeline);
+    const maxPrice=Math.max(q.regularPrice,...groups.map(g=>g.row.price),1);
+    const timeline=groups.map((g,index)=>{
       const period=g.start===g.end?`Mes ${g.start}`:`Meses ${g.start}–${g.end}`;
-      return `<div class="month-card"><b>${period}</b><span>${money(g.row.price)}</span><small>${timelineLabel(g.row)}</small></div>`;
+      return `<div class="month-card${index===0?' is-first':''}"><div class="month-card-head"><i>${String(index+1).padStart(2,'0')}</i><b>${period}</b></div><span>${money(g.row.price)}</span><small>${timelineLabel(g.row)}</small><div class="month-price-track" aria-hidden="true"><div style="width:${Math.max(0,Math.min(100,g.row.price/maxPrice*100)).toFixed(2)}%"></div></div></div>`;
     }).join('');
-    const coverSrc='assets/quote-cover.png';
+    const coverSrc='assets/quote-cover-photo.jpg';
 
     $('#quotePages').innerHTML=`
       <section class="quote-page medife-pdf-page medife-cover" aria-label="Portada de la cotización">
         <img class="medife-cover-photo" src="${coverSrc}" alt="">
-        <div class="medife-cover-logo-fix" aria-label="Grupo Zeroka"><img src="assets/grupo-zeroka-wordmark-red.png" alt="Grupo Zeroka"></div>
       </section>
 
-      <section class="quote-page medife-pdf-page medife-summary">
+      <section class="quote-page medife-pdf-page medife-summary${rows.length>8?' medife-summary--dense':''}">
         <div class="medife-summary-panel">
-          <header class="medife-summary-title"><span>Tu</span><strong>PROPUESTA</strong></header>
-          <div class="medife-summary-plan"><span>TU PLAN MEDIFÉ</span><strong>${esc(plan)}</strong><small>Una propuesta para tu grupo, con los beneficios seleccionados.</small></div>
+          <header class="medife-summary-title"><span>Tu</span><strong>COTIZACIÓN</strong></header>
+          <div class="medife-summary-plan"><span>PLAN MEDIFÉ</span><strong>${esc(plan)}</strong></div>
           <div class="medife-summary-table">${rows.map(r=>summaryRow(...r)).join('')}</div>
           <div class="medife-summary-total"><b>PRIMERA CUOTA ESTIMADA</b><strong>${money(q.finalPrice)}</strong></div>
           <div class="medife-summary-legal">
             <p>*Los importes son una estimación comercial y pueden variar ante cambios en datos, tarifas o condiciones de contratación.</p>
             <p>*Tarifario ${esc(DATA.version)} · propuesta válida por ${esc(VALIDITY_LABEL)} desde su emisión. Los beneficios mostrados son únicamente los seleccionados por el asesor entre los compatibles con el caso.</p>
           </div>
-          <div class="medife-summary-brand"><span class="logo-box">${logoWord()}</span><b>Grupo Zeroka · ${esc(dates.issued)}</b></div>
         </div>
         ${qFooter(2,total)}
       </section>
 
-      <section class="quote-page medife-pdf-page medife-timeline">
+      <section class="quote-page medife-pdf-page medife-timeline${groups.length>4?' medife-timeline--dense':''}">
+        <header class="medife-timeline-head"><p class="eyebrow">EVOLUCIÓN DE TU COTIZACIÓN</p><h2>Tu cuota,<br>etapa por etapa.</h2><p>Los valores y beneficios de la propuesta que elegiste, ordenados en el tiempo.</p></header>
         <div class="quote-content">
-          <div class="medife-timeline-head"><div><p class="eyebrow">EVOLUCIÓN DE LA PROPUESTA</p><h2>Cómo cambia la cuota.</h2></div><span class="medife-timeline-logo">${logoWord()}</span></div>
-          <p>Agrupamos los meses que mantienen el mismo valor y beneficio para que sea fácil entender qué pasa en cada etapa.</p>
           <div class="quote-kpis"><div class="quote-kpi"><small>Primera cuota</small><strong>${money(q.finalPrice)}</strong></div><div class="quote-kpi"><small>Valor regular actual</small><strong>${money(q.regularPrice)}</strong></div><div class="quote-kpi"><small>Beneficio comercial</small><strong>${esc(promoLabel)}</strong></div></div>
+          <div class="medife-stages-title"><h3>Así se organiza tu propuesta</h3><span>${q.timeline.length} meses de referencia</span></div>
           <div class="timeline">${timeline}</div>
+          <aside class="medife-timeline-guide"><h3>Cómo leer estos valores</h3><div><b>Beneficios seleccionados</b><p>Cada etapa muestra los beneficios que elegiste y el importe calculado para esos meses.</p></div><div><b>Cuando termina una etapa</b><p>La cuota cambia si finaliza o se modifica un beneficio temporal. Los meses con el mismo valor se agrupan.</p></div><div><b>Una referencia al tarifario actual</b><p>Esta evolución no incluye futuros aumentos de tarifa. Los importes pueden variar si cambian las condiciones.</p></div></aside>
           <div class="quote-note">Cotización comercial elaborada por Grupo Zeroka. La contratación y cobertura definitiva quedan sujetas a la documentación y condiciones vigentes de Medifé.</div>
         </div>
         ${qFooter(3,total)}

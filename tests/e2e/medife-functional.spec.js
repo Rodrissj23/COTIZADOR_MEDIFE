@@ -147,7 +147,7 @@ test.describe('Cotizador Medifé · QA funcional configurador V3',()=>{
     await openApp(page);await page.locator('#clientName').fill('María QA');await page.locator('#age').fill('35');await page.locator('#children').fill('1');await page.locator('.child-age').fill('8');await fillMandatoryContribution(page);await page.locator('#procedencia').check();await submit(page);await choosePlan(page,'PLATA');
     await benefitId(page,'child').click();await benefitId(page,'strategic:1').click();
     await page.locator('#openManualQuote').click();await expect(page.locator('#quoteDialog')).toBeVisible();
-    const cover=page.locator('.medife-cover');await expect(cover).toBeVisible();await expect(cover.locator(':scope > *')).toHaveCount(2);await expect(cover.locator('img.medife-cover-photo')).toHaveCount(1);await expect(cover.locator('.medife-cover-logo-fix img')).toHaveAttribute('src',/grupo-zeroka-wordmark-red\.png$/);
+    const cover=page.locator('.medife-cover');await expect(cover).toBeVisible();await expect(cover.locator(':scope > *')).toHaveCount(1);await expect(cover.locator('img.medife-cover-photo')).toHaveCount(1);await expect(cover.locator('.medife-cover-photo')).toHaveAttribute('src',/quote-cover-photo\.jpg$/);
     await expect(page.locator('#quotePages')).toContainText('PLATA');await expect(page.locator('#quotePages')).toContainText('Ajuste hijos');await expect(page.locator('#quotePages')).toContainText('Opción 1');await expect(page.locator('#quotePages')).toContainText('7 días hábiles');
     const totalBox=await page.locator('.medife-summary-total').boundingBox();
     const legalBox=await page.locator('.medife-summary-legal').boundingBox();
