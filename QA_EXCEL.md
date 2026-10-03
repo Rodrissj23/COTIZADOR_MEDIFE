@@ -67,7 +67,7 @@ Incluyen casos AMBA, Norte, Sur, Patagonia y Bahía/MDQ; relación de dependenci
 - INDIE solo AMBA hasta confirmación comercial en contrario.
 - Hijos hasta 29 años.
 - Casos excepcionales de hijos mayores / familiares adicionales fuera del cotizador estándar.
-- Opción 6 y dependencia de medio de pago desactivadas hasta confirmación de Medifé.
+- El motor V2 auditado mantiene Opción 6 desactivada para conservar sus casos de regresión. La propuesta manual V3 permite seleccionar Opción 6 con tarjeta de crédito y Opción 4, como continuidad durante los meses 13–24, respetando las tasas y condiciones del Excel.
 
 ## Resultado
 

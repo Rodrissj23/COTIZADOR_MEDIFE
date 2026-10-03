@@ -2,7 +2,9 @@
 (() => {
   const qFooter=(page,total)=>`<div class="medife-pdf-footer"><span>Tarifario ${esc(DATA.version)} · vigencia ${esc(VALIDITY_LABEL)}</span><span>${page} / ${total} · Grupo Zeroka</span></div>`;
   const summaryRow=(label,value,note='')=>`<div class="medife-summary-row${note?' has-note':''}${note.length>95?' has-long-note':''}"><b>${esc(label)}</b><span class="${value.length>35?'is-long':value.length>24?'is-medium':''}">${esc(value)}${note?`<small>${esc(note)}</small>`:''}</span></div>`;
-  const timelineLabel=m=>m.commercialRate
+  const timelineLabel=m=>m.option6Rate
+    ? `Opción 6 · ${pct(m.option6Rate)} por tarjeta`
+    : m.commercialRate
     ? `${pct(m.commercialRate)} beneficio comercial`
     : (m.gafRate?`${pct(m.gafRate)} convenio`:(m.uccRate?`${pct(m.uccRate)} UCC`:'sin beneficio temporal'));
   const timelineGroups=timeline=>{
@@ -38,6 +40,7 @@
       ['Precio base del grupo',money(q.listPrice),'Antes de beneficios'],
       ['Ajustes seleccionados',q.permanentDiscount?`- ${money(q.permanentDiscount)}`:money(0),adjustmentLabel],
       ['Promoción comercial',promoLabel,''],
+      ...(q.selection?.option6?[['Medio de pago','Débito automático con tarjeta de crédito','Opción 6: continuidad de Opción 4 durante los meses 13–24']]:[]),
       ...(q.uccRate?[['UCC',`${pct(q.uccRate)} dto.`, 'Empleador acumulable']]:[]),
       [c.category==='Obligatorio'?'Aportes a descontar':'IVA',contributionLabel,contributionNote],
       ...(q.gafRate?[['Convenio / afinidad',`${q.gaf?.label||'GAF'} · ${pct(q.gafRate)}`,'Aplicado sobre el valor final previo al convenio']]:[]),

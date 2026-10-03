@@ -89,11 +89,11 @@ Se implementan opciones 1, 2, 3, 4, 5 y 7 según las condiciones del Excel.
 - Si un caso tiene Opción 7 seleccionada y se cotiza INDIE, la Opción 7 se ignora para ese plan y **se conserva el táctico INDIE**.
 - El conjunto estratégico + Opción 5 + táctico tiene tope de 85%, tal como el Excel.
 
-### Opción 6 — pendiente de validación
+### Opción 6 — seleccionable en la propuesta V3
 
-El Excel la relaciona con débito por tarjeta y la describe como concatenable con Opción 4. En la experiencia real de rendición informada por el equipo, el método de pago no fue solicitado.
+El asesor indica el medio de pago del cliente y, si corresponde, activa la Opción 6 como beneficio independiente junto con Opción 4. Requiere procedencia comprobable, débito automático con tarjeta de crédito y grupo familiar hasta 60 años; no aplica a INDIE. El calendario del tarifario la concatena con Opción 4: en Obligatorio, 20% los meses 1–12 y 20% los meses 13–24; en Voluntario, 15% en ambos períodos. La casilla es combinable en la selección, pero las tasas no se duplican en un mismo mes. El táctico, si corresponde, se combina dentro del tope comercial del 85%.
 
-Por ese motivo, **Opción 6 y la dependencia de TC/CBU están desactivadas en V2.1 hasta confirmar la regla comercial real**. No se debe asumir Opción 4+6 como vigente hasta esa validación.
+La implementación V3 sigue la regla de continuidad consignada en el Excel original. Si Medifé emite una política nueva que indique acumulación simultánea, actualizar la matriz y recalcular los casos antes de cotizar con esa regla.
 
 ### Tácticos
 
@@ -134,10 +134,9 @@ La vigencia correcta es **7 días hábiles desde la emisión**. La referencia an
 
 No deben resolverse por inferencia:
 
-1. **Opción 6 / medio de pago:** confirmar si se usa realmente en la operatoria de Grupo Zeroka.
-2. **Hijos 30–49 y Familiar a cargo:** confirmar si se rinden/comercializan.
-3. **INDIE fuera de AMBA:** el Excel contiene valores estructurales en Interior, pero Grupo Zeroka debe confirmar si realmente se comercializa fuera de AMBA.
-4. **Duración `NA` de UCC / Plan Empleados 10%:** actualmente se interpreta como beneficio sin plazo definido hasta nueva confirmación.
+1. **Hijos 30–49 y Familiar a cargo:** confirmar si se rinden/comercializan.
+2. **INDIE fuera de AMBA:** el Excel contiene valores estructurales en Interior, pero Grupo Zeroka debe confirmar si realmente se comercializa fuera de AMBA.
+3. **Duración `NA` de UCC / Plan Empleados 10%:** actualmente se interpreta como beneficio sin plazo definido hasta nueva confirmación.
 
 ## Archivos V2.1
 
@@ -168,7 +167,7 @@ La suite V2.1 incluye casos para:
 - precisión sin redondeos internos anticipados;
 - vigencia de 7 días hábiles;
 - exclusión de Medifé+;
-- desactivación deliberada de Opción 6.
+- Opción 6 seleccionable en V3, con elegibilidad y continuidad Opción 4 durante meses 13–24.
 
 ## Netlify
 
