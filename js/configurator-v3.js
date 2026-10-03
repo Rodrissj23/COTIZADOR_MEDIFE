@@ -20,7 +20,7 @@
   const escV3 = v => String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 
   function blankSelection(){
-    return {child:false,young:false,filial:false,tactical:false,strategic:'none',option5:false,ucc:false,gaf:'none'};
+    return {child:false,young:false,filial:false,tactical:false,strategic:'none',option5:false,option6:false,ucc:false,gaf:'none'};
   }
 
   function cleanClient(client){
@@ -59,6 +59,10 @@
     return 0;
   }
 
+  function paymentBenefitEligible(client){
+    return client.paymentMethod==='TC' && Math.max(n(client.age),client.hasPartner?n(client.partnerAge):0,...(client.childrenAges||[]).map(n))<=n(D.strategic?.[client.category]?.['6']?.maxGroupAge);
+  }
+
   function context(plan, client){
     const safe=cleanClient(client);
     const legacy=E.quote(plan,safe);
@@ -87,6 +91,7 @@
     if(sel.strategic!=='none'&&!strategicValues.has(String(sel.strategic))) return 'La promoción estratégica elegida no está habilitada.';
     if(sel.strategic==='7'&&sel.tactical) return 'Opción 7 no se acumula con el táctico comercial.';
     if(sel.option5&&!(client.procedencia&&['1','2','3'].includes(String(sel.strategic)))) return 'Opción 5 requiere procedencia y Opción 1, 2 o 3.';
+    if(sel.option6&&!(sel.strategic==='4'&&client.procedencia&&paymentBenefitEligible(client)&&STRATEGIC_PLANS.has(ctx.plan))) return 'Opción 6 requiere Opción 4, débito con tarjeta de crédito y grupo familiar hasta 60 años.';
     if(sel.ucc&&!(client.uccEligible&&client.region===D.ucc?.region)) return 'UCC no está habilitado para este caso.';
     const gafValues=new Set(ctx.gafOptions.map(x=>String(x.value)));
     if(sel.gaf!=='none'&&!gafValues.has(String(sel.gaf))) return 'El convenio seleccionado no corresponde al caso.';
@@ -106,14 +111,15 @@
     const strategicId=String(sel.strategic||'none');
     const strategicDef=strategicId==='none'?null:D.strategic?.[client.category]?.[strategicId];
     const gafDef=sel.gaf==='none'?D.gaf?.none:D.gaf?.[sel.gaf];
-    const horizon=strategicId==='7'?24:12;
+    const horizon=strategicId==='7'||sel.option6?24:12;
     const months=[];
 
     for(let month=1;month<=horizon;month++){
       const strategicRate=strategicDef?rateAt(strategicDef.schedule,month):0;
+      const option6Rate=sel.option6&&month>12?rateAt(D.strategic?.[client.category]?.['6']?.schedule,month-12):0;
       const option5Rate=sel.option5?rateAt(D.option5?.[client.category]?.schedule,month):0;
       const tacticalRate=tactical&&month<=n(tactical.months)?n(tactical.rate):0;
-      const rawCommercialRate=strategicRate+option5Rate+tacticalRate;
+      const rawCommercialRate=strategicRate+option5Rate+option6Rate+tacticalRate;
       const commercialRate=Math.min(rawCommercialRate,n(D.discountCap||.85));
       const uccRate=sel.ucc && (D.ucc?.months==null||month<=n(D.ucc.months)) ? n(D.ucc?.rate) : 0;
       const beforeTax=Math.max(0,nominalAdjusted*(1-filialRate-commercialRate-uccRate));
@@ -123,7 +129,7 @@
       const gafRate=gafDef?.rate && (gafDef.months==null||month<=n(gafDef.months)) ? n(gafDef.rate) : 0;
       const price=Math.max(0,preGaf*(1-gafRate));
       months.push({
-        month,strategicRate,option5Rate,tacticalRate,rawCommercialRate,commercialRate,
+        month,strategicRate,option5Rate,option6Rate,tacticalRate,rawCommercialRate,commercialRate,
         filialRate,uccRate,gafRate,beforeTax:round2(beforeTax),preGaf:round2(preGaf),price:round2(price)
       });
     }
@@ -200,11 +206,16 @@
         if(strategic==='7'&&tactical) continue;
         const o5Opts=client.procedencia&&['1','2','3'].includes(strategic)?[false,true]:[false];
         for(const option5 of o5Opts) for(const ucc of uccOpts) for(const gaf of gafOpts){
-          const sel={child,young,filial,tactical,strategic,option5,ucc,gaf};
+          const sel={child,young,filial,tactical,strategic,option5,option6:false,ucc,gaf};
           const q=manualQuoteWithContext(ctx,client,sel);
           if(q.status==='ok'&&q.finalPrice<bestQuote.finalPrice-.005){bestQuote=q;bestSel=sel;}
         }
       }
+    }
+    // Si la mejor primera cuota usa Opción 4, conservar su continuidad válida.
+    if(bestSel.strategic==='4'&&paymentBenefitEligible(client)){
+      bestSel={...bestSel,option6:true};
+      bestQuote=manualQuoteWithContext(ctx,client,bestSel);
     }
     return {selection:bestSel,quote:bestQuote};
   }
@@ -212,7 +223,7 @@
   function potentialBenefitCount(plan,client){
     const ctx=context(plan,client);if(ctx.status!=='ok')return 0;
     return [ctx.child.amount>0,ctx.young.amount>0,Boolean(ctx.filial),Boolean(ctx.tactical),
-      ...ctx.strategicOptions.map(()=>true),client.uccEligible&&client.region===D.ucc?.region,
+      ...ctx.strategicOptions.map(()=>true),paymentBenefitEligible(client)&&client.procedencia&&STRATEGIC_PLANS.has(plan),client.uccEligible&&client.region===D.ucc?.region,
       ...ctx.gafOptions.map(()=>true)].filter(Boolean).length;
   }
 
@@ -368,6 +379,14 @@
         detail:D.option5?.[c.category]?.detail||'5% x 6 meses',reason:!o5Allowed?'Requiere Opción 1, 2 o 3 + procedencia comprobable.':'',
         impact:o5Allowed?benefitImpact(x=>x.option5=!s.option5):null}));
     }
+    if(STRATEGIC_PLANS.has(plan)){
+      const eligible=paymentBenefitEligible(c),allowed=eligible&&c.procedencia&&String(s.strategic)==='4';
+      const reason=!eligible?(c.paymentMethod!=='TC'?'Requiere débito automático con tarjeta de crédito.':'El grupo familiar debe tener hasta 60 años.')
+        :!c.procedencia?'Requiere procedencia comprobable.':!allowed?'Elegí primero la Opción 4.':'';
+      promos.push(card({id:'option6',title:'Opción 6 · medio de pago',selected:s.option6,disabled:!allowed,
+        detail:`${pctV3(D.strategic[c.category]['6'].schedule[0][2])} durante los meses 13–24 · continúa Opción 4`,reason,
+        impact:null}));
+    }
     if(promos.length) groups.push({title:'Promociones comerciales',subtitle:'Podés elegir la estrategia comercial sin salirte de las combinaciones válidas.',items:promos});
 
     const affinities=[];
@@ -394,6 +413,7 @@
     if(s.young)rows.push(['Segmento joven',`- ${moneyV3(q.youngDiscount)}`]);
     if(s.filial)rows.push([q.filialLabel||'Descuento filial',`- ${moneyV3(q.filialDiscount)}`]);
     if(q.timeline[0].commercialRate>0)rows.push(['Beneficios comerciales mes 1',`- ${moneyV3(q.commercialDiscount)}`]);
+    if(s.option6)rows.push(['Opción 6 · meses 13–24',`${pctV3(D.strategic[manualState.client.category]['6'].schedule[0][2])} con tarjeta`]);
     if(s.ucc)rows.push(['UCC',`- ${moneyV3(q.uccDiscount)}`]);
     if(manualState.client.category==='Obligatorio')rows.push(['Aportes',`- ${moneyV3(q.contribution)}`]);
     else rows.push(['IVA 10,5%',`+ ${moneyV3(q.ivaAmount)}`]);
@@ -443,10 +463,12 @@
     else if(id==='filial')s.filial=!s.filial;
     else if(id==='tactical')s.tactical=!s.tactical;
     else if(id==='option5')s.option5=!s.option5;
+    else if(id==='option6')s.option6=!s.option6;
     else if(id==='ucc')s.ucc=!s.ucc;
     else if(id.startsWith('strategic:')){
       const value=id.split(':')[1];s.strategic=s.strategic===value?'none':value;
       if(!['1','2','3'].includes(String(s.strategic)))s.option5=false;
+      if(s.strategic!=='4')s.option6=false;
     }else if(id.startsWith('gaf:')){
       const value=id.slice(4);s.gaf=s.gaf===value?'none':value;
     }

@@ -198,6 +198,7 @@ function selectedPromotionLabel(c,q){
   const labels=[];
   if(q.strategicApplies&&c.promotion!=='none')labels.push(`Opción ${c.promotion}`);
   if(c.option5&&q.strategicApplies)labels.push('Opción 5');
+  if(q.selection?.option6)labels.push('Opción 6 · débito TC, meses 13–24');
   if(q.tactical)labels.push(q.tactical.label);
   if(q.uccRate>0)labels.push('UCC 15%');
   if(q.gafRate>0)labels.push(q.gaf?.label||'Convenio / afinidad');

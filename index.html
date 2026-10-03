@@ -64,7 +64,6 @@
               <label class="choice active"><input type="radio" name="category" value="Obligatorio" checked><b>Obligatorio</b><small>Con aportes de obra social o monotributo</small></label>
               <label class="choice"><input type="radio" name="category" value="Voluntario"><b>Voluntario</b><small>Precio final con IVA 10,5%</small></label>
             </div>
-            <select id="paymentMethod" hidden><option value="TC">Tarjeta de crédito</option><option value="CBU">CBU</option></select>
             <div class="field-grid field-grid--2 compact-row">
               <label class="check-card"><input id="procedencia" type="checkbox"><span><b>Procedencia comprobable</b><small>Habilita promociones que la requieren.</small></span></label>
             </div>
@@ -106,6 +105,7 @@
           <section class="form-step form-step--promo">
             <div class="section-heading section-heading--small"><span>4</span><div><h3>Condiciones especiales</h3><p>Marcá solo condiciones reales del cliente. Los beneficios se eligen después.</p></div></div>
             <div class="field-grid field-grid--2">
+              <label><span>Medio de pago</span><select id="paymentMethod"><option value="">A definir</option><option value="TC">Débito automático con tarjeta de crédito</option><option value="CBU">CBU u otro medio</option></select><small class="field-help">Con tarjeta de crédito podés evaluar la Opción 6 al elegir un plan.</small></label>
               <label><span>Promoción estratégica</span><select id="promotion"></select></label>
               <label class="check-card"><input id="exAssociate" type="checkbox"><span><b>Es ex asociado Medifé</b><small>Habilita Opción 7 al armar la propuesta.</small></span></label>
               <label><span>Convenio / afinidad</span><select id="gaf"></select></label>

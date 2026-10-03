@@ -154,4 +154,37 @@ test.describe('Cotizador Medifé · QA funcional configurador V3',()=>{
     expect(totalBox.y+totalBox.height).toBeLessThan(legalBox.y);
     const overflow=await page.evaluate(()=>({width:document.documentElement.scrollWidth,viewport:window.innerWidth}));expect(overflow.width).toBeLessThanOrEqual(overflow.viewport+1);
   });
+
+  test('21 · medio de pago habilita Opción 6 junto con Opción 4 y extiende la propuesta a 24 meses',async({page})=>{
+    await openApp(page);await fillMandatoryContribution(page);await page.locator('#procedencia').check();
+    await page.locator('#paymentMethod').selectOption('TC');await submit(page);await choosePlan(page,'PLATA');
+    const payment=benefitId(page,'option6');
+    await expect(payment).toBeDisabled();await expect(payment).toContainText('Elegí primero la Opción 4');
+    await benefitId(page,'strategic:4').click();await expect(benefitId(page,'option6')).toBeEnabled();
+    const first=await page.locator('.summary-total strong').textContent();
+    await benefitId(page,'option6').click();await expect(benefitId(page,'option6')).toHaveClass(/is-selected/);
+    await expect(page.locator('.summary-total strong')).toHaveText(first);
+    await expect(page.locator('#proposalSummary')).toContainText('Opción 6 · meses 13–24');
+    await page.locator('#openManualQuote').click();
+    await expect(page.locator('.medife-stages-title')).toContainText('24 meses');
+    await expect(page.locator('.medife-summary')).toContainText('Débito automático con tarjeta de crédito');
+    await expect(page.locator('.medife-timeline')).toContainText('Meses 13–24');
+    await expect(page.locator('.medife-timeline')).toContainText('Opción 6 · 20% por tarjeta');
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual((await page.evaluate(()=>innerWidth))+1);
+    const legal=await page.locator('.medife-summary-legal').boundingBox();
+    const total=await page.locator('.medife-summary-total').boundingBox();
+    expect(total.y+total.height).toBeLessThan(legal.y);
+  });
+
+  test('22 · Opción 6 bloquea CBU y edades mayores a 60; al quitar Opción 4 se limpia',async({page})=>{
+    await openApp(page);await fillMandatoryContribution(page);await page.locator('#procedencia').check();
+    await page.locator('#paymentMethod').selectOption('CBU');await submit(page);await choosePlan(page,'PLATA');
+    await benefitId(page,'strategic:4').click();
+    await expect(benefitId(page,'option6')).toBeDisabled();await expect(benefitId(page,'option6')).toContainText('tarjeta de crédito');
+    await page.locator('#paymentMethod').selectOption('TC');await page.locator('#age').fill('61');await submit(page);await choosePlan(page,'PLATA');
+    await benefitId(page,'strategic:4').click();await expect(benefitId(page,'option6')).toBeDisabled();await expect(benefitId(page,'option6')).toContainText('hasta 60 años');
+    await page.locator('#age').fill('35');await submit(page);await choosePlan(page,'PLATA');
+    await benefitId(page,'strategic:4').click();await benefitId(page,'option6').click();
+    await benefitId(page,'strategic:1').click();await expect(benefitId(page,'option6')).not.toHaveClass(/is-selected/);
+  });
 });
