@@ -54,4 +54,36 @@ test.describe('Celular: login y cotización completa', () => {
     await page.locator('#closeQuote').click();
     await expect(page.locator('#quoteDialog')).not.toBeVisible();
   });
+
+  test('Recorrido completo a 320px sin contenido ni acciones cortadas', async ({ page }, testInfo) => {
+    const width = 320;
+    await page.setViewportSize({ width, height: 720 });
+    const fits = async (selectors) => {
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
+      for (const selector of selectors) {
+        const box = await page.locator(selector).first().boundingBox();
+        expect(box, selector).toBeTruthy();
+        expect(box.x, selector).toBeGreaterThanOrEqual(-1);
+        expect(box.x + box.width, selector).toBeLessThanOrEqual(width + 1);
+      }
+    };
+    await page.goto('/index.html');
+    await expect(page.locator('html')).toHaveAttribute('data-medife-configurator', 'ready');
+    await fits(['.site-header', '.hero', '.form-card', '#clientName', '#receiptContribution', '.submit-quote']);
+    await page.screenshot({ path: testInfo.outputPath('formulario-320.png'), fullPage: true });
+    await page.locator('#clientName').fill('Revisión celular');
+    await page.locator('#receiptContribution').fill('30000');
+    await page.getByRole('button', { name: /Ver precios base/ }).click();
+    await expect(page.locator('.plan-card').first()).toBeVisible();
+    await fits(['.results-head', '.plan-card', '.plan-card .button']);
+    await page.locator('#resultados').screenshot({ path: testInfo.outputPath('planes-320.png') });
+    const plata = page.locator('.plan-card').filter({ has: page.getByRole('heading', { name: 'PLATA', exact: true }) });
+    await plata.getByRole('button', { name: /Armar propuesta/ }).click();
+    await expect(page.locator('#proposalBuilder')).toBeVisible();
+    await fits(['.proposal-main', '.benefit-card', '.proposal-summary', '#openManualQuote']);
+    await page.locator('#proposalBuilder').screenshot({ path: testInfo.outputPath('propuesta-320.png') });
+    await page.locator('#openManualQuote').click();
+    await expect(page.locator('#quoteDialog')).toBeVisible();
+    await fits(['.dialog-toolbar', '#downloadQuote', '#closeQuote', '.quote-page-preview']);
+  });
 });
