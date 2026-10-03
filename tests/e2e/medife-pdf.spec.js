@@ -20,9 +20,8 @@ test('PDF · genera y descarga la propuesta manual como PDF real', async ({ page
   await expect(cover).toBeVisible();
   await expect(cover.locator(':scope > *')).toHaveCount(1);
   await expect(cover.locator('img.medife-cover-photo')).toHaveCount(1);
-  await expect(cover.locator('.medife-cover-photo')).toHaveAttribute('src', /quote-cover-photo\.jpg$/);
+  await expect(cover.locator('.medife-cover-photo')).toHaveAttribute('src', /medife-cover-hola\.jpg$/);
   await expect(page.locator('#quotePages .medife-wordmark, #quotePages .logo-box, #quotePages .medife-cover-logo-fix')).toHaveCount(0);
-  await expect(cover).not.toContainText('Hola');
   await page.waitForFunction(()=>{
     const img=document.querySelector('.medife-cover-photo');
     return Boolean(img && img.complete && img.naturalWidth>0 && img.naturalHeight>0);

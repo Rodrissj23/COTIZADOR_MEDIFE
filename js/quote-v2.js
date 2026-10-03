@@ -49,7 +49,7 @@
       const period=g.start===g.end?`Mes ${g.start}`:`Meses ${g.start}–${g.end}`;
       return `<div class="month-card${index===0?' is-first':''}"><div class="month-card-head"><i>${String(index+1).padStart(2,'0')}</i><b>${period}</b></div><span>${money(g.row.price)}</span><small>${timelineLabel(g.row)}</small><div class="month-price-track" aria-hidden="true"><div style="width:${Math.max(0,Math.min(100,g.row.price/maxPrice*100)).toFixed(2)}%"></div></div></div>`;
     }).join('');
-    const coverSrc='assets/quote-cover-photo.jpg';
+    const coverSrc='assets/medife-cover-hola.jpg';
 
     $('#quotePages').innerHTML=`
       <section class="quote-page medife-pdf-page medife-cover" aria-label="Portada de la cotización">

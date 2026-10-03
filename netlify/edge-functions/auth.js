@@ -1,5 +1,5 @@
 const encoder=new TextEncoder();
-const publicPaths=new Set(['/login','/login.html','/api/login','/api/logout','/.netlify/functions/login','/.netlify/functions/logout','/favicon.ico']);
+const publicPaths=new Set(['/login','/login.html','/api/login','/api/logout','/.netlify/functions/login','/.netlify/functions/logout','/favicon.ico','/assets/medife-logo-white.jpg']);
 const b64url=bytes=>{let binary='';for(const byte of bytes)binary+=String.fromCharCode(byte);return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/g,'')};
 const safeEqual=(a,b)=>{a=String(a??'');b=String(b??'');const len=Math.max(a.length,b.length,1);let diff=a.length^b.length;for(let i=0;i<len;i++)diff|=(a.charCodeAt(i%Math.max(a.length,1))||0)^(b.charCodeAt(i%Math.max(b.length,1))||0);return diff===0};
 async function sign(value,secret){const key=await crypto.subtle.importKey('raw',encoder.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);return b64url(new Uint8Array(await crypto.subtle.sign('HMAC',key,encoder.encode(value))))}

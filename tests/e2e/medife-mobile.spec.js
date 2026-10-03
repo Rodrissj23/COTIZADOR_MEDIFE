@@ -5,6 +5,8 @@ test.describe('Celular: login y cotización completa', () => {
     test(`Login sin desbordes a ${width}px`, async ({ page }, testInfo) => {
       await page.setViewportSize({ width, height: 844 });
       await page.goto('/login.html');
+      await expect(page.locator('.login-official-logo img')).toHaveAttribute('src', /medife-logo-white\.jpg$/);
+      expect(await page.locator('.login-official-logo img').evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);
       const brand = await page.locator('.login-brand').boundingBox();
       const card = await page.locator('.login-card').boundingBox();
       expect(card.y).toBeGreaterThanOrEqual(brand.y + brand.height - 1);
@@ -25,6 +27,8 @@ test.describe('Celular: login y cotización completa', () => {
   test('Vista previa ajustada al celular y al cambio de orientación', async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/index.html');
+    await expect(page.locator('.brand-logo-shell img')).toHaveAttribute('src', /medife-logo-orange\.jpg$/);
+    expect(await page.locator('.brand-logo-shell img').evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);
     await expect(page.locator('html')).toHaveAttribute('data-medife-configurator', 'ready');
     await page.screenshot({ path: testInfo.outputPath('inicio-mobile.png') });
     await page.locator('#clientName').fill('Revisión móvil');
