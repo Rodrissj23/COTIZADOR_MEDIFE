@@ -85,5 +85,13 @@ test.describe('Celular: login y cotización completa', () => {
     await page.locator('#openManualQuote').click();
     await expect(page.locator('#quoteDialog')).toBeVisible();
     await fits(['.dialog-toolbar', '#downloadQuote', '#closeQuote', '.quote-page-preview']);
+    await expect(page.locator('#toggleQuoteZoom')).toBeVisible();
+    await page.locator('#toggleQuoteZoom').click();
+    await expect(page.locator('#toggleQuoteZoom')).toHaveAttribute('aria-pressed', 'true');
+    expect(await page.locator('.quote-page-preview').first().evaluate(el => el.scrollWidth > el.clientWidth)).toBe(true);
+    await fits(['.dialog-toolbar', '#downloadQuote', '#closeQuote', '.quote-page-preview']);
+    await page.locator('#toggleQuoteZoom').click();
+    await expect(page.locator('#toggleQuoteZoom')).toHaveAttribute('aria-pressed', 'false');
+    await fits(['.dialog-toolbar', '#downloadQuote', '#closeQuote', '.quote-page-preview']);
   });
 });
