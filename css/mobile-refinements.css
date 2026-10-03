@@ -15,6 +15,7 @@
 .quote-page-preview > .quote-page { margin: 0!important; transform-origin: top left; }
 .dialog-toolbar > div:first-child { min-width: 0; }
 .dialog-toolbar > div:last-child { flex-shrink: 0; }
+.quote-preview-controls { display: none; }
 
 @media (max-width: 1050px) {
   .login-page .login-shell { grid-template-columns: minmax(0, 1fr); }
@@ -53,6 +54,17 @@
   .dialog-toolbar b { font-size: 12px; line-height: 1.3; }
   .dialog-toolbar .button { padding: 0 12px; min-height: 44px; font-size: 12px; white-space: nowrap; }
   .dialog-toolbar .icon-button { width: 40px; flex-basis: 40px; }
+  .quote-preview-controls {
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:10px 12px;background:#fff;border-bottom:1px solid #e8ded5;
+    color:#625c57;font-size:12px;
+  }
+  .quote-preview-controls button {
+    min-height:40px;padding:0 12px;border:1px solid #e35205;border-radius:9px;
+    background:#fff;color:#ba4304;font:700 12px 'Manrope',Arial,sans-serif;
+    white-space:nowrap;cursor:pointer;
+  }
+  .quote-pages.is-zoomed .quote-page-preview { touch-action:pan-x pan-y; }
 }
 
 @media print {
