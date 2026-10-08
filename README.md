@@ -27,15 +27,17 @@ El Excel original se toma como fuente de verdad. La interfaz no debe inventar de
 
 La interfaz comienza por **provincia / CABA**, sin selección inicial. Si la provincia tiene varias regiones se solicita zona; la región tarifaria se deriva y no se elige manualmente. Luego se filtran las filiales y las localidades documentadas. Tucumán alimenta automáticamente la condición NOA.
 
-Buenos Aires tiene cuatro recorridos: AMBA (GBA Norte/Oeste/Sur), Bahía/MDQ, Sur (Mercedes y otros casos de interior pendientes) y Norte (San Nicolás/San Pedro, filial pendiente). CABA queda separada. Santa Fe ofrece Santa Fe capital y Rosario, con beneficios propios; Reconquista queda pendiente.
+Buenos Aires tiene cuatro recorridos: AMBA (GBA Norte/Oeste/Sur), Bahía/MDQ, Sur (Mercedes y otras localidades del interior) y Norte (San Nicolás/San Pedro). CABA queda separada. Santa Fe ofrece Santa Fe capital y Rosario, con beneficios propios; Reconquista utiliza tarifa Norte sin heredar beneficios exclusivos de otra filial.
 
 `js/geography.js` centraliza las 24 jurisdicciones, recorridos y estados. El motor valida provincia + zona + filial + localidad contra este catálogo antes de cotizar. Cambiar la geografía limpia localidad, propuesta y beneficios anteriores; el PDF conserva provincia/localidad junto con región/filial.
 
-La documentación territorial revisada es de septiembre de 2026. Una ciudad listada no autoriza automáticamente toda su provincia. Las suspensiones son las consignadas en esas fuentes, sujetas a actualización por administración. Una provincia sin correspondencia completa queda visible con su motivo y no se asigna por proximidad.
+La documentación territorial revisada es de septiembre de 2026. Provincia/localidad, región tarifaria y filial comercial son datos distintos. Una región documentada permite cotizar aunque no exista una filial equivalente en el motor. El catálogo diferencia `active` (filial y beneficios identificados), `tariff-only` (tarifa regional y beneficios generales) y `suspended` (bloqueada por suspensión documentada). No se asigna una filial por proximidad y no se extiende una ruta a toda la provincia.
 
 Fuentes: Excel `Cotizador Individual_202609_Provisorio (3).xlsx`, guías internas de procedencias/descuentos, [ZONAS AUTORIZADAS.pdf](https://drive.google.com/file/d/1VvFXMNqGm0MP_svcissrh6wm7dSi0HYm/view) y [tabla de equipos comerciales por zona](https://drive.google.com/file/d/1GVToOZ4VsvSGLDbdE-fQMkctWLWSIt9D/view). Una sucursal de carga no confirma la filial comercial.
 
-Pendientes: Paraná, Santa Rosa, La Rioja, Reconquista, San Nicolás/San Pedro, otras localidades de costa/Bahía e interior, habilitación de San Martín de los Andes y alias Patagonia Austral (Santa Cruz/Tierra del Fuego). Salta/Jujuy, Formosa, Santiago del Estero, San Luis y Tres Arroyos figuran suspendidas; Chaco tiene diferencias documentales y Catamarca carece de ruta. El catálogo no modifica los importes ni porcentajes del motor auditado.
+Santa Rosa (La Pampa) y Trenque Lauquen (Buenos Aires) cotizan con tarifa Sur, como indica la tabla comercial. La Rioja también usa Sur. Las otras rutas con región definida y filial no equivalente permiten cotizar los beneficios regionales; quedan excluidos los descuentos permanentes y tácticos que requieren una filial específica. El formulario y el PDF muestran el nombre de la zona, nunca los identificadores internos. Cambiar el domicilio invalida la propuesta anterior.
+
+Paraná sigue sin región documentada en las fuentes disponibles. Salta/Jujuy, Formosa, Santiago del Estero, San Luis y Tres Arroyos conservan sus suspensiones documentadas; Chaco presenta diferencias documentales y Catamarca carece de ruta. El catálogo no modifica las matrices de precios, aportes ni porcentajes del motor auditado.
 
 ### Grupo familiar
 
