@@ -2,6 +2,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
+require('../js/geography.js');
 
 for(const file of ['data-core','rules-v2','tariffs-amba','tariffs-norte','tariffs-sur','tariffs-patagonia','tariffs-bahia-mdq'])require(`../js/${file}.js`);
 const engine=require('../js/engine-v2.js');
@@ -46,4 +47,22 @@ assert.equal(manualQuote('PLATA',client(),{...combined,strategic:'1'}).status,'i
 assert.equal(manualQuote('INDIE',client(),combined).status,'invalid');
 assert.equal(bestSelection('PLATA',client()).quote.status,'ok');
 
-console.log('OK - Opción 6: selección, elegibilidad, continuidad y categorías');
+for(const geography of [
+  {province:'La Pampa',geographyZone:'Sur',filial:'__pampa_sur__',locality:'Santa Rosa'},
+  {province:'Buenos Aires',geographyZone:'Sur',filial:'__interior__',locality:'Trenque Lauquen'}
+]){
+  const c=client({...geography,region:'Sur',noaProvince:'',category:'Voluntario',age:32,contributionSource:null,receiptContribution:0});
+  const q=manualQuote('PLATA',c);
+  assert.equal(q.status,'ok');
+  assert.equal(q.finalPrice,337667.71);
+  const oro=context('ORO',{...c,age:40});
+  assert.equal(oro.filial,null);
+  assert.equal(oro.tactical,null);
+  assert.equal(manualQuote('ORO',{...c,age:40},{...blankSelection(),tactical:true}).status,'invalid');
+  assert.equal(manualQuote('PLATA',c,{...blankSelection(),filial:true}).status,'invalid');
+  assert.equal(context('PLATA',{...c,age:40}).tactical.rate,.10);
+  const oblig=client({...geography,region:'Sur',noaProvince:'',age:32});
+  assert.equal(manualQuote('PLATA',oblig).finalPrice,212189.49);
+}
+
+console.log('OK - configurador: Opción 6 y cotización regional Santa Rosa/Trenque con selección válida de beneficios');

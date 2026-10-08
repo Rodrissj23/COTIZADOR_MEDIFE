@@ -59,22 +59,26 @@ test('Buenos Aires ofrece cuatro zonas y limpia localidad, filial y propuesta al
   await submit(page);await expect(page.locator('.plan-card')).toHaveCount(5);
 });
 
-test('San Nicolás, Reconquista y localidades pendientes no heredan una filial por cercanía',async({page})=>{
+test('Una región documentada permite cotizar sin heredar una filial por cercanía',async({page})=>{
   await open(page);
   for(const c of [
     {province:'Buenos Aires',zone:'Norte',filial:'__norte_ba__',locality:'San Nicolás'},
     {province:'Santa Fe',filial:'__reconquista__',locality:'Reconquista'},
     {province:'Buenos Aires',zone:'Sur',filial:'__interior__',locality:'Tandil'},
-    {province:'Santa Cruz',filial:'Patagonia Sur',locality:'Río Gallegos'}
+    {province:'Santa Cruz',filial:'Patagonia Sur',locality:'Río Gallegos'},
+    {province:'La Pampa',locality:'Santa Rosa'},
+    {province:'La Rioja',locality:'La Rioja capital'},
+    {province:'Buenos Aires',zone:'Sur',filial:'__interior__',locality:'Trenque Lauquen'}
   ]){
-    await selectGeography(page,c);await expect(page.locator('#geographyHelp')).toHaveAttribute('data-blocked','true');
-    await submit(page);await expect(page.locator('#formError')).not.toBeEmpty();await expect(page.locator('#resultados')).toBeHidden();
+    await selectGeography(page,c);await expect(page.locator('#geographyHelp')).toHaveAttribute('data-blocked','false');
+    await submit(page);await expect(page.locator('#formError')).toBeEmpty();await expect(page.locator('.plan-card')).toHaveCount(5);
+    await choosePlata(page);await expect(page.locator('[data-benefit-id="filial"]')).toHaveCount(0);
   }
 });
 
 test('Suspensiones y provincias sin ruta muestran el motivo y bloquean cotización',async({page})=>{
   await open(page);
-  for(const province of ['Salta','Jujuy','Formosa','San Luis','Santiago del Estero','Catamarca','Chaco','Entre Ríos','La Pampa','La Rioja']){
+  for(const province of ['Salta','Jujuy','Formosa','San Luis','Santiago del Estero','Catamarca','Chaco','Entre Ríos']){
     await page.locator('#province').selectOption(province);
     await expect(page.locator('#filial')).toBeDisabled();
     await expect(page.locator('#region')).toHaveValue('');
@@ -91,7 +95,7 @@ test('Localidad desconocida impide reutilizar un resultado anterior',async({page
   await submit(page);await choosePlata(page);
   await page.locator('#locality').selectOption('__other__');
   await expect(page.locator('#proposalBuilder')).toBeHidden();
-  await submit(page);await expect(page.locator('#formError')).toContainText('no está confirmada');
+  await submit(page);await expect(page.locator('#formError')).toContainText('no tiene una región tarifaria configurada');
   await expect(page.locator('#resultados')).toBeHidden();
 });
 
@@ -105,7 +109,28 @@ test('NOA se deriva de Tucumán y Neuquén distingue filiales dentro de Patagoni
   await expect(page.locator('.plan-card')).toHaveCount(5);
   await page.locator('#filial').selectOption('Patagonia Norte');
   await expect(page.locator('#locality')).toHaveValue('');
-  await expect(page.locator('#geographyHelp')).toContainText('habilitación comercial');
+  await expect(page.locator('#geographyHelp')).toContainText('beneficios generales');
+});
+
+test('Santa Rosa y Trenque Lauquen llegan a propuesta y PDF con domicilio correcto',async({page})=>{
+  await open(page);await page.locator('#age').fill('32');
+  await selectGeography(page,{province:'La Pampa',locality:'Santa Rosa'});
+  await expect(page.locator('#region')).toHaveValue('Sur');
+  await expect(page.locator('#caseFilial')).toHaveText('Santa Rosa');
+  await expect(page.locator('#geographyHelp')).not.toContainText('administración');
+  await submit(page);await choosePlata(page);
+  await page.locator('#openManualQuote').click();
+  await expect(page.locator('.medife-summary-table')).toContainText('La Pampa · Santa Rosa');
+  await expect(page.locator('.medife-summary-table')).not.toContainText('__pampa_sur__');
+  await page.locator('#closeQuote').click();
+  await selectGeography(page,{province:'Buenos Aires',zone:'Sur',filial:'__interior__',locality:'Trenque Lauquen'});
+  await expect(page.locator('#resultados')).toBeHidden();
+  await expect(page.locator('#proposalBuilder')).toBeHidden();
+  await expect(page.locator('#region')).toHaveValue('Sur');
+  await submit(page);await choosePlata(page);
+  await page.locator('#openManualQuote').click();
+  await expect(page.locator('.medife-summary-table')).toContainText('Buenos Aires · Trenque Lauquen');
+  await expect(page.locator('.medife-summary-table')).not.toContainText('__interior__');
 });
 
 test('Geografía legible sin desborde a 320 y 390 píxeles',async({page},testInfo)=>{

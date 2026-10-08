@@ -53,11 +53,11 @@ function syncGeography(changed=''){
   const localitySelect=$('#locality');
   const scoped=pr?.value==='CABA'||zo?.region==='AMBA';
   const localities=(fi?.localities||[]).map(value=>({value,label:value}));
-  if(fi&&!scoped)localities.push({value:GEOGRAPHY.OTHER,label:'Otra localidad · consultar administración'});
+  if(fi&&!scoped)localities.push({value:GEOGRAPHY.OTHER,label:'Otra localidad · sin tarifa configurada'});
   fillGeographySelect(localitySelect,localities,'Seleccioná la localidad',resetFilial||changed==='filial'?'':localitySelect.value,scoped);
   $('#localityWrap').hidden=!fi;
   $('#noaProvince').value=fi?.value==='Noa'?pr.value:'';
-  const norte=zo?.region==='Norte'&&fi?.status==='active';
+  const norte=zo?.region==='Norte'&&GEOGRAPHY.canQuote(fi);
   $('#uccWrap').hidden=!norte;
   if(!norte||['province','geographyZone','filial'].includes(changed))$('#ucc').checked=false;
   let message='Primero seleccioná la provincia del domicilio del cliente.';
@@ -66,14 +66,16 @@ function syncGeography(changed=''){
     if(!zones.length){message=pr.message;blocked=true;}
     else if(!zo)message='Esta provincia tiene distintas zonas tarifarias. Elegí la que corresponde al domicilio.';
     else if(!fi)message='Seleccioná la filial correspondiente al domicilio. Las opciones dependen de la provincia y zona.';
-    else if(fi.status!=='active'){message=fi.message;blocked=true;}
-    else if(localitySelect.value===GEOGRAPHY.OTHER){message='Consultá a administración para confirmar esta localidad. No selecciones otra localidad para cotizar.';blocked=true;}
-    else message=scoped?'Confirmá que el domicilio pertenece a esta zona.':'Elegí la localidad real del domicilio. Si no aparece, seleccioná «Otra localidad» y consultá a administración.';
+    else if(!GEOGRAPHY.canQuote(fi)){message=fi.message;blocked=true;}
+    else if(localitySelect.value===GEOGRAPHY.OTHER){message='Esta localidad todavía no tiene una región tarifaria configurada. Elegí una localidad del listado.';blocked=true;}
+    else if(fi.status==='tariff-only')message=`Podés cotizar con tarifa ${zo.region}. Se ofrecen los beneficios generales de la región, sin descuentos exclusivos de filial.`;
+    else message=scoped?'Confirmá que el domicilio pertenece a esta zona.':'Elegí la localidad real del domicilio para ver los precios.';
   }
   $('#geographyHelp').textContent=message;
   $('#geographyHelp').dataset.blocked=String(blocked);
   $('#geographyResolved').hidden=!zo;
-  $('#geographyResolved').textContent=zo?`Región tarifaria calculada: ${zo.region}${fi?.status==='active'?` · filial ${fi.value}`:''}`:'';
+  $('#geographyResolved').textContent=zo?`Región tarifaria calculada: ${zo.region}${fi?` · ${fi.label}`:''}`:'';
+  $('#filialHeading').textContent=fi?.status==='tariff-only'?'Zona comercial':'Filial comercial';
 }
 
 function childrenAgesFromUI(){return $$('.child-age',$('#childrenAgeFields')).map(i=>Number(i.value));}
@@ -157,8 +159,9 @@ function syncCase(){
   $('#caseName').textContent=c.name;
   $('#caseInitials').textContent=initials(c.name);
   $('#caseComposition').textContent=compositionLabel(c);
-  $('#caseMode').textContent=[c.category,c.province||'Provincia pendiente',c.region,c.filial&&!c.filial.startsWith('__')?c.filial:'',c.category==='Obligatorio'?'con aportes':''].filter(Boolean).join(' · ');
-  $('#caseFilial').textContent=c.filial&&!c.filial.startsWith('__')?c.filial:'A seleccionar / validar';
+  const filialLabel=GEOGRAPHY.filialLabel(c);
+  $('#caseMode').textContent=[c.category,c.province||'Provincia pendiente',c.region,filialLabel,c.category==='Obligatorio'?'con aportes':''].filter(Boolean).join(' · ');
+  $('#caseFilial').textContent=filialLabel||'A seleccionar';
 }
 function invalidateSelection(){state.plan=null;state.quote=null;$('#selectedBar').hidden=true;}
 
@@ -238,7 +241,7 @@ function selectedPromotionLabel(c,q){
 }
 function buildQuote(){
   if(!state.quote||!state.plan)return;
-  $('#quotePages').innerHTML=`<section class="quote-page"><div class="quote-content"><p class="eyebrow">COTIZACIÓN MEDIFÉ</p><h2>${esc(state.plan)}</h2><p>${esc(state.client.name)} · ${esc(state.client.region)} · ${esc(state.client.filial)}</p><div class="quote-kpi"><small>Primera cuota estimada</small><strong>${money(state.quote.finalPrice)}</strong></div></div></section>`;
+  $('#quotePages').innerHTML=`<section class="quote-page"><div class="quote-content"><p class="eyebrow">COTIZACIÓN MEDIFÉ</p><h2>${esc(state.plan)}</h2><p>${esc(state.client.name)} · ${esc(state.client.region)} · ${esc(GEOGRAPHY.filialLabel(state.client))}</p><div class="quote-kpi"><small>Primera cuota estimada</small><strong>${money(state.quote.finalPrice)}</strong></div></div></section>`;
 }
 $('#openQuote').addEventListener('click',()=>{buildQuote();$('#quoteDialog').showModal();});
 $('#closeQuote').addEventListener('click',()=>$('#quoteDialog').close());

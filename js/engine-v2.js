@@ -156,19 +156,22 @@
 
   function filialDiscountPolicy(plan,client){
     if(plan==='INDIE'||client.category!=='Obligatorio')return null;
+    const pricingFilial=root.MEDIFE_GEOGRAPHY?.pricingFilial(client)??client.filial;
+    if(!pricingFilial)return null;
     return (DATA.filialDiscounts||[]).find(r=>{
       if(r.category!==client.category||r.region!==client.region)return false;
-      if(r.filial&&norm(r.filial)!==norm(client.filial))return false;
-      if(r.filials&&!(r.filials||[]).some(x=>norm(x)===norm(client.filial)))return false;
+      if(r.filial&&norm(r.filial)!==norm(pricingFilial))return false;
+      if(r.filials&&!(r.filials||[]).some(x=>norm(x)===norm(pricingFilial)))return false;
       if(r.provinces&&!(r.provinces||[]).some(x=>norm(x)===norm(client.noaProvince)))return false;
       return true;
     })||null;
   }
 
   function conditionMatches(condition,client){
-    const c=norm(condition),f=norm(client.filial);
+    const pricingFilial=root.MEDIFE_GEOGRAPHY?.pricingFilial(client)??client.filial;
+    const c=norm(condition),f=norm(pricingFilial);
     if(c==='AMBA')return client.region==='AMBA';
-    if(c==='GBA')return /^GBA /.test(String(client.filial||''));
+    if(c==='GBA')return /^GBA /.test(String(pricingFilial||''));
     if(c==='SUR')return client.region==='Sur';
     if(c==='PATAGONIA')return client.region==='Patagonia';
     if(c==='BAHIA/MDQ')return client.region==='Bahía/MDQ';
@@ -283,7 +286,8 @@
     if(!DATA.tariffs[client.region])return 'Región tarifaria inválida.';
     if(!['Obligatorio','Voluntario'].includes(client.category))return 'Categoría inválida.';
     const allowedFilials=DATA.filialsByRegion?.[client.region]||[];
-    if(!allowedFilials.includes(client.filial))return 'Seleccioná una filial válida para la región.';
+    const tariffOnly=Object.prototype.hasOwnProperty.call(client,'province')&&root.MEDIFE_GEOGRAPHY?.route(client)?.status==='tariff-only';
+    if(!tariffOnly&&!allowedFilials.includes(client.filial))return 'Seleccioná una filial válida para la región.';
     if(client.filial==='Noa'&&!DATA.noaProvinces.includes(client.noaProvince))return 'Indicá la provincia dentro de NOA.';
     if(n(client.age)<18)return 'El titular debe tener 18 años o más.';
     if(client.hasPartner&&n(client.partnerAge)<18)return 'La pareja debe tener 18 años o más.';
