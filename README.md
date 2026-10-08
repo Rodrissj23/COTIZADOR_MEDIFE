@@ -25,7 +25,17 @@ El Excel original se toma como fuente de verdad. La interfaz no debe inventar de
 - Patagonia: Comahue, Patagonia Norte, Patagonia Sur.
 - Bahía/MDQ: Bahía Blanca, Mar del Plata.
 
-Cuando la filial es NOA se solicita provincia: Tucumán, Salta, Jujuy u Otra, porque el descuento permanente del 20% aplica específicamente a Tucumán/Salta/Jujuy.
+La interfaz comienza por **provincia / CABA**, sin selección inicial. Si la provincia tiene varias regiones se solicita zona; la región tarifaria se deriva y no se elige manualmente. Luego se filtran las filiales y las localidades documentadas. Tucumán alimenta automáticamente la condición NOA.
+
+Buenos Aires tiene cuatro recorridos: AMBA (GBA Norte/Oeste/Sur), Bahía/MDQ, Sur (Mercedes y otros casos de interior pendientes) y Norte (San Nicolás/San Pedro, filial pendiente). CABA queda separada. Santa Fe ofrece Santa Fe capital y Rosario, con beneficios propios; Reconquista queda pendiente.
+
+`js/geography.js` centraliza las 24 jurisdicciones, recorridos y estados. El motor valida provincia + zona + filial + localidad contra este catálogo antes de cotizar. Cambiar la geografía limpia localidad, propuesta y beneficios anteriores; el PDF conserva provincia/localidad junto con región/filial.
+
+La documentación territorial revisada es de septiembre de 2026. Una ciudad listada no autoriza automáticamente toda su provincia. Las suspensiones son las consignadas en esas fuentes, sujetas a actualización por administración. Una provincia sin correspondencia completa queda visible con su motivo y no se asigna por proximidad.
+
+Fuentes: Excel `Cotizador Individual_202609_Provisorio (3).xlsx`, guías internas de procedencias/descuentos, [ZONAS AUTORIZADAS.pdf](https://drive.google.com/file/d/1VvFXMNqGm0MP_svcissrh6wm7dSi0HYm/view) y [tabla de equipos comerciales por zona](https://drive.google.com/file/d/1GVToOZ4VsvSGLDbdE-fQMkctWLWSIt9D/view). Una sucursal de carga no confirma la filial comercial.
+
+Pendientes: Paraná, Santa Rosa, La Rioja, Reconquista, San Nicolás/San Pedro, otras localidades de costa/Bahía e interior, habilitación de San Martín de los Andes y alias Patagonia Austral (Santa Cruz/Tierra del Fuego). Salta/Jujuy, Formosa, Santiago del Estero, San Luis y Tres Arroyos figuran suspendidas; Chaco tiene diferencias documentales y Catamarca carece de ruta. El catálogo no modifica los importes ni porcentajes del motor auditado.
 
 ### Grupo familiar
 
@@ -178,3 +188,4 @@ Configurar:
 - `SESSION_SECRET`
 
 Luego desplegar el repositorio con `netlify.toml` en la raíz.
+

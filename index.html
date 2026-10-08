@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="css/visual-v8-refinements.css">
   <link rel="stylesheet" href="css/mobile-refinements.css">
   <link rel="stylesheet" href="css/official-assets.css">
+  <link rel="stylesheet" href="css/geography.css">
 </head>
 <body>
   <header class="site-header">
@@ -48,14 +49,19 @@
         </div>
         <form id="quoteForm">
           <section class="form-step">
-            <div class="section-heading section-heading--small"><span>1</span><div><h3>Datos del cliente</h3><p>Identificación, región tarifaria y filial comercial.</p></div></div>
+            <div class="section-heading section-heading--small"><span>1</span><div><h3>Datos del cliente</h3><p>Elegí la provincia del domicilio. El cotizador determina la región y muestra las filiales correspondientes.</p></div></div>
             <div class="field-grid field-grid--3">
               <label><span>Nombre y apellido</span><input id="clientName" required placeholder="Ej. María González"></label>
               <label><span>DNI <small class="field-help">Opcional</small></span><input id="clientDni" inputmode="numeric" placeholder="Sin puntos"></label>
-              <label><span>Región tarifaria</span><select id="region"><option>AMBA</option><option>Norte</option><option>Sur</option><option>Patagonia</option><option>Bahía/MDQ</option></select></label>
-              <label><span>Filial comercial</span><select id="filial"></select></label>
-              <label id="noaProvinceWrap" hidden><span>Provincia NOA</span><select id="noaProvince"><option>Tucumán</option><option>Salta</option><option>Jujuy</option><option>Otra</option></select><small class="field-help">Necesaria para determinar beneficios válidos de filial.</small></label>
+              <label><span>Provincia / CABA</span><select id="province" required aria-describedby="geographyHelp"></select></label>
+              <label id="geographyZoneWrap" hidden><span>Zona dentro de la provincia</span><select id="geographyZone" aria-describedby="geographyHelp"></select></label>
+              <label><span>Filial comercial</span><select id="filial" required disabled aria-describedby="geographyHelp"></select></label>
+              <label id="localityWrap" hidden><span>Localidad / zona</span><select id="locality" required disabled aria-describedby="geographyHelp"></select></label>
+              <label hidden><span>Región tarifaria calculada</span><select id="region" disabled><option value=""></option><option>AMBA</option><option>Norte</option><option>Sur</option><option>Patagonia</option><option>Bahía/MDQ</option></select></label>
+              <input id="noaProvince" type="hidden" value="">
             </div>
+            <p id="geographyHelp" class="field-help" aria-live="polite">Primero seleccioná la provincia del domicilio del cliente.</p>
+            <p id="geographyResolved" class="field-help" hidden></p>
           </section>
 
           <section class="form-step">
@@ -156,6 +162,7 @@
   <script src="js/data-core.js"></script>
   <script src="js/rules-v2.js"></script>
   <script src="js/tariffs-amba.js"></script><script src="js/tariffs-norte.js"></script><script src="js/tariffs-sur.js"></script><script src="js/tariffs-patagonia.js"></script><script src="js/tariffs-bahia-mdq.js"></script>
+  <script src="js/geography.js"></script>
   <script src="js/engine-v2.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
@@ -166,3 +173,4 @@
   <script src="js/quote-preview.js"></script>
 </body>
 </html>
+

@@ -275,6 +275,11 @@
   }
 
   function validateClient(client){
+    if(Object.prototype.hasOwnProperty.call(client,'province')){
+      if(!root.MEDIFE_GEOGRAPHY)return 'No se pudo cargar la configuración geográfica. Recargá el cotizador.';
+      const geographyError=root.MEDIFE_GEOGRAPHY.validate(client);
+      if(geographyError)return geographyError;
+    }
     if(!DATA.tariffs[client.region])return 'Región tarifaria inválida.';
     if(!['Obligatorio','Voluntario'].includes(client.category))return 'Categoría inválida.';
     const allowedFilials=DATA.filialsByRegion?.[client.region]||[];
@@ -372,3 +377,4 @@
   root.MEDIFE_ENGINE=api;
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
+

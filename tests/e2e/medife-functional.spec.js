@@ -1,7 +1,9 @@
+const { selectGeography } = require('../geography-helpers');
 const { test, expect } = require('@playwright/test');
 
 async function openApp(page) {
   await page.goto('/index.html');
+  await selectGeography(page);
   await expect(page.locator('#quoteForm')).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('data-medife-configurator','ready');
   await page.locator('#clientName').fill('QA Zeroka');
@@ -36,22 +38,38 @@ test.describe('Cotizador Medifé · QA funcional configurador V3',()=>{
     await expect(page.locator('.form-step--promo')).toContainText('Condiciones especiales');
   });
 
-  test('02 · región actualiza correctamente las filiales',async({page})=>{
+  test('02 · provincia y zona filtran las filiales sin mezclar CABA con GBA',async({page})=>{
     await openApp(page);
-    const cases=[['AMBA',['CABA','GBA Norte','GBA Oeste','GBA Sur']],['Norte',['Córdoba','Corrientes','Misiones','Noa','Rosario','Santa Fe']],['Sur',['Mendoza','Mercedes','San Juan']],['Patagonia',['Comahue','Patagonia Norte','Patagonia Sur']],['Bahía/MDQ',['Bahía Blanca','Mar del Plata']]];
-    for(const [region,filials] of cases){await page.locator('#region').selectOption({label:region});expect(await page.locator('#filial option').allTextContents()).toEqual(filials);}
+    await expect(page.locator('#province option')).toHaveCount(25);
+    await page.locator('#province').selectOption('Buenos Aires');
+    await expect(page.locator('#geographyZoneWrap')).toBeVisible();
+    await expect(page.locator('#geographyZone option')).toHaveCount(5);
+    await page.locator('#geographyZone').selectOption('AMBA');
+    expect(await page.locator('#filial option').allTextContents()).toEqual(['Seleccioná la filial','GBA Norte','GBA Oeste','GBA Sur']);
+    await selectGeography(page,{province:'Santa Fe'});
+    await expect(page.locator('#geographyZoneWrap')).toBeHidden();
+    await expect(page.locator('#region')).toHaveValue('Norte');
+    await expect(page.locator('#filial')).toHaveValue('');
+    expect(await page.locator('#filial option').allTextContents()).toContain('Santa Fe');
+    expect(await page.locator('#filial option').allTextContents()).toContain('Rosario');
   });
 
-  test('03 · NOA solicita provincia únicamente cuando corresponde',async({page})=>{
-    await openApp(page);await expect(page.locator('#noaProvinceWrap')).toBeHidden();
-    await page.locator('#region').selectOption('Norte');await page.locator('#filial').selectOption('Noa');await expect(page.locator('#noaProvinceWrap')).toBeVisible();
-    await page.locator('#filial').selectOption('Córdoba');await expect(page.locator('#noaProvinceWrap')).toBeHidden();
+  test('03 · provincia alimenta NOA sin pedir una segunda provincia',async({page})=>{
+    await openApp(page);
+    await selectGeography(page,{province:'Tucumán',locality:'San Miguel de Tucumán'});
+    await expect(page.locator('#filial')).toHaveValue('Noa');
+    await expect(page.locator('#noaProvince')).toHaveValue('Tucumán');
+    await selectGeography(page,{province:'Córdoba',locality:'Córdoba capital'});
+    await expect(page.locator('#noaProvince')).toHaveValue('');
   });
 
-  test('04 · UCC se pregunta como condición de elegibilidad y solo en Norte',async({page})=>{
+  test('04 · UCC se pregunta en Norte y se limpia al cambiar provincia',async({page})=>{
     await openApp(page);await expect(page.locator('#uccWrap')).toBeHidden();
-    await page.locator('#region').selectOption('Norte');await expect(page.locator('#uccWrap')).toBeVisible();await expect(page.locator('#uccWrap')).toContainText('Tiene empleador UCC');
-    await page.locator('#region').selectOption('Sur');await expect(page.locator('#uccWrap')).toBeHidden();
+    await selectGeography(page,{province:'Córdoba',locality:'Córdoba capital'});
+    await expect(page.locator('#uccWrap')).toBeVisible();await expect(page.locator('#uccWrap')).toContainText('Tiene empleador UCC');
+    await page.locator('#ucc').check();
+    await selectGeography(page,{province:'Mendoza',locality:'Mendoza capital'});
+    await expect(page.locator('#uccWrap')).toBeHidden();await expect(page.locator('#ucc')).not.toBeChecked();
   });
 
   test('05 · promociones y convenios ya no se eligen en el formulario inicial',async({page})=>{
@@ -86,7 +104,7 @@ test.describe('Cotizador Medifé · QA funcional configurador V3',()=>{
   });
 
   test('10 · fuera de AMBA INDIE no aparece y quedan cinco planes base',async({page})=>{
-    await openApp(page);await page.locator('#region').selectOption('Sur');await page.locator('#filial').selectOption('Mendoza');await fillMandatoryContribution(page);await submit(page);
+    await openApp(page);await selectGeography(page,{province:'Mendoza',locality:'Mendoza capital'});await fillMandatoryContribution(page);await submit(page);
     await expect(page.locator('.plan-card')).toHaveCount(5);await expect(planCard(page,'INDIE')).toHaveCount(0);
   });
 
@@ -109,7 +127,7 @@ test.describe('Cotizador Medifé · QA funcional configurador V3',()=>{
   });
 
   test('14 · Interior explica 55% sobre hijos sin presentarlo como 55% del grupo',async({page})=>{
-    await openApp(page);await page.locator('#region').selectOption('Sur');await page.locator('#filial').selectOption('Mendoza');await page.locator('#hasPartner').check();await page.locator('#children').fill('1');await page.locator('.child-age').fill('10');await fillMandatoryContribution(page);await submit(page);await choosePlan(page,'PLATA');
+    await openApp(page);await selectGeography(page,{province:'Mendoza',locality:'Mendoza capital'});await page.locator('#hasPartner').check();await page.locator('#children').fill('1');await page.locator('.child-age').fill('10');await fillMandatoryContribution(page);await submit(page);await choosePlan(page,'PLATA');
     const child=benefitId(page,'child');await expect(child).toContainText('55% sobre tarifa de hijos elegibles');
     const txt=await child.textContent();expect(txt).not.toMatch(/impacto máximo sobre este grupo 55%/);
   });
@@ -120,7 +138,7 @@ test.describe('Cotizador Medifé · QA funcional configurador V3',()=>{
   });
 
   test('16 · táctico válido aparece disponible pero no se aplica hasta que el asesor lo elige',async({page})=>{
-    await openApp(page);await page.locator('#filial').selectOption('GBA Sur');await page.locator('#age').fill('38');await fillMandatoryContribution(page);await submit(page);await choosePlan(page,'BRONCE');
+    await openApp(page);await selectGeography(page,{province:'Buenos Aires',zone:'AMBA',filial:'GBA Sur'});await page.locator('#age').fill('38');await fillMandatoryContribution(page);await submit(page);await choosePlan(page,'BRONCE');
     const tactical=benefitId(page,'tactical');await expect(tactical).toBeVisible();await expect(tactical).not.toHaveClass(/is-selected/);
     const before=digitsOnly(await page.locator('.summary-total strong').textContent());await tactical.click();await expect(benefitId(page,'tactical')).toHaveClass(/is-selected/);const after=digitsOnly(await page.locator('.summary-total strong').textContent());expect(Number(after)).toBeLessThan(Number(before));
   });
@@ -132,14 +150,14 @@ test.describe('Cotizador Medifé · QA funcional configurador V3',()=>{
   });
 
   test('18 · aplicar mejor combinación selecciona beneficios válidos pero nunca acredita un convenio por sí sola',async({page})=>{
-    await openApp(page);await page.locator('#age').fill('38');await page.locator('#filial').selectOption('GBA Sur');await page.locator('#children').fill('1');await page.locator('.child-age').fill('8');await fillMandatoryContribution(page);await submit(page);await choosePlan(page,'PLATA');
+    await openApp(page);await page.locator('#age').fill('38');await selectGeography(page,{province:'Buenos Aires',zone:'AMBA',filial:'GBA Sur'});await page.locator('#children').fill('1');await page.locator('.child-age').fill('8');await fillMandatoryContribution(page);await submit(page);await choosePlan(page,'PLATA');
     const before=Number(digitsOnly(await page.locator('.summary-total strong').textContent()));await page.locator('#bestBenefits').click();
     const after=Number(digitsOnly(await page.locator('.summary-total strong').textContent()));expect(after).toBeLessThanOrEqual(before);expect(await page.locator('.benefit-card.is-selected').count()).toBeGreaterThan(0);
     await expect(page.locator('.benefit-card[data-benefit-kind="gaf"].is-selected')).toHaveCount(0);
   });
 
   test('19 · convenios se ofrecen recién al armar propuesta y filtrados por zona',async({page})=>{
-    await openApp(page);await page.locator('#region').selectOption('Patagonia');await page.locator('#filial').selectOption('Comahue');await fillMandatoryContribution(page);await submit(page);await choosePlan(page,'PLATA');
+    await openApp(page);await selectGeography(page,{province:'Neuquén',filial:'Comahue',locality:'Neuquén capital'});await fillMandatoryContribution(page);await submit(page);await choosePlan(page,'PLATA');
     await expect(benefit(page,'Ex INVAP Jubilados')).toBeVisible();await expect(benefit(page,'Prestadores Medifé Sur')).toBeVisible();await expect(benefit(page,'Prestadores Medifé AMBA')).toHaveCount(0);
   });
 
@@ -188,3 +206,4 @@ test.describe('Cotizador Medifé · QA funcional configurador V3',()=>{
     await benefitId(page,'strategic:1').click();await expect(benefitId(page,'option6')).not.toHaveClass(/is-selected/);
   });
 });
+

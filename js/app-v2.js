@@ -3,6 +3,8 @@ const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const ENGINE=window.MEDIFE_ENGINE;
 if(!ENGINE) throw new Error('No se pudo cargar el motor Medifé.');
+const GEOGRAPHY=window.MEDIFE_GEOGRAPHY;
+if(!GEOGRAPHY) throw new Error('No se pudo cargar la geografía comercial Medifé.');
 const {DATA,quote,quoteAll,strategicEligibility,gafEligibility,validateClient}=ENGINE;
 const VALIDITY_LABEL='7 días hábiles';
 
@@ -18,13 +20,12 @@ function fillMonoSelect(select){
 fillMonoSelect($('#monotributoCategory'));
 fillMonoSelect($('#partnerMonotributoCategory'));
 
-function fillFilialSelect(){
-  const select=$('#filial');
-  const previous=select.value;
-  const values=DATA.filialsByRegion?.[$('#region').value]||[];
-  select.innerHTML=values.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join('');
-  if(values.includes(previous))select.value=previous;
+function fillGeographySelect(select, options, placeholder, previous='', automatic=false){
+  select.innerHTML=`<option value="">${esc(placeholder)}</option>`+options.map(o=>`<option value="${esc(o.value)}">${esc(o.label)}</option>`).join('');
+  select.value=options.some(o=>o.value===previous)?previous:(automatic&&options.length===1?options[0].value:'');
+  select.disabled=options.length===0;
 }
+fillGeographySelect($('#province'),GEOGRAPHY.provinces,'Seleccioná la provincia');
 function fillGafSelect(){
   const select=$('#gaf');
   const previous=select.value||'none';
@@ -36,13 +37,43 @@ function fillGafSelect(){
   select.innerHTML=values.map(v=>`<option value="${esc(v.value)}">${esc(v.label)}</option>`).join('');
   select.value=values.some(v=>v.value===previous)?previous:'none';
 }
-function syncGeography(){
-  fillFilialSelect();
-  const filial=$('#filial').value;
-  $('#noaProvinceWrap').hidden=filial!=='Noa';
-  const norte=$('#region').value==='Norte';
+function syncGeography(changed=''){
+  const pr=GEOGRAPHY.province($('#province').value);
+  const zones=pr?.zones||[];
+  const zoneSelect=$('#geographyZone');
+  fillGeographySelect(zoneSelect,zones,'Seleccioná la zona',changed==='province'?'':zoneSelect.value,true);
+  $('#geographyZoneWrap').hidden=zones.length<2;
+  zoneSelect.required=zones.length>1;
+  const zo=GEOGRAPHY.zone(pr?.value,zoneSelect.value);
+  $('#region').value=zo?.region||'';
+  const filialSelect=$('#filial');
+  const resetFilial=['province','geographyZone'].includes(changed);
+  fillGeographySelect(filialSelect,zo?.filials||[],'Seleccioná la filial',resetFilial?'':filialSelect.value,true);
+  const fi=GEOGRAPHY.filial(pr?.value,zoneSelect.value,filialSelect.value);
+  const localitySelect=$('#locality');
+  const scoped=pr?.value==='CABA'||zo?.region==='AMBA';
+  const localities=(fi?.localities||[]).map(value=>({value,label:value}));
+  if(fi&&!scoped)localities.push({value:GEOGRAPHY.OTHER,label:'Otra localidad · consultar administración'});
+  fillGeographySelect(localitySelect,localities,'Seleccioná la localidad',resetFilial||changed==='filial'?'':localitySelect.value,scoped);
+  $('#localityWrap').hidden=!fi;
+  $('#noaProvince').value=fi?.value==='Noa'?pr.value:'';
+  const norte=zo?.region==='Norte'&&fi?.status==='active';
   $('#uccWrap').hidden=!norte;
-  if(!norte)$('#ucc').checked=false;
+  if(!norte||['province','geographyZone','filial'].includes(changed))$('#ucc').checked=false;
+  let message='Primero seleccioná la provincia del domicilio del cliente.';
+  let blocked=false;
+  if(pr){
+    if(!zones.length){message=pr.message;blocked=true;}
+    else if(!zo)message='Esta provincia tiene distintas zonas tarifarias. Elegí la que corresponde al domicilio.';
+    else if(!fi)message='Seleccioná la filial correspondiente al domicilio. Las opciones dependen de la provincia y zona.';
+    else if(fi.status!=='active'){message=fi.message;blocked=true;}
+    else if(localitySelect.value===GEOGRAPHY.OTHER){message='Consultá a administración para confirmar esta localidad. No selecciones otra localidad para cotizar.';blocked=true;}
+    else message=scoped?'Confirmá que el domicilio pertenece a esta zona.':'Elegí la localidad real del domicilio. Si no aparece, seleccioná «Otra localidad» y consultá a administración.';
+  }
+  $('#geographyHelp').textContent=message;
+  $('#geographyHelp').dataset.blocked=String(blocked);
+  $('#geographyResolved').hidden=!zo;
+  $('#geographyResolved').textContent=zo?`Región tarifaria calculada: ${zo.region}${fi?.status==='active'?` · filial ${fi.value}`:''}`:'';
 }
 
 function childrenAgesFromUI(){return $$('.child-age',$('#childrenAgeFields')).map(i=>Number(i.value));}
@@ -75,7 +106,6 @@ function syncConditionalUI(){
   $('#childrenAgesWrap').hidden=childCount===0;
   if($$('.child-age',$('#childrenAgeFields')).length!==childCount)renderChildAges(childCount);
   fillGafSelect();
-  $('#noaProvinceWrap').hidden=$('#filial').value!=='Noa';
 }
 
 function readClient(promotionOverride){
@@ -84,7 +114,8 @@ function readClient(promotionOverride){
   const currentPromo=promotionOverride!==undefined?promotionOverride:($('#promotion').value||'none');
   return {
     name:$('#clientName').value.trim()||'Nueva cotización',dni:$('#clientDni').value.trim(),
-    region:$('#region').value,filial:$('#filial').value,noaProvince:$('#filial').value==='Noa'?$('#noaProvince').value:'',
+    province:$('#province').value,geographyZone:$('#geographyZone').value,locality:$('#locality').value,
+    region:$('#region').value,filial:$('#filial').value,noaProvince:$('#noaProvince').value,
     category,paymentMethod:$('#paymentMethod')?.value||null,
     procedencia:$('#procedencia').checked,exAssociate:$('#exAssociate').checked,
     gaf:$('#gaf').value||'none',ucc:$('#ucc').checked,
@@ -126,15 +157,16 @@ function syncCase(){
   $('#caseName').textContent=c.name;
   $('#caseInitials').textContent=initials(c.name);
   $('#caseComposition').textContent=compositionLabel(c);
-  $('#caseMode').textContent=`${c.category} · ${c.region} · ${c.filial}${c.category==='Obligatorio'?' · con aportes':''}`;
-  $('#caseFilial').textContent=c.filial;
+  $('#caseMode').textContent=[c.category,c.province||'Provincia pendiente',c.region,c.filial&&!c.filial.startsWith('__')?c.filial:'',c.category==='Obligatorio'?'con aportes':''].filter(Boolean).join(' · ');
+  $('#caseFilial').textContent=c.filial&&!c.filial.startsWith('__')?c.filial:'A seleccionar / validar';
 }
 function invalidateSelection(){state.plan=null;state.quote=null;$('#selectedBar').hidden=true;}
 
 $$('[data-scroll]').forEach(b=>b.addEventListener('click',()=>$(b.dataset.scroll)?.scrollIntoView({behavior:'smooth'})));
 $$('.choice').forEach(choice=>choice.addEventListener('click',()=>{const radio=$('input',choice);if(radio)radio.checked=true;syncCase();invalidateSelection();}));
-$('#region').addEventListener('change',()=>{syncGeography();syncCase();invalidateSelection();});
-$('#filial').addEventListener('change',()=>{syncGeography();syncCase();invalidateSelection();});
+for(const id of ['province','geographyZone','filial','locality']){
+  $('#'+id).addEventListener('change',()=>{syncGeography(id);syncCase();invalidateSelection();$('#formError').textContent='';});
+}
 $('#children').addEventListener('input',()=>{renderChildAges($('#children').value);syncCase();invalidateSelection();});
 $('#hasPartner').addEventListener('change',()=>{syncCase();invalidateSelection();});
 $('#unifyPartnerContribution').addEventListener('change',()=>{syncCase();invalidateSelection();});
@@ -142,7 +174,7 @@ $('#contributionSource').addEventListener('change',()=>{syncContributionSource('
 $('#partnerContributionSource').addEventListener('change',()=>{syncContributionSource('partner');syncCase();invalidateSelection();});
 $('#promotion').addEventListener('change',()=>{const c=readClient();$('#option5Wrap').hidden=!(['1','2','3'].includes(c.promotion)&&c.procedencia);if($('#option5Wrap').hidden)$('#option5').checked=false;invalidateSelection();syncCase();});
 $('#quoteForm').addEventListener('input',e=>{if(e.target.id==='children'||e.target.id==='promotion')return;syncCase();invalidateSelection();});
-$('#quoteForm').addEventListener('change',e=>{if(['region','filial','children','promotion','hasPartner','unifyPartnerContribution','contributionSource','partnerContributionSource'].includes(e.target.id))return;syncCase();invalidateSelection();});
+$('#quoteForm').addEventListener('change',e=>{if(['province','geographyZone','filial','locality','children','promotion','hasPartner','unifyPartnerContribution','contributionSource','partnerContributionSource'].includes(e.target.id))return;syncCase();invalidateSelection();});
 
 function planFlags(q,c){
   const flags=[];
@@ -226,4 +258,5 @@ $('#downloadQuote').addEventListener('click',async()=>{
 });
 $('#logoutButton').addEventListener('click',async()=>{try{await fetch('/api/logout',{method:'POST'})}finally{location.href='login.html';}});
 
-fillFilialSelect();syncGeography();renderChildAges(0);fillGafSelect();syncConditionalUI();syncPromotionOptions();syncCase();
+syncGeography();renderChildAges(0);fillGafSelect();syncConditionalUI();syncPromotionOptions();syncCase();
+
