@@ -1,9 +1,11 @@
+const { selectGeography } = require('../geography-helpers');
 const { test, expect } = require('@playwright/test');
 
 test('Presentación: campos alineados, etiquetas legibles y propuesta sin superposiciones', async ({ page }, testInfo) => {
   // También verifica el caso observado en producción: fuentes externas no disponibles.
   await page.route('https://fonts.googleapis.com/**', route => route.abort());
   await page.goto('/index.html');
+  await selectGeography(page);
   await expect(page.locator('html')).toHaveAttribute('data-medife-configurator', 'ready');
   await page.locator('#clientName').fill('Revisión visual de un grupo familiar');
   await page.locator('#receiptContribution').fill('30000');
@@ -42,3 +44,4 @@ test('Presentación: campos alineados, etiquetas legibles y propuesta sin superp
   }
   await page.locator('#proposalBuilder').screenshot({ path: testInfo.outputPath('propuesta.png') });
 });
+

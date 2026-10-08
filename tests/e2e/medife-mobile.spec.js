@@ -1,3 +1,4 @@
+const { selectGeography } = require('../geography-helpers');
 const { test, expect } = require('@playwright/test');
 
 test.describe('Celular: login y cotización completa', () => {
@@ -27,6 +28,7 @@ test.describe('Celular: login y cotización completa', () => {
   test('Vista previa ajustada al celular y al cambio de orientación', async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/index.html');
+  await selectGeography(page);
     await expect(page.locator('.brand-logo-shell img')).toHaveAttribute('src', /medife-logo-orange\.jpg$/);
     expect(await page.locator('.brand-logo-shell img').evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);
     await expect(page.locator('html')).toHaveAttribute('data-medife-configurator', 'ready');
@@ -68,6 +70,7 @@ test.describe('Celular: login y cotización completa', () => {
       }
     };
     await page.goto('/index.html');
+  await selectGeography(page);
     await expect(page.locator('html')).toHaveAttribute('data-medife-configurator', 'ready');
     await fits(['.site-header', '.hero', '.form-card', '#clientName', '#receiptContribution', '.submit-quote']);
     await page.screenshot({ path: testInfo.outputPath('formulario-320.png'), fullPage: true });
@@ -95,3 +98,4 @@ test.describe('Celular: login y cotización completa', () => {
     await fits(['.dialog-toolbar', '#downloadQuote', '#closeQuote', '.quote-page-preview']);
   });
 });
+

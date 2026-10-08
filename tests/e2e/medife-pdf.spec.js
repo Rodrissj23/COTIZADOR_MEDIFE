@@ -1,9 +1,11 @@
+const { selectGeography } = require('../geography-helpers');
 const { test, expect } = require('@playwright/test');
 const fs = require('node:fs');
 
 test('PDF · genera y descarga la propuesta manual como PDF real', async ({ page }, testInfo) => {
   test.setTimeout(60000);
   await page.goto('/index.html');
+  await selectGeography(page);
   await expect(page.locator('#quoteForm')).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('data-medife-configurator','ready');
   await page.locator('#clientName').fill('QA PDF');
@@ -52,6 +54,7 @@ test('PDF · genera y descarga la propuesta manual como PDF real', async ({ page
 
 test('PDF · cinco etapas de cuota entran en una sola hoja',async({page},testInfo)=>{
   await page.goto('/index.html');
+  await selectGeography(page);
   await expect(page.locator('html')).toHaveAttribute('data-medife-configurator','ready');
   await page.locator('#clientName').fill('QA cinco etapas');
   await page.locator('#age').fill('40');
@@ -72,10 +75,10 @@ test('PDF · cinco etapas de cuota entran en una sola hoja',async({page},testInf
 
 test('PDF · resumen completo con UCC, convenio y ajustes sin recortes', async ({page},testInfo)=>{
   await page.goto('/index.html');
+  await selectGeography(page);
   await expect(page.locator('html')).toHaveAttribute('data-medife-configurator','ready');
   await page.locator('#clientName').fill('QA propuesta completa');
-  await page.locator('#region').selectOption('Norte');
-  await page.locator('#filial').selectOption('Córdoba');
+  await selectGeography(page,{province:'Córdoba',locality:'Córdoba capital'});
   await page.locator('#age').fill('25');
   await page.locator('#children').fill('1');
   await page.locator('.child-age').fill('8');
@@ -100,3 +103,4 @@ test('PDF · resumen completo con UCC, convenio y ajustes sin recortes', async (
   await page.locator('.medife-summary').screenshot({path:testInfo.outputPath('resumen-completo.png')});
   await page.locator('.medife-timeline').screenshot({path:testInfo.outputPath('evolucion-completa.png')});
 });
+

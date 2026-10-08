@@ -35,7 +35,7 @@
     const contributionNote=c.category==='Obligatorio'?'Aporte computable estimado':'IVA aplicado luego de descuentos';
     const rows=[
       ['Grupo familiar',compositionLabel(c),''],
-      ['Región · filial',`${c.region} · ${c.filial}`,''],
+      ['Región · filial',`${c.region} · ${c.filial}`,c.province?`${c.province} · ${c.locality}`:''],
       ['Categoría',c.category,''],
       ['Precio base del grupo',money(q.listPrice),'Antes de beneficios'],
       ['Ajustes seleccionados',q.permanentDiscount?`- ${money(q.permanentDiscount)}`:money(0),adjustmentLabel],
@@ -90,3 +90,4 @@
     const pdfCss=document.createElement('link');pdfCss.rel='stylesheet';pdfCss.href='css/pdf-v4.css';document.head.appendChild(pdfCss);
   }
 })();
+

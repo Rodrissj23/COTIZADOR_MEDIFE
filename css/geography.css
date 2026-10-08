@@ -1,0 +1,4 @@
+#geographyHelp, #geographyResolved { margin: 12px 0 0; line-height: 1.55; }
+#geographyHelp[data-blocked="true"] { padding: 12px 14px; border-radius: 10px; background: #fff2e5; color: #79350b; border: 1px solid #f5c499; }
+#geographyResolved { font-weight: 600; color: #79350b; }
+#quoteForm select:disabled { opacity: 1; color: #6b625b; background: #f4f1ed; cursor: default; }

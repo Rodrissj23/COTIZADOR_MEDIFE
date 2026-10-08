@@ -21,3 +21,5 @@ jobs:
           node tests/engine-v2.test.js
           node tests/qa-excel.test.js
           node tests/configurator-v3.test.js
+          node tests/geography.test.js
+
