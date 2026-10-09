@@ -30,12 +30,10 @@
     {value:'Chubut', zones:one('Patagonia',[f('Patagonia Sur',['Comodoro Rivadavia','Puerto Madryn','Rawson','Trelew'])])},
     {value:'Córdoba', zones:one('Norte',[f('Córdoba',['Córdoba capital','Villa Carlos Paz'])])},
     {value:'Corrientes', zones:one('Norte',[f('Corrientes',['Corrientes capital'])])},
-    // Paraná está autorizada, pero no figura en la tabla de asignación de
-    // región. El tarifario se elige explícitamente; no se presume Santa Fe.
-    {value:'Entre Ríos', tariffSelection:true, zones:[
-      z('Norte','Tarifario Norte','Norte',[p('__parana__','Paraná',['Paraná'])]),
-      z('Sur','Tarifario Sur','Sur',[p('__parana__','Paraná',['Paraná'])])
-    ]},
+    // Correspondencia Norte derivada de los valores declarados por Medifé
+    // ante SSSalud; evidencia en docs/parana-tariff-evidence.md.
+    // La región no implica filial Santa Fe ni sus descuentos exclusivos.
+    {value:'Entre Ríos', zones:one('Norte',[p('__parana__','Paraná',['Paraná'])])},
     {value:'Formosa', zones:[], message:suspended},
     {value:'Jujuy', zones:[], message:suspended},
     {value:'La Pampa', zones:one('Sur',[p('__pampa_sur__','Santa Rosa',['Santa Rosa'])])},
@@ -76,7 +74,7 @@
     if(!pr)return 'Seleccioná la provincia del domicilio del cliente.';
     if(!pr.zones.length)return pr.message || pending;
     const zo=zone(client.province,client.geographyZone);
-    if(!zo)return pr.tariffSelection?'Seleccioná el tarifario para esta cotización.':'Seleccioná la zona correspondiente al domicilio del cliente.';
+    if(!zo)return 'Seleccioná la zona correspondiente al domicilio del cliente.';
     const fi=filial(client.province,client.geographyZone,client.filial);
     if(!fi)return 'Seleccioná una filial válida para la provincia y zona elegidas.';
     if(!canQuote(fi))return fi.message || pending;

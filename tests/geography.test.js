@@ -28,22 +28,22 @@ assert.equal(E.quote('PLATA',tucuman).filialRate,.20);
 assert.ok(E.validateClient({...tucuman,noaProvince:'Salta'}));
 for(const province of ['Salta','Jujuy','Formosa','San Luis','Santiago del Estero'])assert.match(E.validateClient({...base,province}),/suspendida/);
 for(const province of ['Catamarca','Chaco'])assert.ok(E.validateClient({...base,province}));
-assert.equal(GEO.province('Entre Ríos').tariffSelection,true);
-assert.match(E.validateClient({...base,province:'Entre Ríos',geographyZone:'',region:'',filial:'',locality:''}),/Seleccioná el tarifario/);
-for(const [region,listPrice,finalPrice] of [['Norte',306533.1352,338719.11],['Sur',305581.6407,337667.71]]){
-  const parana={...base,province:'Entre Ríos',geographyZone:region,region,filial:'__parana__',locality:'Paraná',age:32};
+assert.deepEqual(GEO.province('Entre Ríos').zones.map(z=>z.region),['Norte']);
+{
+  const parana={...base,province:'Entre Ríos',geographyZone:'Norte',region:'Norte',filial:'__parana__',locality:'Paraná',age:32};
   assert.equal(E.validateClient(parana),null);
   const q=E.quote('PLATA',parana);
-  assert.equal(q.status,'ok');assert.equal(q.listPrice,listPrice);assert.equal(q.finalPrice,finalPrice);
+  assert.equal(q.status,'ok');assert.equal(q.listPrice,306533.1352);assert.equal(q.finalPrice,338719.11);
   assert.equal(GEO.filialLabel(parana),'Paraná');assert.equal(GEO.pricingFilial(parana),'');
   assert.equal(E.quote('PLATA',{...parana,category:'Obligatorio',contributionSource:'relacion',receiptContribution:30000}).filialRate,0,'Paraná no hereda el 5% de Santa Fe');
   assert.equal(E.quote('ORO',{...parana,age:40}).tactical,null,'Paraná no hereda tácticos de otra filial');
   assert.ok(E.validateClient({...parana,filial:'Santa Fe'}));
-  assert.ok(E.validateClient({...parana,region:region==='Norte'?'Sur':'Norte'}));
+  assert.ok(E.validateClient({...parana,region:'Sur'}));
+  assert.ok(E.validateClient({...parana,geographyZone:'Sur',region:'Sur'}),'no admite el tarifario Sur aunque se altere la zona');
   assert.ok(E.validateClient({...parana,locality:'Concordia'}),'la ruta no se extiende a toda Entre Ríos');
 }
 // Todas las localidades expresamente habilitadas en ZONAS AUTORIZADAS.pdf
-// deben tener al menos una ruta cotizable. Paraná requiere tarifario explícito.
+// deben tener una única ruta cotizable, sin tarifarios alternativos ambiguos.
 const authorized={
   CABA:['CABA'],
   'Buenos Aires':['Zona GBA Norte','Zona GBA Oeste','Zona GBA Sur','Azul','Bahía Blanca','Chivilcoy','Mercedes, Buenos Aires','Olavarría','Punta Alta','San Nicolás','Tandil','Trenque Lauquen','Mar del Plata','Necochea','Pinamar','Villa Gesell'],
@@ -57,7 +57,7 @@ const authorized={
 };
 for(const [province,localities] of Object.entries(authorized))for(const locality of localities){
   const routes=GEO.province(province).zones.flatMap(zo=>zo.filials.filter(fi=>fi.localities.includes(locality)).map(fi=>({zo,fi})));
-  assert.ok(routes.length,`${province} / ${locality} debe tener ruta`);
+  assert.equal(routes.length,1,`${province} / ${locality} debe tener una única ruta`);
   for(const {zo,fi} of routes)assert.equal(E.validateClient({...base,province,locality,geographyZone:zo.value,region:zo.region,filial:fi.value,noaProvince:fi.value==='Noa'?province:''}),null,`${province} / ${locality} no puede quedar bloqueada`);
 }
 const santaRosa={...base,province:'La Pampa',geographyZone:'Sur',region:'Sur',filial:'__pampa_sur__',locality:'Santa Rosa',age:32};
