@@ -1,11 +1,11 @@
-/* Geografía comercial · fuentes internas revisadas el 08/10/2026.
+/* Geografía comercial · fuentes internas revisadas el 09/10/2026.
    La región documentada permite calcular la tarifa aunque no exista una
    filial equivalente. Esa ruta no hereda beneficios exclusivos de filial. */
 (() => {
   'use strict';
   const OTHER = '__other__';
   const pending = 'La región tarifaria de esta localidad todavía no está configurada.';
-  const suspended = 'Esta zona figura suspendida en la documentación disponible. Consultá a administración antes de cotizar.';
+  const suspended = 'Esta zona figura suspendida para ventas en el listado comercial vigente.';
   const f = (value, localities, extra={}) => ({value, label:value, localities, status:'active', ...extra});
   const p = (id, label, localities, message='', status='tariff-only') => f(id, localities, {label, message, status});
   const z = (value, label, region, filials) => ({value, label, region, filials});
@@ -26,11 +26,16 @@
         p('__norte_ba__','San Nicolás / San Pedro',['San Nicolás','San Pedro'])])
     ]},
     {value:'Catamarca', zones:[], message:'Catamarca todavía no tiene una región tarifaria configurada.'},
-    {value:'Chaco', zones:[], message:'Chaco figura suspendida en una guía y no aparece en el otro listado. Administración debe confirmar su situación.'},
+    {value:'Chaco', zones:[], message:'Chaco figura suspendida para ventas en la guía comercial disponible.'},
     {value:'Chubut', zones:one('Patagonia',[f('Patagonia Sur',['Comodoro Rivadavia','Puerto Madryn','Rawson','Trelew'])])},
     {value:'Córdoba', zones:one('Norte',[f('Córdoba',['Córdoba capital','Villa Carlos Paz'])])},
     {value:'Corrientes', zones:one('Norte',[f('Corrientes',['Corrientes capital'])])},
-    {value:'Entre Ríos', zones:[], message:'Paraná figura autorizada, pero falta confirmar su región y filial comercial. No se asigna automáticamente a Santa Fe.'},
+    // Paraná está autorizada, pero no figura en la tabla de asignación de
+    // región. El tarifario se elige explícitamente; no se presume Santa Fe.
+    {value:'Entre Ríos', tariffSelection:true, zones:[
+      z('Norte','Tarifario Norte','Norte',[p('__parana__','Paraná',['Paraná'])]),
+      z('Sur','Tarifario Sur','Sur',[p('__parana__','Paraná',['Paraná'])])
+    ]},
     {value:'Formosa', zones:[], message:suspended},
     {value:'Jujuy', zones:[], message:suspended},
     {value:'La Pampa', zones:one('Sur',[p('__pampa_sur__','Santa Rosa',['Santa Rosa'])])},
@@ -71,7 +76,7 @@
     if(!pr)return 'Seleccioná la provincia del domicilio del cliente.';
     if(!pr.zones.length)return pr.message || pending;
     const zo=zone(client.province,client.geographyZone);
-    if(!zo)return 'Seleccioná la zona correspondiente al domicilio del cliente.';
+    if(!zo)return pr.tariffSelection?'Seleccioná el tarifario para esta cotización.':'Seleccioná la zona correspondiente al domicilio del cliente.';
     const fi=filial(client.province,client.geographyZone,client.filial);
     if(!fi)return 'Seleccioná una filial válida para la provincia y zona elegidas.';
     if(!canQuote(fi))return fi.message || pending;

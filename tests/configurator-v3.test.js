@@ -65,4 +65,10 @@ for(const geography of [
   assert.equal(manualQuote('PLATA',oblig).finalPrice,212189.49);
 }
 
-console.log('OK - configurador: Opción 6 y cotización regional Santa Rosa/Trenque con selección válida de beneficios');
+for(const [region,price] of [['Norte',338719.11],['Sur',337667.71]]){
+  const c=client({province:'Entre Ríos',geographyZone:region,region,filial:'__parana__',locality:'Paraná',noaProvince:'',category:'Voluntario',age:32});
+  assert.equal(manualQuote('PLATA',c).finalPrice,price);
+  assert.equal(context('PLATA',{...c,category:'Obligatorio'}).filial,null);
+  assert.equal(manualQuote('PLATA',{...c,category:'Obligatorio'},{...blankSelection(),filial:true}).status,'invalid');
+}
+console.log('OK - configurador: Opción 6 y cotización regional Santa Rosa/Trenque/Paraná con selección válida de beneficios');
