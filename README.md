@@ -39,7 +39,7 @@ Santa Rosa (La Pampa) y Trenque Lauquen (Buenos Aires) cotizan con tarifa Sur, c
 
 Paraná (Entre Ríos) está habilitada y usa Norte automáticamente. Esta correspondencia se deriva de la comparación de las declaraciones de Medifé ante SSSalud de septiembre de 2026: Entre Ríos y Santa Fe tienen los mismos valores de adhesión directa para las nueve bandas etarias de Plata y Oro. La diferencia de adhesión desregulada corresponde al 5% exclusivo de Santa Fe. [Evidencia y alcance](docs/parana-tariff-evidence.md). El domicilio sigue siendo Entre Ríos / Paraná y no hereda ese descuento ni tácticos exclusivos de otras filiales. Las matrices del Excel vigente se mantienen como fuente de los importes.
 
-Salta/Jujuy, Formosa, Santiago del Estero, San Luis, Tres Arroyos y Chaco conservan sus suspensiones documentadas; Catamarca carece de ruta. Los mensajes identifican disponibilidad comercial o configuración faltante, sin pedir autorización para corregir datos del cotizador. El catálogo no modifica las matrices de precios, aportes ni porcentajes del motor auditado.
+El formulario ofrece únicamente provincias, zonas, filiales y localidades habilitadas con matriz regional cargada. Salta/Jujuy, Formosa, Santiago del Estero, San Luis, Tres Arroyos y Chaco están suspendidas y no aparecen; Catamarca tampoco aparece porque carece de ruta tarifaria. Se elimina “Otra localidad · sin tarifa configurada”. El catálogo completo conserva la validación de selecciones antiguas, pero no se ofrece ninguna ruta bloqueada en los desplegables. Cada localidad visible se verifica contra el motor en ambas categorías y bandas etarias. Las matrices de precios, aportes y porcentajes del motor auditado no cambian.
 
 ### Grupo familiar
 

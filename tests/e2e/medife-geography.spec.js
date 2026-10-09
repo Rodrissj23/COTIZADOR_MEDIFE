@@ -10,10 +10,10 @@ async function open(page){
 async function submit(page){await page.getByRole('button',{name:/Ver precios base/}).click();}
 async function choosePlata(page){await page.locator('.plan-card').filter({has:page.getByRole('heading',{name:'PLATA',exact:true})}).getByRole('button',{name:/Armar propuesta/}).click();}
 
-test('Provincia inicial vacía, 24 jurisdicciones y región calculada sin selección manual',async({page})=>{
+test('Provincia inicial vacía, 17 jurisdicciones habilitadas y región calculada sin selección manual',async({page})=>{
   await open(page);
   await expect(page.locator('#province')).toHaveValue('');
-  await expect(page.locator('#province option')).toHaveCount(25);
+  await expect(page.locator('#province option')).toHaveCount(18);
   await expect(page.locator('#filial')).toBeDisabled();
   await expect(page.locator('#region')).toBeHidden();
   await expect(page.locator('#region')).toBeDisabled();
@@ -76,27 +76,65 @@ test('Una región documentada permite cotizar sin heredar una filial por cercan�
   }
 });
 
-test('Suspensiones y provincias sin ruta muestran el motivo y bloquean cotización',async({page})=>{
+test('Las provincias suspendidas o sin tarifa y Tres Arroyos no se ofrecen',async({page})=>{
   await open(page);
+  const provinces=await page.locator('#province option').evaluateAll(options=>options.map(o=>o.value));
   for(const province of ['Salta','Jujuy','Formosa','San Luis','Santiago del Estero','Catamarca','Chaco']){
-    await page.locator('#province').selectOption(province);
-    await expect(page.locator('#filial')).toBeDisabled();
-    await expect(page.locator('#region')).toHaveValue('');
-    await expect(page.locator('#noaProvince')).toHaveValue('');
-    await expect(page.locator('#geographyHelp')).toHaveAttribute('data-blocked','true');
-    await submit(page);await expect(page.locator('#formError')).not.toBeEmpty();await expect(page.locator('#resultados')).toBeHidden();
+    expect(provinces).not.toContain(province);
   }
-  await selectGeography(page,{province:'Buenos Aires',zone:'Bahía/MDQ',filial:'__tres_arroyos__',locality:'Tres Arroyos'});
-  await submit(page);await expect(page.locator('#formError')).toContainText('suspendida');
+  await selectGeography(page,{province:'Buenos Aires',zone:'Bahía/MDQ'});
+  expect(await page.locator('#filial option').allTextContents()).not.toContain('Tres Arroyos · suspendida');
+  expect(await page.locator('#filial option').evaluateAll(options=>options.map(o=>o.value))).not.toContain('__tres_arroyos__');
+  await expect(page.locator('#geographyHelp')).toHaveAttribute('data-blocked','false');
 });
 
-test('Localidad desconocida impide reutilizar un resultado anterior',async({page})=>{
+test('Sólo se ofrecen localidades cotizables y cambiar domicilio limpia el resultado',async({page})=>{
   await open(page);await selectGeography(page,{province:'Córdoba',locality:'Villa Carlos Paz'});
   await submit(page);await choosePlata(page);
-  await page.locator('#locality').selectOption('__other__');
+  expect(await page.locator('#locality option').evaluateAll(options=>options.map(o=>o.value))).not.toContain('__other__');
+  await page.locator('#locality').selectOption('Córdoba capital');
   await expect(page.locator('#proposalBuilder')).toBeHidden();
-  await submit(page);await expect(page.locator('#formError')).toContainText('no tiene una región tarifaria configurada');
   await expect(page.locator('#resultados')).toBeHidden();
+  await submit(page);await expect(page.locator('#formError')).toBeEmpty();
+  await expect(page.locator('.plan-card')).toHaveCount(5);
+});
+
+test('Cada localidad ofrecida da precios en Obligatorio y Voluntario sin cartel de bloqueo',async({page})=>{
+  test.setTimeout(120000);
+  await open(page);await page.locator('#age').fill('35');
+  const values=selector=>page.locator(`${selector} option`).evaluateAll(options=>options.map(o=>o.value).filter(Boolean));
+  const seen=new Map();
+  for(const category of ['Obligatorio','Voluntario']){
+    await page.locator(`input[name="category"][value="${category}"]`).check();
+    for(const province of await values('#province')){
+      await page.locator('#province').selectOption(province);
+      for(const zone of await values('#geographyZone')){
+        if(await page.locator('#geographyZone').inputValue()!==zone)await page.locator('#geographyZone').selectOption(zone);
+        for(const filial of await values('#filial')){
+          await page.locator('#filial').selectOption(filial);
+          const localities=await values('#locality');expect(localities).not.toContain('__other__');
+          for(const locality of localities){
+            await page.locator('#locality').selectOption(locality);
+            await expect(page.locator('#geographyHelp')).toHaveAttribute('data-blocked','false');
+            await expect(page.locator('#geographyHelp')).not.toContainText(/suspendida|sin tarifa|falta confirmar|no tiene una región/);
+            // Envío nativo: conserva validación HTML y todos los listeners del
+            // formulario, evitando centenares de desplazamientos del puntero.
+            // El botón real se verifica en los demás escenarios funcionales.
+            await page.locator('#quoteForm').evaluate(form=>form.requestSubmit(form.querySelector('button[type="submit"]')));
+            await expect(page.locator('#formError')).toBeEmpty();
+            await expect(page.locator('#resultados')).toBeVisible();
+            const prices=await page.locator('.plan-card .plan-price strong').allTextContents();
+            expect(prices.length).toBeGreaterThanOrEqual(5);
+            for(const price of prices)expect(price).toMatch(/\$[\s\d.]+/);
+            const route=JSON.stringify([province,zone,filial,locality]);
+            seen.set(route,(seen.get(route)||0)+1);
+          }
+        }
+      }
+    }
+  }
+  expect(seen.size).toBe(46);
+  for(const categories of seen.values())expect(categories).toBe(2);
 });
 
 test('NOA se deriva de Tucumán y Neuquén distingue filiales dentro de Patagonia',async({page})=>{
