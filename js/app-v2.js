@@ -41,7 +41,8 @@ function syncGeography(changed=''){
   const pr=GEOGRAPHY.province($('#province').value);
   const zones=pr?.zones||[];
   const zoneSelect=$('#geographyZone');
-  fillGeographySelect(zoneSelect,zones,'Seleccioná la zona',changed==='province'?'':zoneSelect.value,true);
+  fillGeographySelect(zoneSelect,zones,pr?.tariffSelection?'Seleccioná el tarifario':'Seleccioná la zona',changed==='province'?'':zoneSelect.value,true);
+  $('#geographyZoneHeading').textContent=pr?.tariffSelection?'Tarifario de la cotización':'Zona dentro de la provincia';
   $('#geographyZoneWrap').hidden=zones.length<2;
   zoneSelect.required=zones.length>1;
   const zo=GEOGRAPHY.zone(pr?.value,zoneSelect.value);
@@ -64,7 +65,7 @@ function syncGeography(changed=''){
   let blocked=false;
   if(pr){
     if(!zones.length){message=pr.message;blocked=true;}
-    else if(!zo)message='Esta provincia tiene distintas zonas tarifarias. Elegí la que corresponde al domicilio.';
+    else if(!zo)message=pr.tariffSelection?'Paraná está habilitada para cotizar. Seleccioná el tarifario Norte o Sur que corresponda a esta cotización.':'Esta provincia tiene distintas zonas tarifarias. Elegí la que corresponde al domicilio.';
     else if(!fi)message='Seleccioná la filial correspondiente al domicilio. Las opciones dependen de la provincia y zona.';
     else if(!GEOGRAPHY.canQuote(fi)){message=fi.message;blocked=true;}
     else if(localitySelect.value===GEOGRAPHY.OTHER){message='Esta localidad todavía no tiene una región tarifaria configurada. Elegí una localidad del listado.';blocked=true;}
@@ -74,7 +75,7 @@ function syncGeography(changed=''){
   $('#geographyHelp').textContent=message;
   $('#geographyHelp').dataset.blocked=String(blocked);
   $('#geographyResolved').hidden=!zo;
-  $('#geographyResolved').textContent=zo?`Región tarifaria calculada: ${zo.region}${fi?` · ${fi.label}`:''}`:'';
+  $('#geographyResolved').textContent=zo?`${pr.tariffSelection?'Tarifario seleccionado':'Región tarifaria calculada'}: ${zo.region}${fi?` · ${fi.label}`:''}`:'';
   $('#filialHeading').textContent=fi?.status==='tariff-only'?'Zona comercial':'Filial comercial';
 }
 
