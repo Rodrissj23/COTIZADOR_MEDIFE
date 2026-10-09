@@ -65,9 +65,9 @@ for(const geography of [
   assert.equal(manualQuote('PLATA',oblig).finalPrice,212189.49);
 }
 
-for(const [region,price] of [['Norte',338719.11],['Sur',337667.71]]){
-  const c=client({province:'Entre Ríos',geographyZone:region,region,filial:'__parana__',locality:'Paraná',noaProvince:'',category:'Voluntario',age:32});
-  assert.equal(manualQuote('PLATA',c).finalPrice,price);
+{
+  const c=client({province:'Entre Ríos',geographyZone:'Norte',region:'Norte',filial:'__parana__',locality:'Paraná',noaProvince:'',category:'Voluntario',age:32});
+  assert.equal(manualQuote('PLATA',c).finalPrice,338719.11);
   assert.equal(context('PLATA',{...c,category:'Obligatorio'}).filial,null);
   assert.equal(manualQuote('PLATA',{...c,category:'Obligatorio'},{...blankSelection(),filial:true}).status,'invalid');
 }

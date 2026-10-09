@@ -133,38 +133,31 @@ test('Santa Rosa y Trenque Lauquen llegan a propuesta y PDF con domicilio correc
   await expect(page.locator('.medife-summary-table')).not.toContainText('__interior__');
 });
 
-test('Paraná habilitada exige tarifario explícito, cotiza y conserva domicilio en la propuesta',async({page},testInfo)=>{
+test('Paraná asigna Norte automáticamente, cotiza y conserva domicilio en la propuesta',async({page},testInfo)=>{
   await open(page);await page.locator('#age').fill('32');
   await page.locator('#province').selectOption('Entre Ríos');
   await expect(page.locator('#geographyHelp')).toHaveAttribute('data-blocked','false');
   await expect(page.locator('#geographyHelp')).not.toContainText('confirmar');
-  await expect(page.locator('#geographyZoneHeading')).toHaveText('Tarifario de la cotización');
-  await expect(page.locator('#geographyZone')).toHaveValue('');
-  await expect(page.locator('#region')).toHaveValue('');
-  await submit(page);await expect(page.locator('#resultados')).toBeHidden();
-  expect(await page.locator('#geographyZone').evaluate(e=>e.validity.valueMissing)).toBe(true);
-  for(const region of ['Norte','Sur']){
-    await page.locator('#geographyZone').selectOption(region);
-    await expect(page.locator('#resultados')).toBeHidden();
-    await expect(page.locator('#proposalBuilder')).toBeHidden();
-    await expect(page.locator('#locality')).toHaveValue('');
-    await expect(page.locator('#filial')).toHaveValue('__parana__');
-    await page.locator('#locality').selectOption('Paraná');
-    await expect(page.locator('#region')).toHaveValue(region);
-    await expect(page.locator('#geographyResolved')).toContainText(`Tarifario seleccionado: ${region}`);
-    await submit(page);await expect(page.locator('.plan-card')).toHaveCount(5);await choosePlata(page);
-    await expect(page.locator('[data-benefit-id="filial"]')).toHaveCount(0);
-    await page.locator('#openManualQuote').click();
-    await expect(page.locator('.medife-summary-table')).toContainText('Entre Ríos · Paraná');
-    await expect(page.locator('.medife-summary-table')).toContainText(`${region} · Paraná`);
-    await expect(page.locator('.medife-summary-table')).not.toContainText('__parana__');
-    await page.locator('#closeQuote').click();
-  }
+  await expect(page.locator('#geographyZoneWrap')).toBeHidden();
+  await expect(page.locator('#geographyZone')).toHaveValue('Norte');
+  expect(await page.locator('#geographyZone option').evaluateAll(options=>options.map(o=>o.value))).not.toContain('Sur');
+  await expect(page.locator('#region')).toHaveValue('Norte');
+  await expect(page.locator('#filial')).toHaveValue('__parana__');
+  await page.locator('#locality').selectOption('Paraná');
+  await expect(page.locator('#geographyResolved')).toContainText('Región tarifaria calculada: Norte');
+  await submit(page);await expect(page.locator('.plan-card')).toHaveCount(5);await choosePlata(page);
+  await expect(page.locator('[data-benefit-id="filial"]')).toHaveCount(0);
+  await page.locator('#openManualQuote').click();
+  await expect(page.locator('.medife-summary-table')).toContainText('Entre Ríos · Paraná');
+  await expect(page.locator('.medife-summary-table')).toContainText('Norte · Paraná');
+  await expect(page.locator('.medife-summary-table')).not.toContainText('__parana__');
+  await page.locator('#closeQuote').click();
   await page.locator('.form-step').first().screenshot({path:testInfo.outputPath('parana-habilitada.png')});
   await page.locator('#province').selectOption('La Pampa');
   await expect(page.locator('#region')).toHaveValue('Sur');
   await expect(page.locator('#geographyZoneWrap')).toBeHidden();
   await expect(page.locator('#geographyResolved')).toContainText('Región tarifaria calculada');
+  await expect(page.locator('#resultados')).toBeHidden();
   await expect(page.locator('#proposalBuilder')).toBeHidden();
 });
 
