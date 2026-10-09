@@ -63,6 +63,15 @@
   function filial(provinceValue, zoneValue, filialValue){return zone(provinceValue,zoneValue)?.filials.find(f=>f.value===filialValue);}
   function route(client){return filial(client.province,client.geographyZone,client.filial);}
   function canQuote(fi){return fi?.status==='active'||fi?.status==='tariff-only';}
+  // El formulario sólo ofrece recorridos habilitados con una matriz cargada.
+  // El catálogo completo se conserva para validar selecciones antiguas.
+  function availableProvinces(data){
+    return provinces.map(pr=>({...pr,zones:pr.zones.map(zo=>({...zo,
+      filials:Object.keys(data.tariffs?.[zo.region]||{}).length?zo.filials.filter(fi=>
+        canQuote(fi)&&fi.localities.length>0&&(fi.status==='tariff-only'||data.filialsByRegion?.[zo.region]?.includes(fi.value))
+      ):[]
+    })).filter(zo=>zo.filials.length>0)})).filter(pr=>pr.zones.length>0);
+  }
   function pricingFilial(client){
     if(!Object.prototype.hasOwnProperty.call(client,'province'))return client.filial||'';
     const fi=route(client);
@@ -84,7 +93,7 @@
     if(client.noaProvince!==(fi.value==='Noa'?pr.value:''))return 'La provincia NOA no coincide con el domicilio seleccionado.';
     return null;
   }
-  const api={provinces,province,zone,filial,route,canQuote,pricingFilial,filialLabel,validate,OTHER};
+  const api={provinces,availableProvinces,province,zone,filial,route,canQuote,pricingFilial,filialLabel,validate,OTHER};
   (typeof window!=='undefined'?window:globalThis).MEDIFE_GEOGRAPHY=api;
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })();

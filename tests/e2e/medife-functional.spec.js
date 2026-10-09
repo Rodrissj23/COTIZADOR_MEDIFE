@@ -40,7 +40,7 @@ test.describe('Cotizador Medifé · QA funcional configurador V3',()=>{
 
   test('02 · provincia y zona filtran las filiales sin mezclar CABA con GBA',async({page})=>{
     await openApp(page);
-    await expect(page.locator('#province option')).toHaveCount(25);
+    await expect(page.locator('#province option')).toHaveCount(18);
     await page.locator('#province').selectOption('Buenos Aires');
     await expect(page.locator('#geographyZoneWrap')).toBeVisible();
     await expect(page.locator('#geographyZone option')).toHaveCount(5);

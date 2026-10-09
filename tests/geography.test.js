@@ -28,6 +28,35 @@ assert.equal(E.quote('PLATA',tucuman).filialRate,.20);
 assert.ok(E.validateClient({...tucuman,noaProvince:'Salta'}));
 for(const province of ['Salta','Jujuy','Formosa','San Luis','Santiago del Estero'])assert.match(E.validateClient({...base,province}),/suspendida/);
 for(const province of ['Catamarca','Chaco'])assert.ok(E.validateClient({...base,province}));
+const visible=GEO.availableProvinces(E.DATA);
+assert.equal(visible.length,17);
+assert.equal(new Set(visible.map(pr=>pr.value)).size,17);
+for(const province of ['Salta','Jujuy','Formosa','San Luis','Santiago del Estero','Catamarca','Chaco']){
+  assert.ok(!visible.some(pr=>pr.value===province),`${province} no se ofrece`);
+}
+assert.ok(!visible.find(pr=>pr.value==='Buenos Aires').zones.flatMap(zo=>zo.filials).some(fi=>fi.localities.includes('Tres Arroyos')));
+assert.equal(GEO.zone('Buenos Aires','Bahía/MDQ').filials.at(-1).status,'suspended','el filtro no muta el catálogo de validación');
+const missingNorte=GEO.availableProvinces({...E.DATA,tariffs:{...E.DATA.tariffs,Norte:{}}});
+assert.ok(missingNorte.every(pr=>pr.zones.every(zo=>zo.region!=='Norte')),'una región sin matriz no se ofrece');
+assert.ok(missingNorte.some(pr=>pr.value==='Buenos Aires'),'se conservan zonas operativas de una provincia parcialmente disponible');
+let pricedCases=0;
+for(const pr of visible)for(const zo of pr.zones)for(const fi of zo.filials)for(const locality of fi.localities){
+  assert.ok(GEO.canQuote(fi));assert.notEqual(locality,GEO.OTHER);
+  for(const category of ['Obligatorio','Voluntario'])for(const age of [18,25,26,35,36,40,41,50,51,60,61,65,66,80])for(const family of [
+    {hasPartner:false,childrenAges:[]},
+    {hasPartner:true,partnerAge:35,childrenAges:[0,3,20,21,25,26,29]}
+  ]){
+    const client={...base,...family,province:pr.value,geographyZone:zo.value,region:zo.region,filial:fi.value,locality,noaProvince:fi.value==='Noa'?pr.value:'',category,age,contributionSource:'relacion',receiptContribution:30000};
+    for(const plan of ['PLATA','ORO']){
+      const q=E.quote(plan,client);
+      const label=`${pr.value} / ${locality} / ${category} / ${age} / ${plan}`;
+      assert.equal(q.status,'ok',label);
+      assert.ok(Number.isFinite(q.listPrice)&&q.listPrice>0,label+' lista');
+      assert.ok(Number.isFinite(q.finalPrice)&&q.finalPrice>=0,label+' importe final');
+    }
+    pricedCases++;
+  }
+}
 assert.deepEqual(GEO.province('Entre Ríos').zones.map(z=>z.region),['Norte']);
 {
   const parana={...base,province:'Entre Ríos',geographyZone:'Norte',region:'Norte',filial:'__parana__',locality:'Paraná',age:32};
@@ -103,4 +132,4 @@ for(const pr of GEO.provinces)for(const zo of pr.zones)for(const fi of zo.filial
     tariffOnly++;
   }else{assert.ok(error,'se conservan las suspensiones documentadas');suspended++;}
 }
-console.log(`OK - geografía: 24 jurisdicciones, ${active} recorridos con filial, ${tariffOnly} con tarifa regional, ${suspended} suspendidos; Santa Rosa/Trenque contra tarifa Excel y sin descuentos ajenos`);
+console.log(`OK - geografía: ${visible.length} jurisdicciones visibles, ${active} recorridos con filial, ${tariffOnly} con tarifa regional, ${suspended} suspendidos ocultos; ${pricedCases} casos visibles con valores de Plata y Oro`);

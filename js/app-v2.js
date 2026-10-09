@@ -25,7 +25,8 @@ function fillGeographySelect(select, options, placeholder, previous='', automati
   select.value=options.some(o=>o.value===previous)?previous:(automatic&&options.length===1?options[0].value:'');
   select.disabled=options.length===0;
 }
-fillGeographySelect($('#province'),GEOGRAPHY.provinces,'Seleccioná la provincia');
+const salesProvinces=GEOGRAPHY.availableProvinces(DATA);
+fillGeographySelect($('#province'),salesProvinces,'Seleccioná la provincia');
 function fillGafSelect(){
   const select=$('#gaf');
   const previous=select.value||'none';
@@ -38,22 +39,21 @@ function fillGafSelect(){
   select.value=values.some(v=>v.value===previous)?previous:'none';
 }
 function syncGeography(changed=''){
-  const pr=GEOGRAPHY.province($('#province').value);
+  const pr=salesProvinces.find(pr=>pr.value===$('#province').value);
   const zones=pr?.zones||[];
   const zoneSelect=$('#geographyZone');
   fillGeographySelect(zoneSelect,zones,'Seleccioná la zona',changed==='province'?'':zoneSelect.value,true);
   $('#geographyZoneWrap').hidden=zones.length<2;
   zoneSelect.required=zones.length>1;
-  const zo=GEOGRAPHY.zone(pr?.value,zoneSelect.value);
+  const zo=zones.find(zo=>zo.value===zoneSelect.value);
   $('#region').value=zo?.region||'';
   const filialSelect=$('#filial');
   const resetFilial=['province','geographyZone'].includes(changed);
   fillGeographySelect(filialSelect,zo?.filials||[],'Seleccioná la filial',resetFilial?'':filialSelect.value,true);
-  const fi=GEOGRAPHY.filial(pr?.value,zoneSelect.value,filialSelect.value);
+  const fi=zo?.filials.find(fi=>fi.value===filialSelect.value);
   const localitySelect=$('#locality');
   const scoped=pr?.value==='CABA'||zo?.region==='AMBA';
   const localities=(fi?.localities||[]).map(value=>({value,label:value}));
-  if(fi&&!scoped)localities.push({value:GEOGRAPHY.OTHER,label:'Otra localidad · sin tarifa configurada'});
   fillGeographySelect(localitySelect,localities,'Seleccioná la localidad',resetFilial||changed==='filial'?'':localitySelect.value,scoped);
   $('#localityWrap').hidden=!fi;
   $('#noaProvince').value=fi?.value==='Noa'?pr.value:'';
@@ -61,18 +61,14 @@ function syncGeography(changed=''){
   $('#uccWrap').hidden=!norte;
   if(!norte||['province','geographyZone','filial'].includes(changed))$('#ucc').checked=false;
   let message='Primero seleccioná la provincia del domicilio del cliente.';
-  let blocked=false;
   if(pr){
-    if(!zones.length){message=pr.message;blocked=true;}
-    else if(!zo)message='Esta provincia tiene distintas zonas tarifarias. Elegí la que corresponde al domicilio.';
+    if(!zo)message='Esta provincia tiene distintas zonas tarifarias. Elegí la que corresponde al domicilio.';
     else if(!fi)message='Seleccioná la filial correspondiente al domicilio. Las opciones dependen de la provincia y zona.';
-    else if(!GEOGRAPHY.canQuote(fi)){message=fi.message;blocked=true;}
-    else if(localitySelect.value===GEOGRAPHY.OTHER){message='Esta localidad todavía no tiene una región tarifaria configurada. Elegí una localidad del listado.';blocked=true;}
     else if(fi.status==='tariff-only')message=`Podés cotizar con tarifa ${zo.region}. Se ofrecen los beneficios generales de la región, sin descuentos exclusivos de filial.`;
     else message=scoped?'Confirmá que el domicilio pertenece a esta zona.':'Elegí la localidad real del domicilio para ver los precios.';
   }
   $('#geographyHelp').textContent=message;
-  $('#geographyHelp').dataset.blocked=String(blocked);
+  $('#geographyHelp').dataset.blocked='false';
   $('#geographyResolved').hidden=!zo;
   $('#geographyResolved').textContent=zo?`Región tarifaria calculada: ${zo.region}${fi?` · ${fi.label}`:''}`:'';
   $('#filialHeading').textContent=fi?.status==='tariff-only'?'Zona comercial':'Filial comercial';
