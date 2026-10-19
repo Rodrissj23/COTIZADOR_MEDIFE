@@ -62,7 +62,7 @@ assert.deepEqual(GEO.province('Entre Ríos').zones.map(z=>z.region),['Norte']);
   const parana={...base,province:'Entre Ríos',geographyZone:'Norte',region:'Norte',filial:'__parana__',locality:'Paraná',age:32};
   assert.equal(E.validateClient(parana),null);
   const q=E.quote('PLATA',parana);
-  assert.equal(q.status,'ok');assert.equal(q.listPrice,306533.1352);assert.equal(q.finalPrice,338719.11);
+  assert.equal(q.status,'ok');assert.equal(q.listPrice,298789.8448);assert.equal(q.finalPrice,330162.78);
   assert.equal(GEO.filialLabel(parana),'Paraná');assert.equal(GEO.pricingFilial(parana),'');
   assert.equal(E.quote('PLATA',{...parana,category:'Obligatorio',contributionSource:'relacion',receiptContribution:30000}).filialRate,0,'Paraná no hereda el 5% de Santa Fe');
   assert.equal(E.quote('ORO',{...parana,age:40}).tactical,null,'Paraná no hereda tácticos de otra filial');
@@ -95,13 +95,13 @@ for(const client of [santaRosa,trenque]){
   assert.equal(E.validateClient(client),null);
   const q=E.quote('PLATA',client);
   assert.equal(q.status,'ok');
-  // Septiembre 2026: Sur, Voluntario, titular 26-35, Plata; IVA 10,5%.
-  assert.ok(Math.abs(q.listPrice-305581.6407)<.02);
-  assert.equal(q.finalPrice,337667.71);
+  // Octubre 2026: Sur, Voluntario, titular 26-35, Plata; IVA 10,5%.
+  assert.ok(Math.abs(q.listPrice-297862.3859)<.02);
+  assert.equal(q.finalPrice,329137.94);
   assert.equal(q.filialRate,0);
-  assert.equal(E.quote('ORO',{...client,age:40}).tactical,null,'no se hereda el táctico Mendoza/Mercedes');
+  assert.equal(E.quote('ORO',{...client,age:40}).tactical.condition,'SUR','solo recibe el táctico general de octubre');
   assert.equal(E.quote('PLATA',{...client,age:40}).tactical.rate,.10,'se conserva el táctico general Sur');
-  assert.equal(E.quote('BRONCE',{...client,category:'Obligatorio',contributionSource:'relacion',receiptContribution:30000}).tactical.rate,.05);
+  assert.equal(E.quote('BRONCE',{...client,category:'Obligatorio',contributionSource:'relacion',receiptContribution:30000}).tactical.rate,.10);
   assert.ok(E.validateClient({...client,region:'Norte'}),'la ruta no permite manipular su tarifa');
   assert.ok(E.validateClient({...client,filial:'Mercedes'}),'no admite una filial ajena al recorrido');
   assert.ok(E.validateClient({...client,locality:'Mendoza capital'}),'el domicilio sigue validado');

@@ -54,20 +54,21 @@ for(const geography of [
   const c=client({...geography,region:'Sur',noaProvince:'',category:'Voluntario',age:32,contributionSource:null,receiptContribution:0});
   const q=manualQuote('PLATA',c);
   assert.equal(q.status,'ok');
-  assert.equal(q.finalPrice,337667.71);
+  assert.equal(q.finalPrice,329137.94);
   const oro=context('ORO',{...c,age:40});
   assert.equal(oro.filial,null);
-  assert.equal(oro.tactical,null);
-  assert.equal(manualQuote('ORO',{...c,age:40},{...blankSelection(),tactical:true}).status,'invalid');
+  assert.equal(oro.tactical.rate,.10);
+  assert.equal(oro.tactical.condition,'SUR');
+  assert.equal(manualQuote('ORO',{...c,age:40},{...blankSelection(),tactical:true}).status,'ok');
   assert.equal(manualQuote('PLATA',c,{...blankSelection(),filial:true}).status,'invalid');
   assert.equal(context('PLATA',{...c,age:40}).tactical.rate,.10);
   const oblig=client({...geography,region:'Sur',noaProvince:'',age:32});
-  assert.equal(manualQuote('PLATA',oblig).finalPrice,212189.49);
+  assert.equal(manualQuote('PLATA',oblig).finalPrice,205032.21);
 }
 
 {
   const c=client({province:'Entre Ríos',geographyZone:'Norte',region:'Norte',filial:'__parana__',locality:'Paraná',noaProvince:'',category:'Voluntario',age:32});
-  assert.equal(manualQuote('PLATA',c).finalPrice,338719.11);
+  assert.equal(manualQuote('PLATA',c).finalPrice,330162.78);
   assert.equal(context('PLATA',{...c,category:'Obligatorio'}).filial,null);
   assert.equal(manualQuote('PLATA',{...c,category:'Obligatorio'},{...blankSelection(),filial:true}).status,'invalid');
 }

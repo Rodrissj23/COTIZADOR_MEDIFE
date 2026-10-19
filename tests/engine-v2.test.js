@@ -8,6 +8,8 @@ require('../js/tariffs-norte.js');
 require('../js/tariffs-sur.js');
 require('../js/tariffs-patagonia.js');
 require('../js/tariffs-bahia-mdq.js');
+// Golden de septiembre: conserva su fuente histórica. Octubre se valida en octubre-2026.test.js.
+Object.assign(global.MEDIFE_DATA, require('./fixtures/septiembre-2026-data.json'));
 const E=require('../js/engine-v2.js');
 
 const approx=(a,b,t=.02)=>assert.ok(Math.abs(a-b)<=t,`Esperado ${b}, recibido ${a}`);
@@ -231,4 +233,4 @@ approx(E.DATA.discountCap,.85);
   assert.doesNotMatch(joined,/VALIDITY_HOURS/);
 }
 
-console.log('OK - motor Medifé: ajuste hijos explícito + auditoría fina y regresiones validadas');
+console.log('OK - regresión histórica septiembre, motor Medifé: ajuste hijos explícito + auditoría fina y regresiones validadas');

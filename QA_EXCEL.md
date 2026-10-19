@@ -1,5 +1,11 @@
 # QA Excel — Cotizador Medifé
 
+## Octubre 2026
+
+Fuente actual: `Copia de Cotizador Individual_202610.xlsx`. La suite `tests/octubre-2026.test.js` contrasta 1.414 celdas, 3.640 casos familiares y 2.444 combinaciones tácticas. Comprueba también IVA, ajustes de hijos, aportes y límites de edad. Las pruebas geográficas y del configurador usan las tarifas actuales. El informe siguiente conserva los resultados de septiembre como antecedente; sus golden cases cargan explícitamente la referencia histórica.
+
+## Informe histórico de septiembre
+
 Fecha de auditoría: 25/09/2026
 
 ## Fuente de verdad
