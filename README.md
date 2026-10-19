@@ -1,6 +1,12 @@
 # COTIZADOR_MEDIFE
 
-Cotizador comercial Medifé para Grupo Zeroka, basado en el tarifario de septiembre 2026 provisto por el equipo.
+Cotizador comercial Medifé para Grupo Zeroka, actualizado con el tarifario de octubre 2026 provisto por el equipo.
+
+## Actualización de octubre de 2026
+
+Las cinco regiones se actualizan desde `Copia de Cotizador Individual_202610.xlsx`, hoja `Resumen LP`: 1.414 importes por integrante, categoría y plan. Se mantienen los decimales de origen, sin reconstruir parejas ni multiplicar un aumento general. Los 38 renglones tácticos de octubre reemplazan los de septiembre. Las condiciones específicas de filial tienen prioridad sobre las generales de región. Se actualiza el tope de aportes de `C aux!B9`; las categorías de monotributo mantienen sus importes computables.
+
+`tests/octubre-2026.test.js` verifica la fuente actual y el configurador. Los golden cases de septiembre conservan una copia explícita de sus datos históricos para seguir comprobando las reglas anteriores. [Detalle](docs/actualizacion-octubre-2026.md).
 
 ## Estado de lógica — V2.1 auditada
 
@@ -59,7 +65,7 @@ Relación de dependencia:
 1. El vendedor ingresa el ítem de Obra Social 3% del recibo.
 2. Base interna = `item_3% × 100 / 3`.
 3. Aporte computable = `(min(base, tope) × 2,55% + base × 5,10%) × 93%`.
-4. Tope de remuneración: `$4.691.748,47`.
+4. Tope de remuneración de octubre: `$4.771.508,194` (se conserva la precisión del Excel).
 
 Monotributo:
 

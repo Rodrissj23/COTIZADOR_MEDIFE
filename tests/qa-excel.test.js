@@ -6,6 +6,8 @@ require('../js/tariffs-norte.js');
 require('../js/tariffs-sur.js');
 require('../js/tariffs-patagonia.js');
 require('../js/tariffs-bahia-mdq.js');
+// Golden de septiembre: conserva su fuente histórica. Octubre se valida en octubre-2026.test.js.
+Object.assign(global.MEDIFE_DATA, require('./fixtures/septiembre-2026-data.json'));
 const E=require('../js/engine-v2.js');
 
 // Valores esperados derivados directamente de Cotizador Individual_202609_Provisorio (3).xlsx.
@@ -170,4 +172,4 @@ assert.equal(E.quote('INDIE',base({region:'Sur',filial:'Mendoza'})).status,'unav
 assert.match(E.validateClient(base({childrenAges:[30]}))||'',/0 y 29/i);
 assert.ok(!E.strategicEligibility(base({procedencia:true})).some(x=>['6','4+6'].includes(x.value)));
 
-console.log('OK - QA Excel Medifé: 20 escenarios comerciales + límites operativos validados');
+console.log('OK - QA Excel histórico septiembre: 20 escenarios comerciales + límites operativos validados');
