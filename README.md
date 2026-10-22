@@ -105,7 +105,7 @@ Se implementan opciones 1, 2, 3, 4, 5 y 7 según las condiciones del Excel.
 
 - Opción 5: acumulable únicamente con 1, 2 o 3 y procedencia comprobable.
 - Opción 7: 25% x 24 para ex asociados. Es exclusiva frente a otros descuentos comerciales/tácticos, pero **no elimina ajustes permanentes** de hijos, joven o filial.
-- INDIE no recibe descuentos estratégicos; utiliza sus tácticos específicos.
+- INDIE no admite Segmento Joven ni descuentos estratégicos; conserva sus tácticos específicos. La interfaz bloquea Segmento Joven y el cálculo rechaza selecciones previas que lo incluyan.
 - Si un caso tiene Opción 7 seleccionada y se cotiza INDIE, la Opción 7 se ignora para ese plan y **se conserva el táctico INDIE**.
 - El conjunto estratégico + Opción 5 + táctico tiene tope de 85%, tal como el Excel.
 

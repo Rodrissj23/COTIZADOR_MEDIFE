@@ -9,7 +9,7 @@
   const D = E.DATA;
   const STRATEGIC_PLANS = new Set(['BRONCE CLASSIC','BRONCE','PLATA','ORO','PLATINUM']);
   const YOUNG_STANDARD = new Set(['BRONCE CLASSIC','BRONCE','PLATA','ORO','PLATINUM']);
-  const YOUNG_AMBA_OBL = new Set(['INDIE','BRONCE CLASSIC','BRONCE','PLATA','ORO','PLATINUM']);
+  const YOUNG_AMBA_OBL = new Set(['BRONCE CLASSIC','BRONCE','PLATA','ORO','PLATINUM']);
   const $v3 = (s, r=document) => r.querySelector(s);
   const $$v3 = (s, r=document) => [...r.querySelectorAll(s)];
   const n = v => Number.isFinite(Number(v)) ? Number(v) : 0;
@@ -83,6 +83,7 @@
 
   function selectionError(ctx, client, sel){
     if(sel.child && !ctx.child.amount) return 'El ajuste por hijos no corresponde a este plan/caso.';
+    if(sel.young && ctx.plan==='INDIE') return 'El plan Indie no admite el descuento de Segmento Joven.';
     if(sel.young && !ctx.young.amount) return 'El segmento joven no corresponde a este plan/caso.';
     if(client.region==='AMBA' && sel.child && sel.young) return 'En AMBA, ajuste por hijos y segmento joven no se aplican simultáneamente.';
     if(sel.filial && !ctx.filial) return 'No existe descuento de filial para este caso.';
@@ -346,7 +347,10 @@
         detail:`${pctV3(ctx.child.rate)} sobre tarifa de hijos elegibles · impacto máximo sobre este grupo ${pctV3(ctx.child.effectiveRate)}`,
         reason:blocked?'En AMBA no se combina con segmento joven.':'',impact:blocked?null:benefitImpact(x=>x.child=!s.child)}));
     }
-    if(ctx.young.amount>0){
+    if(plan==='INDIE'){
+      adjustments.push(card({id:'young',title:'Segmento joven',disabled:true,
+        detail:'No disponible para el plan Indie.',reason:'Indie no admite el descuento de Segmento Joven.'}));
+    }else if(ctx.young.amount>0){
       const blocked=c.region==='AMBA'&&s.child;
       adjustments.push(card({id:'young',title:'Segmento joven',selected:s.young,disabled:blocked,
         detail:`Ajuste por edad sobre los adultos elegibles · impacto sobre este grupo ${pctV3(ctx.young.effectiveRate)}`,

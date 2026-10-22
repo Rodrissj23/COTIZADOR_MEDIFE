@@ -64,5 +64,45 @@ for(const [region,filials] of Object.entries(E.DATA.filialsByRegion))for(const f
   tacticals++;
 }
 for(const item of [0,30000,source.remunerationCap*.03-.01,source.remunerationCap*.03,source.remunerationCap*.03+.01,200000])near(E.payrollContribution(item),payroll(item),'Tope aporte octubre');
+// Indie never receives Segmento Joven, even with an old/manual selection.
+// Keep the plan's own tactical discount and the young benefit on other plans.
+const legacyEngine=require('../js/engine.js');
+for(const age of [18,25,26,29,30,35,36,40]){
+  for(const category of ['Obligatorio','Voluntario']){
+    const c=client('AMBA',category,age);
+    const ctx=V.context('INDIE',c);
+    assert.equal(ctx.status,'ok');
+    assert.equal(ctx.young.amount,0,`Indie ${category}/${age}: no young eligibility`);
+    for(const engine of [E,legacyEngine]){
+      const q=engine.quote('INDIE',c);
+      assert.equal(q.status,'ok');
+      assert.equal(q.youngDiscount,0,`Indie ${category}/${age}: no automatic young discount`);
+      near(q.adjustedPrice,q.listPrice,'Indie unchanged tariff before tactical');
+    }
+    for(const tactical of [false,true]){
+      const invalid=V.manualQuote('INDIE',c,{...V.blankSelection(),young:true,tactical});
+      assert.equal(invalid.status,'invalid','Reject stale or forced young selection');
+      assert.match(invalid.reason,/Indie.*Segmento Joven/);
+    }
+    const best=V.bestSelection('INDIE',c);
+    assert.equal(best.quote.status,'ok');
+    assert.equal(best.selection.young,false,'Automatic suggestion excludes young');
+    assert.equal(best.quote.youngDiscount,0);
+    const ownTactical=expectedTactical('INDIE',c);
+    const rate=ownTactical?.planRates.INDIE||0;
+    near(best.quote.finalPrice,round(category==='Voluntario'?value(c,adult(age),'INDIE')*(1-rate)*1.105:value(c,adult(age),'INDIE')*(1-rate)-payroll(30000)),'Indie own tactical only');
+    if(rate){
+      assert.equal(best.selection.tactical,true);
+      assert.equal(best.quote.tactical.rate,rate);
+      assert.equal(best.quote.timeline[11].commercialRate,rate,'Own tactical lasts 12 months');
+    }
+  }
+}
+for(const age of [25,29]){
+  const c=client('AMBA','Obligatorio',age);
+  const q=V.manualQuote('PLATA',c,{...V.blankSelection(),young:true});
+  assert.equal(q.status,'ok');
+  near(q.youngDiscount,value(c,adult(age),'PLATA')*(age===25?.26:.13),'Other plans keep young benefit');
+}
 assert.equal(E.PLAN_ORDER.includes('MEDIFÉ+'),false);
 console.log(`OK Octubre 2026: 1414 celdas, ${cases} familias, ${tacticals} combinaciones tácticas, IVA, aportes, hijos y límites.`);
