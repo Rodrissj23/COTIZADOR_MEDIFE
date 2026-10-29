@@ -2,6 +2,16 @@
 
 Cotizador comercial Medifé para Grupo Zeroka, actualizado con el tarifario de octubre 2026 provisto por el equipo.
 
+## Corrección contra el oficial — 29/10/2026
+
+El cálculo vigente incorpora las respuestas de **Octubre 2026 Ver.10** del cotizador oficial: la pareja usa la franja del adulto mayor para ambos precios y para tácticos; se conservan las edades declaradas. Segmento Joven AMBA requiere titular sin pareja ni hijos; en Interior ambos adultos deben ser menores de 26. El aporte por relación de dependencia distingue origen Obra Social (0,93) y Medifé (0,97), de forma independiente para cada adulto.
+
+Los GAF comienzan después de la última promoción seleccionada. El calendario observado conserva el GAF en las cuotas 13, 24 y 25; no se acumula desde la primera cuota ni se corta automáticamente al mes 12. UCC mantiene su condición de empleador acumulable con promociones, pero excluye otros GAF. Formulario, resumen y PDF reflejan el origen de aportes y la cuota de inicio del convenio.
+
+`tests/oficial-octubre-2026.test.js` reproduce los veinte escenarios obtenidos del servidor: 105 importes comparables, once INDIE Interior fuera de la oferta Zeroka y cuatro salidas del oficial con casillas globales que no tienen equivalente en una propuesta por plan. Esas cuatro se separan explícitamente; los casos GAF solo comprueban sus planes. Tolerancia de presentación: $2. Los casos y números oficiales quedan en `tests/fixtures/oficial-octubre-2026.json`.
+
+Las suites de septiembre conservan su motor y fuente históricos juntos en fixtures: no validan la política de octubre. La suite de octubre verifica las 1.414 celdas, 3.640 familias y 2.444 combinaciones tácticas con la franja adulta corregida. [Alcance y comprobación](docs/paridad-oficial-octubre-2026.md).
+
 ## Actualización de octubre de 2026
 
 Las cinco regiones se actualizan desde `Copia de Cotizador Individual_202610.xlsx`, hoja `Resumen LP`: 1.414 importes por integrante, categoría y plan. Se mantienen los decimales de origen, sin reconstruir parejas ni multiplicar un aumento general. Los 38 renglones tácticos de octubre reemplazan los de septiembre. Las condiciones específicas de filial tienen prioridad sobre las generales de región. Se actualiza el tope de aportes de `C aux!B9`; las categorías de monotributo mantienen sus importes computables.
@@ -49,7 +59,7 @@ El formulario ofrece únicamente provincias, zonas, filiales y localidades habil
 
 ### Grupo familiar
 
-- Titular y pareja por edad.
+- Titular y pareja por la franja del adulto mayor; se conservan sus edades reales en la propuesta.
 - Hijos 0–20: hijo normal.
 - 21–25: hijo estudiante.
 - 26–29: hijo a cargo.
@@ -64,7 +74,7 @@ Relación de dependencia:
 
 1. El vendedor ingresa el ítem de Obra Social 3% del recibo.
 2. Base interna = `item_3% × 100 / 3`.
-3. Aporte computable = `(min(base, tope) × 2,55% + base × 5,10%) × 93%`.
+3. Aporte computable = `(min(base, tope) × 2,55% + base × 5,10%) × factor`, con factor 93% para Obra Social y 97% para Medifé.
 4. Tope de remuneración de octubre: `$4.771.508,194` (se conserva la precisión del Excel).
 
 Monotributo:
@@ -85,7 +95,7 @@ Conceptualmente:
 5. Descuentos estratégicos + Opción 5 + tácticos, con tope comercial del 85%.
 6. UCC, cuando corresponde, como empleador acumulable y fuera del tope comercial.
 7. IVA 10,5% en Voluntario o descuento de aportes en Obligatorio.
-8. GAF / convenio sobre el valor final previo a GAF.
+8. GAF / convenio sobre el valor final previo a GAF, a partir de la cuota posterior al fin de las promociones seleccionadas.
 9. Piso final en `$0`.
 
 Los recargos de Patagonia y Bahía/MDQ ya están incluidos en las matrices regionales y **no se vuelven a sumar**.
@@ -145,6 +155,8 @@ Opciones detectadas:
 - Prestadores Medifé Norte.
 
 UCC se maneja por separado porque el Excel lo trata como `Empleador acumulable`: 15%, región Norte, antes de IVA/aportes y fuera del tope del 85%.
+
+UCC excluye cualquier otro GAF tanto en la interfaz como en la validación del motor.
 
 ### Vigencia de cotización
 

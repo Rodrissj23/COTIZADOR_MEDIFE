@@ -18,9 +18,38 @@ jobs:
           node-version: '20'
       - name: Run Medife V2 pricing tests
         run: |
+          node tests/oficial-octubre-2026.test.js
           node tests/octubre-2026.test.js
           node tests/engine-v2.test.js
           node tests/qa-excel.test.js
           node tests/configurator-v3.test.js
           node tests/geography.test.js
+
+  browser-flow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install browser test dependencies
+        run: npm install --no-save @playwright/test@1.62.1
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Start static server
+        run: python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/medife-http.log 2>&1 &
+      - name: Verify form and PDF on desktop and mobile
+        run: npx playwright test tests/e2e/medife-functional.spec.js tests/e2e/medife-pdf.spec.js --workers=2 --max-failures=1
+      - name: Preserve browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: medife-browser-evidence
+          path: |
+            test-results
+            playwright-report
+            /tmp/medife-http.log
+          retention-days: 7
 

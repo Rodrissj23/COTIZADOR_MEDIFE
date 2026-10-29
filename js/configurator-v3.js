@@ -8,8 +8,6 @@
   if (!E) throw new Error('MEDIFE_ENGINE no está cargado.');
   const D = E.DATA;
   const STRATEGIC_PLANS = new Set(['BRONCE CLASSIC','BRONCE','PLATA','ORO','PLATINUM']);
-  const YOUNG_STANDARD = new Set(['BRONCE CLASSIC','BRONCE','PLATA','ORO','PLATINUM']);
-  const YOUNG_AMBA_OBL = new Set(['BRONCE CLASSIC','BRONCE','PLATA','ORO','PLATINUM']);
   const $v3 = (s, r=document) => r.querySelector(s);
   const $$v3 = (s, r=document) => [...r.querySelectorAll(s)];
   const n = v => Number.isFinite(Number(v)) ? Number(v) : 0;
@@ -34,24 +32,7 @@
   }
 
   function youngDetails(plan, client, members){
-    const adults = members.filter(m=>m.kind==='adult');
-    let amount = 0;
-    const eligibleMembers=[];
-    if(client.region==='AMBA'){
-      const eligiblePlans = client.category==='Obligatorio' ? YOUNG_AMBA_OBL : YOUNG_STANDARD;
-      if(!eligiblePlans.has(plan)) return {amount:0,effectiveRate:0,eligibleMembers:[]};
-      for(const m of adults){
-        const rate=m.age<=25?.26:(m.age<=29?.13:0);
-        if(rate){amount+=m.listPrice*rate;eligibleMembers.push({...m,rate});}
-      }
-    }else{
-      if(!YOUNG_STANDARD.has(plan)) return {amount:0,effectiveRate:0,eligibleMembers:[]};
-      for(const m of adults){
-        if(m.age<=25){amount+=m.listPrice*.26;eligibleMembers.push({...m,rate:.26});}
-      }
-    }
-    const groupListPrice=members.reduce((s,m)=>s+m.listPrice,0);
-    return {amount,effectiveRate:groupListPrice?amount/groupListPrice:0,eligibleMembers};
+    return E.youngDetails(plan,client,members);
   }
 
   function rateAt(schedule, month){
@@ -94,6 +75,7 @@
     if(sel.option5&&!(client.procedencia&&['1','2','3'].includes(String(sel.strategic)))) return 'Opción 5 requiere procedencia y Opción 1, 2 o 3.';
     if(sel.option6&&!(sel.strategic==='4'&&client.procedencia&&paymentBenefitEligible(client)&&STRATEGIC_PLANS.has(ctx.plan))) return 'Opción 6 requiere Opción 4, débito con tarjeta de crédito y grupo familiar hasta 60 años.';
     if(sel.ucc&&!(client.uccEligible&&client.region===D.ucc?.region)) return 'UCC no está habilitado para este caso.';
+    if(sel.ucc&&sel.gaf!=='none') return 'UCC no se acumula con otro convenio GAF.';
     const gafValues=new Set(ctx.gafOptions.map(x=>String(x.value)));
     if(sel.gaf!=='none'&&!gafValues.has(String(sel.gaf))) return 'El convenio seleccionado no corresponde al caso.';
     return null;
@@ -112,7 +94,8 @@
     const strategicId=String(sel.strategic||'none');
     const strategicDef=strategicId==='none'?null:D.strategic?.[client.category]?.[strategicId];
     const gafDef=sel.gaf==='none'?D.gaf?.none:D.gaf?.[sel.gaf];
-    const horizon=strategicId==='7'||sel.option6?24:12;
+    const gafStart=E.gafStartMonth({...client,promotion:strategicId,option5:sel.option5},{tactical,strategicApplies:STRATEGIC_PLANS.has(ctx.plan),option6:sel.option6});
+    const horizon=gafDef?.rate?Math.max(25,gafStart):(strategicId==='7'||sel.option6?24:12);
     const months=[];
 
     for(let month=1;month<=horizon;month++){
@@ -127,7 +110,7 @@
       const preGaf=client.category==='Voluntario'
         ? beforeTax*(1+n(D.ivaVoluntario))
         : Math.max(0,beforeTax-ctx.contribution);
-      const gafRate=gafDef?.rate && (gafDef.months==null||month<=n(gafDef.months)) ? n(gafDef.rate) : 0;
+      const gafRate=gafDef?.rate && month>=gafStart ? n(gafDef.rate) : 0;
       const price=Math.max(0,preGaf*(1-gafRate));
       months.push({
         month,strategicRate,option5Rate,option6Rate,tacticalRate,rawCommercialRate,commercialRate,
@@ -141,7 +124,7 @@
     let regular=client.category==='Voluntario'
       ? regularBeforeTax*(1+n(D.ivaVoluntario))
       : Math.max(0,regularBeforeTax-ctx.contribution);
-    if(gafDef?.rate&&gafDef.months==null) regular*=1-n(gafDef.rate);
+    if(gafDef?.rate) regular*=1-n(gafDef.rate);
     regular=Math.max(0,regular);
 
     const baseBeforeTax=ctx.listPrice;
@@ -174,6 +157,7 @@
       tactical,strategicApplies:strategicId!=='none'&&STRATEGIC_PLANS.has(ctx.plan),
       uccRate:month1.uccRate,uccDiscount:round2(uccDiscount),
       gaf:gafDef||D.gaf?.none,gafRate:month1.gafRate,gafDiscount:round2(gafDiscount),
+      gafStartMonth:gafStart,
       month1DiscountRate:month1.commercialRate,commercialDiscount:round2(commercialDiscount),
       finalPrice:month1.price,regularPrice:round2(regular),timeline:months,
       context:ctx
@@ -355,6 +339,10 @@
       adjustments.push(card({id:'young',title:'Segmento joven',selected:s.young,disabled:blocked,
         detail:`Ajuste por edad sobre los adultos elegibles · impacto sobre este grupo ${pctV3(ctx.young.effectiveRate)}`,
         reason:blocked?'En AMBA el ajuste por hijos desplaza este beneficio.':'',impact:blocked?null:benefitImpact(x=>x.young=!s.young)}));
+    }else if(c.region==='AMBA'&&(c.hasPartner||(c.childrenAges||[]).length)){
+      adjustments.push(card({id:'young',title:'Segmento joven',disabled:true,
+        detail:'Disponible únicamente para titular sin pareja ni hijos en AMBA.',
+        reason:'La composición de este grupo no admite Segmento Joven.'}));
     }
     if(ctx.filial){
       adjustments.push(card({id:'filial',title:ctx.filial.label||'Descuento de filial',selected:s.filial,
@@ -395,16 +383,17 @@
 
     const affinities=[];
     if(c.region===D.ucc?.region){
-      const blocked=!c.uccEligible;
+      const blocked=!c.uccEligible||s.gaf!=='none';
       affinities.push(card({id:'ucc',title:'UCC · Empleador acumulable',selected:s.ucc,disabled:blocked,
-        detail:`${pctV3(D.ucc.rate)} sin plazo definido en la matriz vigente`,reason:blocked?'El caso no fue marcado como empleador UCC.':'',
+        detail:`${pctV3(D.ucc.rate)} · acumulable con estratégicos y tácticos`,reason:!c.uccEligible?'El caso no fue marcado como empleador UCC.':s.gaf!=='none'?'Desactivá el otro convenio para usar UCC.':'',
         impact:blocked?null:benefitImpact(x=>x.ucc=!s.ucc)}));
     }
     for(const opt of ctx.gafOptions){
       const value=String(opt.value),selected=s.gaf===value,def=D.gaf?.[value];
-      affinities.push(card({id:`gaf:${value}`,kind:'gaf',title:opt.label,selected,
-        detail:`${pctV3(def?.rate)}${def?.months==null?' · sin plazo definido':` x ${def.months} meses`}`,
-        impact:benefitImpact(x=>x.gaf=selected?'none':value)}));
+      affinities.push(card({id:`gaf:${value}`,kind:'gaf',title:opt.label,selected,disabled:s.ucc,
+        detail:`${pctV3(def?.rate)} · desde la cuota ${manualState.quote.gafStartMonth}`,
+        reason:s.ucc?'Desactivá UCC para elegir otro convenio.':'Se aplica al finalizar las promociones seleccionadas.',
+        impact:s.ucc?null:benefitImpact(x=>x.gaf=selected?'none':value)}));
     }
     if(affinities.length) groups.push({title:'Convenios y afinidades',subtitle:'Elegí únicamente el convenio que el cliente realmente acredita. “Mejor combinación” nunca selecciona convenios automáticamente.',items:affinities});
     return groups;
@@ -421,7 +410,7 @@
     if(s.ucc)rows.push(['UCC',`- ${moneyV3(q.uccDiscount)}`]);
     if(manualState.client.category==='Obligatorio')rows.push(['Aportes',`- ${moneyV3(q.contribution)}`]);
     else rows.push(['IVA 10,5%',`+ ${moneyV3(q.ivaAmount)}`]);
-    if(s.gaf!=='none')rows.push([q.gaf?.label||'Convenio',`- ${moneyV3(q.gafDiscount)}`]);
+    if(s.gaf!=='none')rows.push([q.gaf?.label||'Convenio',q.gafRate?`- ${moneyV3(q.gafDiscount)}`:`Desde cuota ${q.gafStartMonth}`]);
     return rows;
   }
 

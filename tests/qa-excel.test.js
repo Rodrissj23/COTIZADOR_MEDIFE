@@ -8,7 +8,9 @@ require('../js/tariffs-patagonia.js');
 require('../js/tariffs-bahia-mdq.js');
 // Golden de septiembre: conserva su fuente histórica. Octubre se valida en octubre-2026.test.js.
 Object.assign(global.MEDIFE_DATA, require('./fixtures/septiembre-2026-data.json'));
-const E=require('../js/engine-v2.js');
+// Fuente y motor congelados juntos: estos golden son únicamente históricos.
+// El motor productivo se compara con respuestas oficiales en oficial-octubre-2026.test.js.
+const E=require('./fixtures/engine-septiembre-2026.cjs');
 
 // Valores esperados derivados directamente de Cotizador Individual_202609_Provisorio (3).xlsx.
 // Tolerancia de 2 centavos: las matrices JS conservan 4 decimales de la tarifa Excel.

@@ -73,7 +73,7 @@ test('PDF · cinco etapas de cuota entran en una sola hoja',async({page},testInf
   await page.locator('.medife-timeline').screenshot({path:testInfo.outputPath('evolucion-cinco-etapas.png')});
 });
 
-test('PDF · resumen completo con UCC, convenio y ajustes sin recortes', async ({page},testInfo)=>{
+test('PDF · resumen con UCC y ajustes; otro GAF bloqueado', async ({page},testInfo)=>{
   await page.goto('/index.html');
   await selectGeography(page);
   await expect(page.locator('html')).toHaveAttribute('data-medife-configurator','ready');
@@ -86,11 +86,12 @@ test('PDF · resumen completo con UCC, convenio y ajustes sin recortes', async (
   await page.locator('#ucc').check();
   await page.getByRole('button',{name:/Ver precios base/}).click();
   await page.locator('.plan-card').filter({has:page.getByRole('heading',{name:'PLATA',exact:true})}).getByRole('button',{name:/Armar propuesta/}).click();
-  for(const id of ['child','young','filial','strategic:1','ucc','gaf:prestadores_norte']){
+  for(const id of ['child','young','filial','strategic:1','ucc']){
     await page.locator(`.benefit-card[data-benefit-id="${id}"]`).click();
   }
+  await expect(page.locator('.benefit-card[data-benefit-id="gaf:prestadores_norte"]')).toBeDisabled();
   await page.locator('#openManualQuote').click();
-  await expect(page.locator('.medife-summary-row')).toHaveCount(10);
+  await expect(page.locator('.medife-summary-row')).toHaveCount(9);
   await expect(page.locator('#quotePages .medife-wordmark, #quotePages .logo-box')).toHaveCount(0);
   const total=await page.locator('.medife-summary-total').boundingBox();
   const legal=await page.locator('.medife-summary-legal').boundingBox();
