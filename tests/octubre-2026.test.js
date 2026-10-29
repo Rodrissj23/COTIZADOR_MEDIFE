@@ -26,8 +26,9 @@ for(const region of Object.keys(source.tariffs))for(const category of ['Obligato
   if(plan==='INDIE'&&region!=='AMBA')continue;
   for(const extra of [{},{hasPartner:true,partnerAge:40},{childrenAges:[0]},{childrenAges:[10,24]},{hasPartner:true,partnerAge:32,childrenAges:[0,10,29]}]){
     const c=client(region,category,age,extra);
-    let list=value(c,adult(c.age),plan);
-    if(c.hasPartner)list+=value(c,adult(c.partnerAge,true),plan);
+    const adultAge=c.hasPartner?Math.max(c.age,c.partnerAge):c.age;
+    let list=value(c,adult(adultAge),plan);
+    if(c.hasPartner)list+=value(c,adult(adultAge,true),plan);
     const children=c.childrenAges.map((a,i)=>({age:a,price:value(c,child(region,a,i),plan)}));
     list+=children.reduce((sum,m)=>sum+m.price,0);
     const q=V.manualQuote(plan,c,V.blankSelection());

@@ -88,6 +88,7 @@ function syncContributionSource(prefix=''){
   const partner=prefix==='partner';
   const source=$(partner?'#partnerContributionSource':'#contributionSource').value;
   $(partner?'#partnerReceiptWrap':'#receiptWrap').hidden=source!=='relacion';
+  $(partner?'#partnerPayrollOriginWrap':'#payrollOriginWrap').hidden=source!=='relacion';
   $(partner?'#partnerMonoWrap':'#monoWrap').hidden=source!=='monotributo';
 }
 function syncConditionalUI(){
@@ -121,10 +122,12 @@ function readClient(promotionOverride){
     childrenAges:childrenAgesFromUI(),
     contributionSource:category==='Obligatorio'?$('#contributionSource').value:null,
     receiptContribution:Number($('#receiptContribution').value)||0,
+    payrollOrigin:$('#payrollOrigin').value,
     monotributoCategory:$('#monotributoCategory').value,
     unifyPartnerContribution:category==='Obligatorio'&&hasPartner&&$('#unifyPartnerContribution').checked,
     partnerContributionSource:$('#partnerContributionSource').value,
     partnerReceiptContribution:Number($('#partnerReceiptContribution').value)||0,
+    partnerPayrollOrigin:$('#partnerPayrollOrigin').value,
     partnerMonotributoCategory:$('#partnerMonotributoCategory').value,
     promotion:currentPromo,option5:$('#option5').checked
   };
@@ -232,7 +235,7 @@ function selectedPromotionLabel(c,q){
   if(q.selection?.option6)labels.push('Opción 6 · débito TC, meses 13–24');
   if(q.tactical)labels.push(q.tactical.label);
   if(q.uccRate>0)labels.push('UCC 15%');
-  if(q.gafRate>0)labels.push(q.gaf?.label||'Convenio / afinidad');
+  if(q.gaf?.rate)labels.push(`${q.gaf.label}${q.gafStartMonth>1?` · desde cuota ${q.gafStartMonth}`:''}`);
   return labels.length?labels.join(' + '):'Sin descuento temporal';
 }
 function buildQuote(){

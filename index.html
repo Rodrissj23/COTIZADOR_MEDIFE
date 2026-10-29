@@ -78,6 +78,7 @@
               <div class="field-grid field-grid--3">
                 <label><span>Tipo de aporte</span><select id="contributionSource"><option value="relacion">Relación de dependencia</option><option value="monotributo">Monotributo</option></select></label>
                 <label id="receiptWrap"><span>Ítem Obra Social 3%</span><input id="receiptContribution" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Ej. 30000"><small class="field-help">El sistema calcula internamente el aporte computable.</small></label>
+                <label id="payrollOriginWrap"><span>Origen del aporte</span><select id="payrollOrigin"><option value="obra_social">Obra Social</option><option value="medife">Medifé</option></select></label>
                 <label id="monoWrap" hidden><span>Categoría monotributo</span><select id="monotributoCategory"></select></label>
               </div>
             </div>
@@ -98,6 +99,7 @@
               <div id="partnerContributionFields" class="field-grid field-grid--3 compact-row" hidden>
                 <label><span>Tipo de aporte pareja</span><select id="partnerContributionSource"><option value="relacion">Relación de dependencia</option><option value="monotributo">Monotributo</option></select></label>
                 <label id="partnerReceiptWrap"><span>Ítem Obra Social 3%</span><input id="partnerReceiptContribution" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Ej. 30000"></label>
+                <label id="partnerPayrollOriginWrap"><span>Origen del aporte pareja</span><select id="partnerPayrollOrigin"><option value="obra_social">Obra Social</option><option value="medife">Medifé</option></select></label>
                 <label id="partnerMonoWrap" hidden><span>Categoría monotributo</span><select id="partnerMonotributoCategory"></select></label>
               </div>
             </div>
@@ -163,12 +165,12 @@
   <script src="js/rules-v2.js?v=202610-oct1"></script>
   <script src="js/tariffs-amba.js?v=202610-oct1"></script><script src="js/tariffs-norte.js?v=202610-oct1"></script><script src="js/tariffs-sur.js?v=202610-oct1"></script><script src="js/tariffs-patagonia.js?v=202610-oct1"></script><script src="js/tariffs-bahia-mdq.js?v=202610-oct1"></script>
   <script src="js/geography.js?v=20261009-zonas-habilitadas"></script>
-  <script src="js/engine-v2.js?v=20261022-indie-sin-joven"></script>
+  <script src="js/engine-v2.js?v=20261029-oficial-octubre"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
-  <script src="js/app-v2.js?v=20261009-zonas-habilitadas"></script>
-  <script src="js/quote-v2.js?v=20261009-zonas-habilitadas"></script>
-  <script src="js/configurator-v3.js?v=20261022-indie-sin-joven"></script>
+  <script src="js/app-v2.js?v=20261029-oficial-octubre"></script>
+  <script src="js/quote-v2.js?v=20261029-oficial-octubre"></script>
+  <script src="js/configurator-v3.js?v=20261029-oficial-octubre"></script>
   <script src="js/pdf-polish-v6.js"></script>
   <script src="js/quote-preview.js"></script>
 </body>

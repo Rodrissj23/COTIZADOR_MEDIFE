@@ -28,6 +28,9 @@
     if(role==='Titular')return band==='61-65'?'TITULAR L 61-65':`TITULAR  ${band}`;
     return `ESPOSO (A) ${band}`;
   }
+  function effectiveAdultAge(client){
+    return Math.max(n(client.age),client.hasPartner?n(client.partnerAge):0);
+  }
   function childKey(region,age,index){
     age=n(age);
     if(age<0||age>29)return null;
@@ -54,15 +57,16 @@
   }
   function memberList(plan,client){
     const members=[];
-    const titularKey=adultKey('Titular',client.age);
+    const pricingAge=effectiveAdultAge(client);
+    const titularKey=adultKey('Titular',pricingAge);
     const titularPrice=tariff(client.region,titularKey,client.category,plan);
     if(titularPrice==null)return {ok:false,reason:'No hay tarifa para el titular con esta combinación.'};
-    members.push({role:'Titular',age:n(client.age),key:titularKey,listPrice:titularPrice,kind:'adult'});
+    members.push({role:'Titular',age:n(client.age),pricingAge,key:titularKey,listPrice:titularPrice,kind:'adult'});
     if(client.hasPartner){
-      const key=adultKey('Pareja',client.partnerAge);
+      const key=adultKey('Pareja',pricingAge);
       const price=tariff(client.region,key,client.category,plan);
       if(price==null)return {ok:false,reason:'No hay tarifa para la pareja con esta combinación.'};
-      members.push({role:'Pareja',age:n(client.partnerAge),key,listPrice:price,kind:'adult'});
+      members.push({role:'Pareja',age:n(client.partnerAge),pricingAge,key,listPrice:price,kind:'adult'});
     }
     const ages=Array.isArray(client.childrenAges)?client.childrenAges:[];
     for(let i=0;i<ages.length;i++){
@@ -77,45 +81,49 @@
   }
 
   // Mantener precisión completa durante el cálculo. Se redondea solo al exponer importes finales.
-  function payrollContribution(item3Percent){
+  const PAYROLL_ORIGINS={obra_social:0.93,medife:0.97};
+  function payrollContribution(item3Percent,origin='obra_social'){
+    if(!Object.prototype.hasOwnProperty.call(PAYROLL_ORIGINS,origin))throw new Error('Origen del aporte inválido.');
     const item=Math.max(0,n(item3Percent));
     if(!item)return 0;
     const base=item*100/3;
     const cap=DATA.remunerationCap;
     const employeePart=Math.min(base,cap)*0.0255;
     const employerPart=base*0.051;
-    return (employeePart+employerPart)*0.93;
+    return (employeePart+employerPart)*PAYROLL_ORIGINS[origin];
   }
-  function sourceContribution(source,receipt,monoCategory){
+  function sourceContribution(source,receipt,monoCategory,origin){
     if(source==='monotributo')return n(DATA.monotributo?.[String(monoCategory||'').toUpperCase()]||0);
-    if(source==='relacion')return payrollContribution(receipt);
+    if(source==='relacion')return payrollContribution(receipt,origin);
     return 0;
   }
   function totalContribution(client){
     if(client.category!=='Obligatorio')return 0;
-    let total=sourceContribution(client.contributionSource,client.receiptContribution,client.monotributoCategory);
+    let total=sourceContribution(client.contributionSource,client.receiptContribution,client.monotributoCategory,client.payrollOrigin);
     if(client.hasPartner&&client.unifyPartnerContribution){
-      total+=sourceContribution(client.partnerContributionSource,client.partnerReceiptContribution,client.partnerMonotributoCategory);
+      total+=sourceContribution(client.partnerContributionSource,client.partnerReceiptContribution,client.partnerMonotributoCategory,client.partnerPayrollOrigin);
     }
     return total;
   }
 
-  function youngDiscount(plan,client,members,childDiscount){
+  function youngDetails(plan,client,members){
     const adults=members.filter(m=>m.kind==='adult');
-    let discount=0;
+    const none={amount:0,effectiveRate:0,eligibleMembers:[],label:null};
+    const age=effectiveAdultAge(client);
+    let rate=0;
     if(client.region==='AMBA'){
-      if(childDiscount>0)return {amount:0,label:null};
+      if(client.hasPartner||(client.childrenAges||[]).length)return none;
       const eligible=client.category==='Obligatorio'?YOUNG_PLANS_AMBA_OBL:YOUNG_PLANS_STANDARD;
-      if(!eligible.has(plan))return {amount:0,label:null};
-      for(const m of adults){
-        const rate=m.age<=25?0.26:(m.age<=29?0.13:0);
-        discount+=m.listPrice*rate;
-      }
+      if(!eligible.has(plan))return none;
+      rate=age<=25?0.26:(age<=29?0.13:0);
     }else{
-      if(!YOUNG_PLANS_STANDARD.has(plan))return {amount:0,label:null};
-      for(const m of adults)if(m.age<=25)discount+=m.listPrice*0.26;
+      if(!YOUNG_PLANS_STANDARD.has(plan))return none;
+      rate=age<=25?0.26:0;
     }
-    return {amount:discount,label:discount>0?'Segmento joven':null};
+    if(!rate)return none;
+    const amount=adults.reduce((sum,m)=>sum+m.listPrice*rate,0);
+    const base=members.reduce((sum,m)=>sum+m.listPrice,0);
+    return {amount,effectiveRate:base?amount/base:0,eligibleMembers:adults.map(m=>({...m,rate})),label:'Segmento joven'};
   }
 
   // El 45%/55% no se aplica sobre el grupo completo: se aplica solo sobre
@@ -144,7 +152,7 @@
 
   function permanentAdjustments(plan,client,members){
     const child=childAdjustmentDetails(plan,client,members);
-    const young=youngDiscount(plan,client,members,child.amount);
+    const young=youngDetails(plan,client,members);
     return {
       base:child.groupListPrice,
       childDiscount:child.amount,
@@ -181,7 +189,7 @@
     return c===f;
   }
   function tacticalFor(plan,client){
-    const age=n(client.age);
+    const age=effectiveAdultAge(client);
     for(const t of DATA.tactical||[]){
       const rate=n(t.planRates?.[plan]);
       if(!rate)continue;
@@ -211,11 +219,21 @@
     const g=DATA.gaf?.[String(client.gaf||'none')];
     return g&&(g.categories||[]).includes(client.category)&&gafZoneMatches(g,client)?g:DATA.gaf?.none;
   }
-  function gafRateAt(client,month){
+  function gafRateAt(client,month,startMonth=1){
     const g=selectedGaf(client);
-    if(!g||!g.rate)return 0;
-    if(g.months==null)return g.rate;
-    return month<=g.months?g.rate:0;
+    return g?.rate&&month>=startMonth?g.rate:0;
+  }
+  // Calendario observado en Octubre Ver.10: el GAF comienza al terminar
+  // la última promoción seleccionada y permanece en las cuotas 13/24/25.
+  function gafStartMonth(client,{tactical=null,strategicApplies=true,option6=false}={}){
+    let end=tactical?n(tactical.months):0;
+    const last=schedule=>Math.max(0,...(schedule||[]).filter(r=>n(r[2])>0).map(r=>n(r[1])));
+    if(strategicApplies){
+      end=Math.max(end,last(DATA.strategic[client.category]?.[String(client.promotion||'none')]?.schedule));
+      if(client.option5)end=Math.max(end,last(DATA.option5[client.category]?.schedule));
+      if(option6)end=Math.max(end,24);
+    }
+    return end+1;
   }
   function uccRateAt(client,month){
     if(!client.ucc||client.region!==DATA.ucc?.region)return 0;
@@ -258,8 +276,10 @@
     const tactical=option7Applies?null:tacticalFor(plan,client);
     const strategicApplies=STRATEGIC_PLANS.has(plan)&&!(tactical&&tactical.stackStrategic===false);
     const horizon=option7Applies?24:12;
+    const gafStart=gafStartMonth(client,{tactical,strategicApplies});
+    const length=selectedGaf(client)?.rate?Math.max(25,gafStart):horizon;
     const months=[];
-    for(let month=1;month<=horizon;month++){
+    for(let month=1;month<=length;month++){
       const sr=strategicApplies?strategicRate(client,month):0;
       const o5=strategicApplies?option5Rate(client,month):0;
       const tr=tactical&&month<=tactical.months?tactical.rate:0;
@@ -267,7 +287,7 @@
       const uccRate=uccRateAt(client,month);
       const beforeTax=nominalAdjusted*(1-filialRate-commercialRate-uccRate);
       const preGafRaw=applyTaxOrContribution(beforeTax,client,contribution);
-      const gafRate=gafRateAt(client,month);
+      const gafRate=gafRateAt(client,month,gafStart);
       const finalRaw=Math.max(0,preGafRaw*(1-gafRate));
       months.push({
         month,strategicRate:sr,option5Rate:o5,tacticalRate:tr,commercialRate,totalRate:commercialRate,
@@ -295,10 +315,12 @@
     if(client.category==='Obligatorio'){
       if(!['relacion','monotributo'].includes(client.contributionSource))return 'Indicá el tipo de aporte del titular.';
       if(client.contributionSource==='relacion'&&n(client.receiptContribution)<=0)return 'Ingresá el aporte del 3% del recibo del titular.';
+      if(client.contributionSource==='relacion'&&client.payrollOrigin!==undefined&&!Object.prototype.hasOwnProperty.call(PAYROLL_ORIGINS,client.payrollOrigin))return 'Indicá un origen del aporte válido para el titular.';
       if(client.contributionSource==='monotributo'&&!DATA.monotributo[String(client.monotributoCategory||'').toUpperCase()])return 'Indicá la categoría de monotributo del titular.';
       if(client.hasPartner&&client.unifyPartnerContribution){
         if(!['relacion','monotributo'].includes(client.partnerContributionSource))return 'Indicá el tipo de aporte de la pareja.';
         if(client.partnerContributionSource==='relacion'&&n(client.partnerReceiptContribution)<=0)return 'Ingresá el aporte del 3% del recibo de la pareja.';
+        if(client.partnerContributionSource==='relacion'&&client.partnerPayrollOrigin!==undefined&&!Object.prototype.hasOwnProperty.call(PAYROLL_ORIGINS,client.partnerPayrollOrigin))return 'Indicá un origen del aporte válido para la pareja.';
         if(client.partnerContributionSource==='monotributo'&&!DATA.monotributo[String(client.partnerMonotributoCategory||'').toUpperCase()])return 'Indicá la categoría de monotributo de la pareja.';
       }
     }
@@ -308,6 +330,7 @@
     const gafValues=new Set(gafEligibility(client).map(x=>x.value));
     if(!gafValues.has(String(client.gaf||'none')))return 'El convenio / afinidad no corresponde a la categoría o zona seleccionada.';
     if(client.ucc&&client.region!==DATA.ucc.region)return 'UCC solo corresponde a región Norte.';
+    if(client.ucc&&String(client.gaf||'none')!=='none')return 'UCC no se acumula con otro convenio GAF.';
     return null;
   }
 
@@ -331,7 +354,7 @@
     const regularBase=permanent.nominalAdjusted*(1-filialRate-uccRateAt(client,999));
     let regular=applyTaxOrContribution(regularBase,client,contribution);
     const g=selectedGaf(client);
-    if(g?.rate&&g.months==null)regular=Math.max(0,regular*(1-g.rate));
+    if(g?.rate)regular=Math.max(0,regular*(1-g.rate));
 
     return {
       status:'ok',plan,members:list.members,
@@ -365,6 +388,7 @@
       uccRate:month1.uccRate,
       uccDiscount:round2(permanent.nominalAdjusted*month1.uccRate),
       gaf:selectedGaf(client),gafRate:month1.gafRate,gafDiscount:round2(month1.preGaf*month1.gafRate),
+      gafStartMonth:gafStartMonth(client,{tactical:tl.tactical,strategicApplies:tl.strategicApplies}),
       month1DiscountRate:month1.commercialRate,
       finalPrice:month1.price,
       regularPrice:round2(regular),
@@ -374,7 +398,7 @@
   function quoteAll(client){return PLAN_ORDER.map(plan=>quote(plan,client));}
 
   const api={
-    DATA,PLAN_ORDER,adultBand,adultKey,childKey,childStatus,payrollContribution,totalContribution,
+    DATA,PLAN_ORDER,adultBand,adultKey,effectiveAdultAge,youngDetails,gafStartMonth,childKey,childStatus,payrollContribution,totalContribution,
     childAdjustmentDetails,strategicEligibility,gafEligibility,filialDiscountPolicy,tacticalFor,
     validateClient,quote,quoteAll,round2
   };

@@ -132,9 +132,9 @@ test.describe('Cotizador Medifé · QA funcional configurador V3',()=>{
     const txt=await child.textContent();expect(txt).not.toMatch(/impacto máximo sobre este grupo 55%/);
   });
 
-  test('15 · AMBA bloquea segmento joven al aplicar ajuste por hijos',async({page})=>{
+  test('15 · AMBA bloquea segmento joven con hijos aunque no se elija su ajuste',async({page})=>{
     await openApp(page);await page.locator('#age').fill('25');await page.locator('#children').fill('1');await page.locator('.child-age').fill('10');await fillMandatoryContribution(page);await submit(page);await choosePlan(page,'PLATA');
-    const child=benefitId(page,'child');const young=benefitId(page,'young');await expect(young).toBeEnabled();await child.click();await expect(benefitId(page,'child')).toHaveClass(/is-selected/);await expect(benefitId(page,'young')).toBeDisabled();await expect(benefitId(page,'young')).toContainText('desplaza este beneficio');
+    const child=benefitId(page,'child');const young=benefitId(page,'young');await expect(young).toBeDisabled();await expect(young).toContainText('sin pareja ni hijos');await child.click();await expect(benefitId(page,'child')).toHaveClass(/is-selected/);await expect(benefitId(page,'young')).toBeDisabled();
   });
 
   test('16 · táctico válido aparece disponible pero no se aplica hasta que el asesor lo elige',async({page})=>{
@@ -192,6 +192,36 @@ test.describe('Cotizador Medifé · QA funcional configurador V3',()=>{
     const legal=await page.locator('.medife-summary-legal').boundingBox();
     const total=await page.locator('.medife-summary-total').boundingBox();
     expect(total.y+total.height).toBeLessThan(legal.y);
+  });
+
+  test('23 · cambiar origen recalcula aportes y conserva el origen en la propuesta',async({page})=>{
+    await openApp(page);await page.locator('#age').fill('40');await fillMandatoryContribution(page);await submit(page);await choosePlan(page,'PLATA');
+    expect(digitsOnly(await page.locator('.summary-total strong').textContent())).toBe('244311');
+    await page.locator('#payrollOrigin').selectOption('medife');
+    await expect(page.locator('#proposalBuilder')).toBeHidden();
+    await submit(page);await choosePlan(page,'PLATA');
+    expect(digitsOnly(await page.locator('.summary-total strong').textContent())).toBe('241251');
+    await page.locator('#openManualQuote').click();
+    await expect(page.locator('.medife-summary')).toContainText('origen Medifé');
+    await page.locator('#closeQuote').click();await page.locator('#hasPartner').check();await page.locator('#unifyPartnerContribution').check();
+    await expect(page.locator('#partnerPayrollOrigin')).toBeVisible();
+    await page.locator('#partnerContributionSource').selectOption('monotributo');
+    await expect(page.locator('#partnerPayrollOriginWrap')).toBeHidden();
+  });
+
+  test('24 · pareja por franja mayor y GAF posterior se muestran en cuota y PDF',async({page})=>{
+    await openApp(page);await selectGeography(page,{province:'Córdoba',locality:'Córdoba capital'});
+    await page.locator('#age').fill('23');await page.locator('#hasPartner').check();await page.locator('#partnerAge').fill('40');await fillMandatoryContribution(page);
+    await submit(page);await choosePlan(page,'PLATA');await benefitId(page,'filial').click();
+    expect(digitsOnly(await page.locator('.summary-total strong').textContent())).toBe('493454');
+    await expect(benefitId(page,'young')).toHaveCount(0);
+    await page.locator('#hasPartner').uncheck();await page.locator('#age').fill('40');await selectGeography(page);await submit(page);await choosePlan(page,'PLATA');
+    await benefitId(page,'strategic:3').click();await benefitId(page,'gaf:prestadores_amba').click();
+    expect(digitsOnly(await page.locator('.summary-total strong').textContent())).toBe('181220');
+    await expect(page.locator('#proposalSummary')).toContainText('Desde cuota 12');
+    await page.locator('#openManualQuote').click();
+    await expect(page.locator('.medife-summary')).toContainText('Desde la cuota 12');
+    await expect(page.locator('.medife-timeline')).toContainText('Meses 12–25');
   });
 
   test('22 · Opción 6 bloquea CBU y edades mayores a 60; al quitar Opción 4 se limpia',async({page})=>{

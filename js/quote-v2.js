@@ -32,7 +32,7 @@
     if(q.filialDiscount) permanent.push(`${q.filialLabel||'Descuento filial'} - ${money(q.filialDiscount)}`);
     const adjustmentLabel=permanent.length?permanent.join(' · '):'Sin ajustes seleccionados';
     const contributionLabel=c.category==='Obligatorio'?`- ${money(q.contribution)}`:'10,5%';
-    const contributionNote=c.category==='Obligatorio'?'Aporte computable estimado':'IVA aplicado luego de descuentos';
+    const contributionNote=c.category==='Obligatorio'?`Aporte computable estimado${c.contributionSource==='relacion'?` · origen ${c.payrollOrigin==='medife'?'Medifé':'Obra Social'}`:''}${c.hasPartner&&c.unifyPartnerContribution&&c.partnerContributionSource==='relacion'?` · pareja ${c.partnerPayrollOrigin==='medife'?'Medifé':'Obra Social'}`:''}`:'IVA aplicado luego de descuentos';
     const rows=[
       ['Grupo familiar',compositionLabel(c),''],
       ['Región · zona comercial',`${c.region} · ${GEOGRAPHY.filialLabel(c)}`,c.province?`${c.province} · ${c.locality}`:''],
@@ -43,7 +43,7 @@
       ...(q.selection?.option6?[['Medio de pago','Débito automático con tarjeta de crédito','Opción 6: continuidad de Opción 4 durante los meses 13–24']]:[]),
       ...(q.uccRate?[['UCC',`${pct(q.uccRate)} dto.`, 'Empleador acumulable']]:[]),
       [c.category==='Obligatorio'?'Aportes a descontar':'IVA',contributionLabel,contributionNote],
-      ...(q.gafRate?[['Convenio / afinidad',`${q.gaf?.label||'GAF'} · ${pct(q.gafRate)}`,'Aplicado sobre el valor final previo al convenio']]:[]),
+      ...(q.gaf?.rate?[['Convenio / afinidad',`${q.gaf.label} · ${pct(q.gaf.rate)}`,`Desde la cuota ${q.gafStartMonth} · sobre el valor final previo al convenio`]]:[]),
       ['Valor regular actual',money(q.regularPrice),'Sin beneficios temporales']
     ];
     const groups=timelineGroups(q.timeline);

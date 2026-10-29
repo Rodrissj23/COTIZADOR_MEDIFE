@@ -1,0 +1,521 @@
+{
+  "source": "https://cotizadormedife.com/quotes",
+  "list": "Octubre 2026 Ver.10",
+  "observedAt": "2026-10-29",
+  "tolerancePesos": 2,
+  "cases": [
+    {
+      "id": "AMBA_JOVEN_23_VOL",
+      "client": {
+        "region": "AMBA",
+        "filial": "GBA Sur",
+        "category": "Voluntario",
+        "age": 23,
+        "hasPartner": false,
+        "childrenAges": []
+      },
+      "selection": {
+        "young": true
+      },
+      "finals": [
+        261962,
+        171540,
+        201826,
+        249930,
+        350902,
+        456173
+      ],
+      "officialQuote": "000000045434"
+    },
+    {
+      "id": "AMBA_JOVEN_28_VOL",
+      "client": {
+        "region": "AMBA",
+        "filial": "GBA Sur",
+        "category": "Voluntario",
+        "age": 28,
+        "hasPartner": false,
+        "childrenAges": []
+      },
+      "selection": {
+        "young": true
+      },
+      "finals": [
+        261962,
+        201676,
+        237282,
+        293837,
+        412547,
+        536311
+      ],
+      "officialQuote": "000000045438"
+    },
+    {
+      "id": "AMBA_32_VOL",
+      "client": {
+        "region": "AMBA",
+        "filial": "GBA Sur",
+        "category": "Voluntario",
+        "age": 32,
+        "hasPartner": false,
+        "childrenAges": []
+      },
+      "selection": {},
+      "finals": [
+        261962,
+        231811,
+        272738,
+        337743,
+        474192,
+        616450
+      ],
+      "officialQuote": "000000045439"
+    },
+    {
+      "id": "AMBA_PAREJA_23_23_VOL",
+      "client": {
+        "region": "AMBA",
+        "filial": "GBA Sur",
+        "category": "Voluntario",
+        "age": 23,
+        "hasPartner": true,
+        "partnerAge": 23,
+        "childrenAges": []
+      },
+      "selection": {},
+      "finals": [
+        497728,
+        440441,
+        518202,
+        641712,
+        900965,
+        1171255
+      ],
+      "officialQuote": "000000045444"
+    },
+    {
+      "id": "AMBA_HIJO_10_VOL",
+      "client": {
+        "region": "AMBA",
+        "filial": "GBA Sur",
+        "category": "Voluntario",
+        "age": 40,
+        "hasPartner": false,
+        "childrenAges": [
+          10
+        ]
+      },
+      "selection": {
+        "child": true
+      },
+      "finals": [
+        553592,
+        385558,
+        441635,
+        600330,
+        784660,
+        1113508
+      ],
+      "officialQuote": "000000045446"
+    },
+    {
+      "id": "CORDOBA_PAREJA_23_40_OBL",
+      "client": {
+        "region": "Norte",
+        "filial": "Córdoba",
+        "category": "Obligatorio",
+        "age": 23,
+        "hasPartner": true,
+        "partnerAge": 40,
+        "childrenAges": [],
+        "contributionSource": "relacion",
+        "receiptContribution": 30000
+      },
+      "selection": {
+        "filial": true
+      },
+      "finals": [
+        556187,
+        334132,
+        417138,
+        493454,
+        563630,
+        806846
+      ],
+      "officialQuote": "000000045450"
+    },
+    {
+      "id": "CORDOBA_40_OBL_E1_TACTICO",
+      "client": {
+        "region": "Norte",
+        "filial": "Córdoba",
+        "category": "Obligatorio",
+        "age": 40,
+        "hasPartner": false,
+        "childrenAges": [],
+        "contributionSource": "relacion",
+        "receiptContribution": 30000
+      },
+      "selection": {
+        "filial": true,
+        "strategic": "1",
+        "tactical": true
+      },
+      "finals": [
+        259030,
+        35507,
+        28796,
+        44416,
+        58780,
+        159905
+      ],
+      "officialQuote": "000000045454"
+    },
+    {
+      "id": "CORRIENTES_HIJO10_OBL",
+      "client": {
+        "region": "Norte",
+        "filial": "Corrientes",
+        "category": "Obligatorio",
+        "age": 40,
+        "hasPartner": false,
+        "childrenAges": [
+          10
+        ],
+        "contributionSource": "relacion",
+        "receiptContribution": 30000
+      },
+      "selection": {
+        "filial": true,
+        "child": true
+      },
+      "finals": [
+        532841,
+        172980,
+        222980,
+        268897,
+        325430,
+        457714
+      ],
+      "officialQuote": "000000045461"
+    },
+    {
+      "id": "MERCEDES_PAREJA_40_55_TACTICO",
+      "client": {
+        "region": "Sur",
+        "filial": "Mercedes",
+        "category": "Obligatorio",
+        "age": 40,
+        "hasPartner": true,
+        "partnerAge": 55,
+        "childrenAges": [],
+        "contributionSource": "relacion",
+        "receiptContribution": 30000
+      },
+      "selection": {
+        "tactical": true
+      },
+      "tacticalPlans": [
+        "BRONCE",
+        "PLATA"
+      ],
+      "finals": [
+        703861,
+        551023,
+        567990,
+        626360,
+        919756,
+        1134075
+      ],
+      "officialQuote": "000000045464"
+    },
+    {
+      "id": "COMAHUE_40_VOL_TACTICO_GAF",
+      "client": {
+        "region": "Patagonia",
+        "filial": "Comahue",
+        "category": "Voluntario",
+        "age": 40,
+        "hasPartner": false,
+        "childrenAges": []
+      },
+      "selection": {
+        "tactical": true,
+        "gaf": "camara_bariloche"
+      },
+      "tacticalPlans": [
+        "PLATA",
+        "ORO"
+      ],
+      "finals": [
+        488819,
+        359245,
+        422888,
+        391055,
+        500142,
+        777649
+      ],
+      "officialQuote": "000000045472"
+    },
+    {
+      "id": "MDQ_40_MONO_A_E3_TACTICO",
+      "client": {
+        "region": "Bahía/MDQ",
+        "filial": "Mar del Plata",
+        "category": "Obligatorio",
+        "age": 40,
+        "hasPartner": false,
+        "childrenAges": [],
+        "contributionSource": "monotributo",
+        "monotributoCategory": "A"
+      },
+      "selection": {
+        "strategic": "3",
+        "tactical": true
+      },
+      "tacticalPlans": [
+        "ORO"
+      ],
+      "finals": [
+        301621,
+        167482,
+        201385,
+        236518,
+        182177,
+        380911
+      ],
+      "officialQuote": "000000045474"
+    },
+    {
+      "id": "AMBA_40_TOPE_6M_OS",
+      "client": {
+        "region": "AMBA",
+        "filial": "GBA Sur",
+        "category": "Obligatorio",
+        "age": 40,
+        "hasPartner": false,
+        "childrenAges": [],
+        "contributionSource": "relacion",
+        "receiptContribution": 180000
+      },
+      "selection": {},
+      "finals": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        152454
+      ],
+      "officialQuote": "000000045475"
+    },
+    {
+      "id": "AMBA_40_TOPE_6M_MEDIFE",
+      "client": {
+        "region": "AMBA",
+        "filial": "GBA Sur",
+        "category": "Obligatorio",
+        "age": 40,
+        "hasPartner": false,
+        "childrenAges": [],
+        "contributionSource": "relacion",
+        "receiptContribution": 180000,
+        "payrollOrigin": "medife"
+      },
+      "selection": {},
+      "finals": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        135347
+      ],
+      "officialQuote": "000000045476"
+    },
+    {
+      "id": "CORDOBA_PAREJA_23_23_VOL",
+      "client": {
+        "region": "Norte",
+        "filial": "Córdoba",
+        "category": "Voluntario",
+        "age": 23,
+        "hasPartner": true,
+        "partnerAge": 23,
+        "childrenAges": []
+      },
+      "selection": {
+        "young": true
+      },
+      "finals": [
+        620022,
+        329532,
+        413357,
+        458816,
+        586696,
+        713848
+      ],
+      "officialQuote": "000000045477"
+    },
+    {
+      "id": "CORDOBA_PAREJA_40_23_OBL",
+      "client": {
+        "region": "Norte",
+        "filial": "Córdoba",
+        "category": "Obligatorio",
+        "age": 40,
+        "hasPartner": true,
+        "partnerAge": 23,
+        "childrenAges": [],
+        "contributionSource": "relacion",
+        "receiptContribution": 30000
+      },
+      "selection": {
+        "filial": true
+      },
+      "finals": [
+        556187,
+        334132,
+        417138,
+        493454,
+        563630,
+        806846
+      ],
+      "officialQuote": "000000045483"
+    },
+    {
+      "id": "CORDOBA_PAREJA_40_40_OBL",
+      "client": {
+        "region": "Norte",
+        "filial": "Córdoba",
+        "category": "Obligatorio",
+        "age": 40,
+        "hasPartner": true,
+        "partnerAge": 40,
+        "childrenAges": [],
+        "contributionSource": "relacion",
+        "receiptContribution": 30000
+      },
+      "selection": {
+        "filial": true
+      },
+      "finals": [
+        556187,
+        334132,
+        417138,
+        493454,
+        563630,
+        806846
+      ],
+      "officialQuote": "000000045487"
+    },
+    {
+      "id": "COMAHUE_40_VOL_GAF_SOLO",
+      "client": {
+        "region": "Patagonia",
+        "filial": "Comahue",
+        "category": "Voluntario",
+        "age": 40,
+        "hasPartner": false,
+        "childrenAges": []
+      },
+      "selection": {
+        "gaf": "camara_bariloche"
+      },
+      "finals": [
+        411830,
+        302664,
+        356283,
+        411830,
+        526713,
+        655170
+      ],
+      "officialQuote": "000000045489"
+    },
+    {
+      "id": "CORDOBA_HIJO24_VOL",
+      "client": {
+        "region": "Norte",
+        "filial": "Córdoba",
+        "category": "Voluntario",
+        "age": 40,
+        "hasPartner": false,
+        "childrenAges": [
+          24
+        ]
+      },
+      "selection": {},
+      "finals": [
+        964500,
+        699339,
+        842576,
+        964500,
+        1227927,
+        1514253
+      ],
+      "officialQuote": "000000045495"
+    },
+    {
+      "id": "AMBA_DOS_HIJOS_VOL",
+      "client": {
+        "region": "AMBA",
+        "filial": "GBA Sur",
+        "category": "Voluntario",
+        "age": 40,
+        "hasPartner": false,
+        "childrenAges": [
+          10,
+          15
+        ]
+      },
+      "selection": {
+        "child": true
+      },
+      "finals": [
+        815554,
+        513054,
+        591642,
+        786089,
+        1045465,
+        1452555
+      ],
+      "officialQuote": "000000045497"
+    },
+    {
+      "id": "AMBA_40_OBL_E3_GAF",
+      "client": {
+        "region": "AMBA",
+        "filial": "GBA Sur",
+        "category": "Obligatorio",
+        "age": 40,
+        "hasPartner": false,
+        "childrenAges": [],
+        "contributionSource": "relacion",
+        "receiptContribution": 30000
+      },
+      "selection": {
+        "strategic": "3",
+        "gaf": "prestadores_amba"
+      },
+      "finals": [
+        104936,
+        96517,
+        121577,
+        181220,
+        243815,
+        369007
+      ],
+      "officialQuote": "000000045500"
+    }
+  ],
+  "crossPlanOnly": {
+    "COMAHUE_40_VOL_TACTICO_GAF": [
+      "BRONCE CLASSIC",
+      "BRONCE",
+      "PLATINUM"
+    ],
+    "AMBA_40_OBL_E3_GAF": [
+      "INDIE"
+    ]
+  }
+}
